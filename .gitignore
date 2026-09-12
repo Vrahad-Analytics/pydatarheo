@@ -5,15 +5,15 @@ __pycache__/
 .Python
 
 # Build artifacts
-build/
-dist/
-htmlcov/
+/build/
+/dist/
+/htmlcov/
 .coverage
 coverage.xml
 
 # Environments
 .venv/
-venv/
+/venv/
 .env
 
 # Tooling caches
@@ -24,6 +24,6 @@ venv/
 .viztracer/
 
 # Local secrets
-secrets/
+/secrets/
 *.env
 !*.env.example
