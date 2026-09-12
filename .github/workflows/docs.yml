@@ -1,0 +1,56 @@
+name: Publish docs
+
+# The API reference is generated from the source by pdoc, so it is rebuilt on
+# every release and on every push to main rather than being checked in.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Allow one docs deployment at a time. A queued run waits rather than cancelling,
+# so a release build is never dropped in favour of a later push to main.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # uv-dynamic-versioning needs full history and tags.
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Generate API reference
+        run: uv run poe docs-generate
+
+      - name: Fail if the generated docs are empty
+        run: test -s docs/generated/datarheo.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/generated
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
