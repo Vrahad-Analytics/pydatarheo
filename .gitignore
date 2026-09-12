@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# Build artifacts
+build/
+dist/
+htmlcov/
+.coverage
+coverage.xml
+
+# Environments
+.venv/
+venv/
+.env
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.viztracer/
+
+# Local secrets
+secrets/
+*.env
+!*.env.example

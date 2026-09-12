@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/brand/pydatarheo-logo.svg" alt="PyDataRheo" width="260">
+  <img src="https://raw.githubusercontent.com/Vrahad-Analytics/pydatarheo/main/docs/brand/pydatarheo-logo.svg" alt="PyDataRheo" width="260">
 </p>
 
 # PyDataRheo
@@ -140,7 +140,7 @@ The full API reference is generated from the source with `poe docs-generate` and
 
 ## Contributing
 
-See the [Contributors Guide](./docs/CONTRIBUTING.md).
+See the [Contributors Guide](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/docs/CONTRIBUTING.md).
 
 ## Frequently asked questions
 
@@ -166,7 +166,7 @@ Yes. Any connector exposing a CLI works, and connectors already on `PATH` are fo
 
 PyDataRheo is released under the MIT license and is a rebranded derivative of
 [PyAirbyte](https://github.com/airbytehq/PyAirbyte), which is also MIT licensed. See
-[LICENSE](./LICENSE) and [NOTICE](./NOTICE).
+[LICENSE](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/LICENSE) and [NOTICE](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/NOTICE).
 
 ## Changelog
 
