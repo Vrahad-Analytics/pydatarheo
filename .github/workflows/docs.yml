@@ -22,6 +22,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages_ready: ${{ steps.configure_pages.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,17 +42,24 @@ jobs:
       - name: Fail if the generated docs are empty
         run: test -s docs/generated/datarheo.html
 
-      # `enablement` turns Pages on via the API if the repository does not have it
-      # enabled yet, so a fresh clone of this repo publishes docs without a manual
-      # visit to Settings > Pages.
-      - uses: actions/configure-pages@v5
+      # GitHub's workflow token can deploy to an existing Pages site, but it may not
+      # be allowed to create one for the repository. Keep the docs build green and
+      # only deploy when Pages is already enabled.
+      - id: configure_pages
+        continue-on-error: true
+        uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Skip deploy when Pages is unavailable
+        if: steps.configure_pages.outcome != 'success'
+        run: echo "::warning::Skipping GitHub Pages deployment because this workflow cannot enable Pages for the repository."
       - uses: actions/upload-pages-artifact@v3
+        if: steps.configure_pages.outcome == 'success'
         with:
           path: docs/generated
 
   deploy:
+    if: needs.build.outputs.pages_ready == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
