@@ -1,24 +1,24 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Integration tests for reading from cache."""
 
 from __future__ import annotations
 
-import airbyte as ab
+import datarheo as dr
 import pandas as pd
 import pytest
-from airbyte import cloud
-from airbyte.caches.base import CacheBase
-from airbyte.caches.bigquery import BigQueryCache
-from airbyte.caches.duckdb import DuckDBCache
-from airbyte.caches.postgres import PostgresCache
-from airbyte.caches.snowflake import SnowflakeCache
-from airbyte.cloud.sync_results import SyncResult
+from datarheo import cloud
+from datarheo.caches.base import CacheBase
+from datarheo.caches.bigquery import BigQueryCache
+from datarheo.caches.duckdb import DuckDBCache
+from datarheo.caches.postgres import PostgresCache
+from datarheo.caches.snowflake import SnowflakeCache
+from datarheo.cloud.sync_results import SyncResult
 from sqlalchemy.engine.base import Engine
 
 
 @pytest.fixture
-def deployable_source(*, use_docker: bool) -> ab.Source:
-    return ab.get_source(
+def deployable_source(*, use_docker: bool) -> dr.Source:
+    return dr.get_source(
         "source-faker",
         config={"count": 100},
         docker_image=use_docker,
@@ -73,7 +73,7 @@ def test_read_from_deployed_connection(
     engine: Engine = sync_result.get_sql_engine()
     assert "users" in sync_result.stream_names
 
-    dataset: ab.CachedDataset = sync_result.get_dataset(stream_name="users")
+    dataset: dr.CachedDataset = sync_result.get_dataset(stream_name="users")
     assert dataset.stream_name == "users"
     data_as_list = list(dataset)
     assert len(data_as_list) == 100
@@ -190,7 +190,7 @@ def test_read_from_previous_job(
     engine: Engine = sync_result.get_sql_engine()
 
     assert "users" in sync_result.stream_names
-    dataset: ab.CachedDataset = sync_result.get_dataset(stream_name="users")
+    dataset: dr.CachedDataset = sync_result.get_dataset(stream_name="users")
     assert dataset.stream_name == "users"
     data_as_list = list(dataset)
     assert len(data_as_list) == 100

@@ -1,13 +1,13 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for cloud API root resolution."""
 
 from __future__ import annotations
 
 import pytest
 
-from airbyte._util import api_util
-from airbyte.cloud import CloudWorkspace
-from airbyte.secrets.base import SecretString
+from datarheo._util import api_util
+from datarheo.cloud import CloudWorkspace
+from datarheo.secrets.base import SecretString
 
 
 @pytest.mark.parametrize(

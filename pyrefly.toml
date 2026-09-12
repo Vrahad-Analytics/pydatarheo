@@ -2,7 +2,7 @@
 # https://pyrefly.org/en/docs/configuration/
 
 python-version = "3.10"
-project-includes = ["airbyte"]
+project-includes = ["datarheo"]
 project-excludes = [
     "tests/integration_tests/fixtures/source-broken/**",
     "tests/integration_tests/fixtures/source-test/**",

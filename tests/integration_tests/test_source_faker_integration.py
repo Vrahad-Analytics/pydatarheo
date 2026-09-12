@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which leverage the source-faker connector to test the framework end-to-end.
 
@@ -15,17 +15,17 @@ import warnings
 from collections.abc import Generator
 from pathlib import Path
 
-import airbyte as ab
+import datarheo as dr
 import pytest
 import pytest_mock
-from airbyte._processors.sql.duckdb import DuckDBSqlProcessor
-from airbyte._processors.sql.postgres import PostgresSqlProcessor
-from airbyte._util.venv_util import get_bin_dir
-from airbyte.caches.base import CacheBase
-from airbyte.caches.duckdb import DuckDBCache
-from airbyte.caches.postgres import PostgresCache
-from airbyte.caches.util import new_local_cache
-from airbyte.strategies import WriteStrategy
+from datarheo._processors.sql.duckdb import DuckDBSqlProcessor
+from datarheo._processors.sql.postgres import PostgresSqlProcessor
+from datarheo._util.venv_util import get_bin_dir
+from datarheo.caches.base import CacheBase
+from datarheo.caches.duckdb import DuckDBCache
+from datarheo.caches.postgres import PostgresCache
+from datarheo.caches.util import new_local_cache
+from datarheo.strategies import WriteStrategy
 from duckdb_engine import DuckDBEngineWarning
 
 
@@ -55,9 +55,9 @@ def add_venv_bin_to_path(monkeypatch):
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_faker_seed_a(*, use_docker: bool) -> ab.Source:
+def source_faker_seed_a(*, use_docker: bool) -> dr.Source:
     """Fixture to return a source-faker connector instance."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         config={
             "count": FAKER_SCALE_A,
@@ -71,9 +71,9 @@ def source_faker_seed_a(*, use_docker: bool) -> ab.Source:
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_faker_seed_b(*, use_docker: bool) -> ab.Source:
+def source_faker_seed_b(*, use_docker: bool) -> dr.Source:
     """Fixture to return a source-faker connector instance."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         config={
             "count": FAKER_SCALE_B,
@@ -113,7 +113,7 @@ def all_cache_types(
 
 
 def test_faker_pks(
-    source_faker_seed_a: ab.Source,
+    source_faker_seed_a: dr.Source,
     duckdb_cache: DuckDBCache,
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -134,7 +134,7 @@ def test_faker_pks(
 
 @pytest.mark.slow
 def test_replace_strategy(
-    source_faker_seed_a: ab.Source,
+    source_faker_seed_a: dr.Source,
     all_cache_types: list[CacheBase],
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -151,7 +151,7 @@ def test_replace_strategy(
 
 @pytest.mark.slow
 def test_append_strategy(
-    source_faker_seed_a: ab.Source,
+    source_faker_seed_a: dr.Source,
     all_cache_types: list[CacheBase],
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -173,8 +173,8 @@ def test_append_strategy(
 @pytest.mark.parametrize("strategy", ["merge", "auto"])
 def test_merge_strategy(
     strategy: str,
-    source_faker_seed_a: ab.Source,
-    source_faker_seed_b: ab.Source,
+    source_faker_seed_a: dr.Source,
+    source_faker_seed_b: dr.Source,
     all_cache_types: list[CacheBase],
 ) -> None:
     """Test that the merge strategy works as expected.
@@ -209,8 +209,8 @@ def test_merge_strategy(
 
 
 def test_incremental_sync(
-    source_faker_seed_a: ab.Source,
-    source_faker_seed_b: ab.Source,
+    source_faker_seed_a: dr.Source,
+    source_faker_seed_b: dr.Source,
     duckdb_cache: CacheBase,
 ) -> None:
     config_a = source_faker_seed_a.get_config()
@@ -239,11 +239,11 @@ def test_incremental_sync(
     assert len(list(result2.cache.streams["purchases"])) == FAKER_SCALE_A
 
 
-def test_config_spec(source_faker_seed_a: ab.Source) -> None:
+def test_config_spec(source_faker_seed_a: dr.Source) -> None:
     assert source_faker_seed_a.config_spec
 
 
-def test_example_config_file(source_faker_seed_a: ab.Source) -> None:
+def test_example_config_file(source_faker_seed_a: dr.Source) -> None:
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp:
         source_faker_seed_a.print_config_spec(
             format="json",
@@ -253,7 +253,7 @@ def test_example_config_file(source_faker_seed_a: ab.Source) -> None:
 
 
 def test_merge_insert_not_supported_for_duckdb(
-    source_faker_seed_a: ab.Source,
+    source_faker_seed_a: dr.Source,
     duckdb_cache: DuckDBCache,
     mocker: pytest_mock.MockFixture,
 ) -> None:
@@ -283,7 +283,7 @@ def test_merge_insert_not_supported_for_duckdb(
 )
 @pytest.mark.requires_creds
 def test_merge_insert_not_supported_for_postgres(
-    source_faker_seed_a: ab.Source,
+    source_faker_seed_a: dr.Source,
     new_postgres_cache: PostgresCache,
     mocker: pytest_mock.MockFixture,
 ):

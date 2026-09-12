@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for workspace sync status MCP UI tools."""
 
 from __future__ import annotations
@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import cast
 
-from airbyte._util.api_imports import JobStatusEnum
-from airbyte.mcp.interactive import show_workspace_sync_status
+from datarheo._util.api_imports import JobStatusEnum
+from datarheo.mcp.interactive import show_workspace_sync_status
 from fastmcp import Context
 from mcp.types import TextContent
 
@@ -214,7 +214,7 @@ def test_show_workspace_sync_status_summarizes_real_workspace_shape(
         ]
     )
     monkeypatch.setattr(
-        "airbyte.mcp.interactive._workspace_sync_status_ui._get_cloud_workspace",
+        "datarheo.mcp.interactive._workspace_sync_status_ui._get_cloud_workspace",
         lambda ctx, workspace_id=None: workspace,
     )
 
@@ -228,7 +228,7 @@ def test_show_workspace_sync_status_summarizes_real_workspace_shape(
 
     assert workspace.limit == 10
     assert result.meta is not None
-    raw_result = result.meta["airbyte_mcp_raw_result"]
+    raw_result = result.meta["datarheo_mcp_raw_result"]
     assert raw_result["total_connections"] == 5
     assert raw_result["problem_connections"] == 2
     assert raw_result["running_connections"] == 1
@@ -276,4 +276,4 @@ def test_show_workspace_sync_status_summarizes_real_workspace_shape(
     )
     assert text_only_result.structured_content is None
     assert text_only_result.meta is not None
-    assert text_only_result.meta["airbyte_mcp_raw_result"]["suppress_ui"] is True
+    assert text_only_result.meta["datarheo_mcp_raw_result"]["suppress_ui"] is True

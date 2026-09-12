@@ -1,18 +1,18 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import pytest
 
-from airbyte.sources.util import get_source
-from airbyte import exceptions as exc
+from datarheo.sources.util import get_source
+from datarheo import exceptions as exc
 
 
 def test_install_failure_log_pypi():
     """Test that the install log is created and contains the expected content."""
-    with pytest.raises(exc.AirbyteConnectorNotRegisteredError):
+    with pytest.raises(exc.DataRheoConnectorNotRegisteredError):
         source = get_source("source-not-found")
 
-    with pytest.raises(exc.AirbyteConnectorInstallationError) as exc_info:
+    with pytest.raises(exc.DataRheoConnectorInstallationError) as exc_info:
         source = get_source(
             "source-not-found",
             pip_url="https://pypi.org/project/airbyte-not-found",

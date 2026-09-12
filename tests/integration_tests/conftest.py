@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Fixtures for integration tests."""
 
 from __future__ import annotations
@@ -6,39 +6,39 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import Any, Generator
 
-import airbyte as ab
+import datarheo as dr
 import pytest
-from airbyte._util import meta, text_util
-from airbyte._util.temp_files import as_temp_files
-from airbyte.caches.base import CacheBase
-from airbyte.caches.bigquery import BigQueryCache
-from airbyte.caches.motherduck import MotherDuckCache
-from airbyte.caches.snowflake import SnowflakeCache
-from airbyte.destinations.base import Destination
-from airbyte.secrets import GoogleGSMSecretManager, SecretHandle
+from datarheo._util import meta, text_util
+from datarheo._util.temp_files import as_temp_files
+from datarheo.caches.base import CacheBase
+from datarheo.caches.bigquery import BigQueryCache
+from datarheo.caches.motherduck import MotherDuckCache
+from datarheo.caches.snowflake import SnowflakeCache
+from datarheo.destinations.base import Destination
+from datarheo.secrets import GoogleGSMSecretManager, SecretHandle
 from sqlalchemy import create_engine, text
 
 
-AIRBYTE_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
+DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 
 
 @pytest.fixture(scope="session")
 def ci_secret_manager() -> GoogleGSMSecretManager:
-    secret = ab.get_secret("GCP_GSM_CREDENTIALS")
+    secret = dr.get_secret("GCP_GSM_CREDENTIALS")
     if not secret or secret.is_empty():
         pytest.skip("GCP_GSM_CREDENTIALS secret not found.")
 
     return GoogleGSMSecretManager(
-        project=AIRBYTE_INTERNAL_GCP_PROJECT,
-        credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+        project=DATARHEO_INTERNAL_GCP_PROJECT,
+        credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
     )
 
 
 def get_connector_config(self, connector_name: str, index: int = 0) -> dict | None:
     """Retrieve the connector configuration from GSM."""
     gsm_secrets_manager = GoogleGSMSecretManager(
-        project=AIRBYTE_INTERNAL_GCP_PROJECT,
-        credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+        project=DATARHEO_INTERNAL_GCP_PROJECT,
+        credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
     )
     first_secret: SecretHandle = next(
         gsm_secrets_manager.fetch_connector_secrets(
@@ -73,7 +73,7 @@ def new_motherduck_cache(
 def new_motherduck_destination(
     motherduck_secrets,
 ) -> Destination:
-    return ab.get_destination(
+    return dr.get_destination(
         "destination-motherduck",
         config=motherduck_secrets,
         install_if_missing=False,
@@ -83,7 +83,7 @@ def new_motherduck_destination(
 @pytest.fixture(scope="session")
 def new_snowflake_destination_config(ci_secret_manager: GoogleGSMSecretManager) -> dict:
     config = ci_secret_manager.get_secret(
-        "AIRBYTE_LIB_SNOWFLAKE_CREDS",
+        "DATARHEO_LIB_SNOWFLAKE_CREDS",
     ).parse_json()
     config["schema"] = f"test_deleteme_{text_util.generate_random_suffix()}"
     return config
@@ -122,7 +122,7 @@ def new_snowflake_destination(
 ) -> Destination:
     dest_config = new_snowflake_destination_config.copy()
     _ = dest_config.pop("destinationType", None)
-    return ab.get_destination(
+    return dr.get_destination(
         "destination-snowflake",
         config=dest_config,
         install_if_missing=False,
@@ -148,7 +148,7 @@ def new_bigquery_destination(
 ) -> Destination:
     dest_config = new_bigquery_destination_config.copy()
     _ = dest_config.pop("destinationType", None)
-    return ab.get_destination(
+    return dr.get_destination(
         "destination-bigquery",
         config=dest_config,
         install_if_missing=False,

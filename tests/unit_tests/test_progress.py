@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import datetime
@@ -6,7 +6,7 @@ import os
 import time
 
 import pytest
-from airbyte.progress import (
+from datarheo.progress import (
     ProgressStyle,
     ProgressTracker,
     _get_elapsed_time_str,
@@ -68,7 +68,7 @@ def test_read_progress_initialization(progress: ProgressTracker) -> None:
     assert progress._last_update_time is None
 
 
-def fake_airbyte_record_message() -> AirbyteMessage:
+def fake_datarheo_record_message() -> AirbyteMessage:
     return AirbyteMessage(
         type=Type.RECORD,
         record=AirbyteRecordMessage(
@@ -81,7 +81,7 @@ def fake_airbyte_record_message() -> AirbyteMessage:
 
 @freeze_time("2022-01-01")
 def test_read_progress_log_records_read(progress: ProgressTracker) -> None:
-    fake_iterator = (fake_airbyte_record_message() for m in range(100))
+    fake_iterator = (fake_datarheo_record_message() for m in range(100))
     for m in progress.tally_records_read(fake_iterator):
         _ = m
     assert progress.total_records_read == 100
@@ -153,7 +153,7 @@ def test_no_live_progress(monkeypatch):
 
 def test_ci_environment_a_progress_style(monkeypatch):
     """Test the style in a CI environment."""
-    monkeypatch.setattr("airbyte._util.meta.is_ci", lambda: True)
+    monkeypatch.setattr("datarheo._util.meta.is_ci", lambda: True)
     progress = ProgressTracker(source=None, cache=None, destination=None)
     assert progress.style == ProgressStyle.PLAIN
 

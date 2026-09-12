@@ -1,20 +1,20 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
 import pytest_mock
-from airbyte.caches.snowflake import SnowflakeSqlProcessor, SnowflakeConfig
+from datarheo.caches.snowflake import SnowflakeSqlProcessor, SnowflakeConfig
 from airbyte_protocol.models import ConfiguredAirbyteCatalog
-from airbyte.secrets.base import SecretString
-from airbyte.shared.catalog_providers import CatalogProvider
+from datarheo.secrets.base import SecretString
+from datarheo.shared.catalog_providers import CatalogProvider
 
 
 def test_snowflake_cache_config_data_retention_time_in_days(
     mocker: pytest_mock.MockFixture,
 ):
     expected_cmd = """
-        CREATE TABLE airbyte_raw."table_name" (
+        CREATE TABLE datarheo_raw."table_name" (
             col_name type
         )
         DATA_RETENTION_TIME_IN_DAYS = 1
@@ -35,7 +35,7 @@ def test_snowflake_cache_config_no_data_retention_time_in_days(
     mocker: pytest_mock.MockFixture,
 ):
     expected_cmd = """
-        CREATE TABLE airbyte_raw."table_name" (
+        CREATE TABLE datarheo_raw."table_name" (
             col_name type
         )
         \n        """

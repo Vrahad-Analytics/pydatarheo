@@ -20,32 +20,32 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import airbyte as ab
-from airbyte.secrets import GoogleGSMSecretManager, SecretHandle
+import datarheo as dr
+from datarheo.secrets import GoogleGSMSecretManager, SecretHandle
 
-AIRBYTE_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
+DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 CONNECTOR_NAME = sys.argv[1] if len(sys.argv) > 1 else "source-klaviyo"
 
-AIRBYTE_REPO_ROOT = Path(__file__).parent.parent.parent / "airbyte"
+DATARHEO_REPO_ROOT = Path(__file__).parent.parent.parent / "datarheo"
 
 
 CONNECTOR_SECRETS_DIR = (
-    AIRBYTE_REPO_ROOT
+    DATARHEO_REPO_ROOT
     / "airbyte-integrations"
     / "connectors"
     / CONNECTOR_NAME
     / "secrets"
 )
-if not AIRBYTE_REPO_ROOT.exists():
-    raise FileNotFoundError(f"Airbyte repo root does not exist: {AIRBYTE_REPO_ROOT}")
+if not DATARHEO_REPO_ROOT.exists():
+    raise FileNotFoundError(f"Airbyte repo root does not exist: {DATARHEO_REPO_ROOT}")
 if not CONNECTOR_SECRETS_DIR.exists():
     CONNECTOR_SECRETS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def main() -> None:
     secret_mgr = GoogleGSMSecretManager(
-        project=AIRBYTE_INTERNAL_GCP_PROJECT,
-        credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+        project=DATARHEO_INTERNAL_GCP_PROJECT,
+        credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
     )
 
     secret: SecretHandle

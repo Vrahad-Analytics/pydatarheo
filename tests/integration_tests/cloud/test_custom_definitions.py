@@ -1,8 +1,8 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Tests for custom connector definition publishing."""
 
 import pytest
-from airbyte.cloud.workspaces import CloudWorkspace
+from datarheo.cloud.workspaces import CloudWorkspace
 
 TEST_YAML_MANIFEST = {
     "version": "0.1.0",
@@ -48,7 +48,7 @@ def test_publish_custom_yaml_source(
     cloud_workspace: CloudWorkspace,
 ) -> None:
     """Test publishing a custom YAML source definition."""
-    from airbyte._util import text_util
+    from datarheo._util import text_util
 
     name = f"test-yaml-source-{text_util.generate_random_suffix()}"
 
@@ -105,13 +105,13 @@ def test_yaml_validation_error(
     cloud_workspace: CloudWorkspace,
 ) -> None:
     """Test that validation catches invalid manifests."""
-    from airbyte._util import text_util
-    from airbyte.exceptions import PyAirbyteInputError
+    from datarheo._util import text_util
+    from datarheo.exceptions import DataRheoInputError
 
     name = f"test-invalid-{text_util.generate_random_suffix()}"
     invalid_manifest = {"version": "0.1.0"}
 
-    with pytest.raises(PyAirbyteInputError) as exc_info:
+    with pytest.raises(DataRheoInputError) as exc_info:
         cloud_workspace.publish_custom_source_definition(
             name=name,
             manifest_yaml=invalid_manifest,
@@ -135,8 +135,8 @@ def test_safe_mode_deletion(
     expect_allow: bool,
 ) -> None:
     """Test safe_mode deletion behavior with different connector names."""
-    from airbyte._util import text_util
-    from airbyte.exceptions import PyAirbyteInputError
+    from datarheo._util import text_util
+    from datarheo.exceptions import DataRheoInputError
 
     name = name_template.format(suffix=text_util.generate_random_suffix())
 
@@ -158,7 +158,7 @@ def test_safe_mode_deletion(
         definition.permanently_delete(safe_mode=True)
     else:
         try:
-            with pytest.raises(PyAirbyteInputError) as exc_info:
+            with pytest.raises(DataRheoInputError) as exc_info:
                 definition.permanently_delete(safe_mode=True)
 
             error_message = str(exc_info.value).lower()

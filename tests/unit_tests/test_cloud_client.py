@@ -1,13 +1,13 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 from unittest.mock import patch
 
 import pytest
 
-from airbyte import exceptions as exc
-from airbyte.cloud.client import CloudClient
-from airbyte.cloud.models import WorkspacePrivilegeScope
+from datarheo import exceptions as exc
+from datarheo.cloud.client import CloudClient
+from datarheo.cloud.models import WorkspacePrivilegeScope
 from airbyte_api import models
 
 
@@ -19,23 +19,23 @@ def _api_patches(
 ):
     return (
         patch(
-            "airbyte._util.api_util.get_user_by_auth_id",
+            "datarheo._util.api_util.get_user_by_auth_id",
             return_value=user,
         ),
         patch(
-            "airbyte._util.api_util.get_user_id_from_bearer_token",
+            "datarheo._util.api_util.get_user_id_from_bearer_token",
             return_value="auth-user-id",
         ),
         patch(
-            "airbyte._util.api_util.get_bearer_token",
+            "datarheo._util.api_util.get_bearer_token",
             return_value="bearer-token",
         ),
         patch(
-            "airbyte._util.api_util.get_workspace_organization_info",
+            "datarheo._util.api_util.get_workspace_organization_info",
             return_value={"organizationId": parent_organization_id},
         ),
         patch(
-            "airbyte._util.api_util.list_permissions_for_user",
+            "datarheo._util.api_util.list_permissions_for_user",
             return_value=permissions or [],
         ),
     )
@@ -107,7 +107,7 @@ def test_resolve_default_workspace_id_uses_exactly_one_direct_grant(
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             return_value=models.WorkspaceResponse(
                 data_residency="auto",
                 name="Workspace",
@@ -124,7 +124,7 @@ def test_resolve_default_workspace_id_uses_exactly_one_direct_grant(
 def test_resolve_default_workspace_id_ignores_permission_lookup_failure() -> None:
     patches = _api_patches(user={"userId": "user-id"})
     with patches[0], patches[1], patches[2], patches[3], patches[4] as permissions:
-        permissions.side_effect = exc.AirbyteError(message="Permission lookup failed.")
+        permissions.side_effect = exc.DataRheoCloudError(message="Permission lookup failed.")
         assert CloudClient(bearer_token="token").resolve_default_workspace_id() is None
 
 
@@ -135,7 +135,7 @@ def test_stale_direct_workspace_grant_is_ignored_consistently() -> None:
             {"permissionType": "workspace_admin", "workspaceId": "stale-workspace"}
         ],
     )
-    stale_error = exc.AirbyteMissingResourceError(
+    stale_error = exc.DataRheoMissingResourceError(
         resource_type="workspace",
         resource_name_or_id="stale-workspace",
     )
@@ -145,7 +145,7 @@ def test_stale_direct_workspace_grant_is_ignored_consistently() -> None:
         patches[2],
         patches[3],
         patches[4],
-        patch("airbyte._util.api_util.get_workspace", side_effect=stale_error),
+        patch("datarheo._util.api_util.get_workspace", side_effect=stale_error),
     ):
         client = CloudClient(bearer_token="token")
 
@@ -169,7 +169,7 @@ def test_list_workspaces_skips_stale_grant_before_valid_grant_with_limit() -> No
             {"permissionType": "workspace_admin", "workspaceId": "valid-workspace"},
         ],
     )
-    stale_error = exc.AirbyteMissingResourceError(
+    stale_error = exc.DataRheoMissingResourceError(
         resource_type="workspace",
         resource_name_or_id="stale-workspace",
     )
@@ -186,7 +186,7 @@ def test_list_workspaces_skips_stale_grant_before_valid_grant_with_limit() -> No
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             side_effect=[stale_error, valid_workspace],
         ) as get_workspace,
     ):
@@ -206,15 +206,15 @@ def test_list_workspaces_propagates_non_not_found_workspace_error() -> None:
             {"permissionType": "workspace_admin", "workspaceId": "workspace-id"}
         ],
     )
-    api_error = exc.AirbyteError(message="Workspace lookup failed.")
+    api_error = exc.DataRheoCloudError(message="Workspace lookup failed.")
     with (
         patches[0],
         patches[1],
         patches[2],
         patches[3],
         patches[4],
-        patch("airbyte._util.api_util.get_workspace", side_effect=api_error),
-        pytest.raises(exc.AirbyteError, match="Workspace lookup failed"),
+        patch("datarheo._util.api_util.get_workspace", side_effect=api_error),
+        pytest.raises(exc.DataRheoCloudError, match="Workspace lookup failed"),
     ):
         CloudClient(bearer_token="token").list_workspaces(
             privilege_scope=WorkspacePrivilegeScope.MEMBER_OF
@@ -238,7 +238,7 @@ def test_list_workspaces_defaults_to_direct_memberships_without_org_resolution()
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             return_value=models.WorkspaceResponse(
                 data_residency="auto",
                 name="Workspace 1",
@@ -277,7 +277,7 @@ def test_list_workspaces_organization_admin_lists_all_member_organizations() -> 
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.list_workspaces_in_organization",
+            "datarheo._util.api_util.list_workspaces_in_organization",
             side_effect=[
                 [{"workspaceId": "workspace-1", "name": "Workspace 1"}],
                 [{"workspaceId": "workspace-2", "name": "Workspace 2"}],
@@ -307,7 +307,7 @@ def test_list_workspaces_instance_admin_scope_requires_instance_admin() -> None:
         patches[3],
         patches[4],
         pytest.raises(
-            exc.PyAirbyteInputError,
+            exc.DataRheoInputError,
             match="privilege_scope=instance_admin requires the instance_admin permission",
         ),
     ):
@@ -328,7 +328,7 @@ def test_list_workspaces_any_scope_uses_unscoped_listing_for_instance_admin() ->
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.list_workspaces",
+            "datarheo._util.api_util.list_workspaces",
             return_value=[],
         ) as list_workspaces,
     ):
@@ -349,10 +349,10 @@ def test_list_workspaces_any_scope_fails_closed_when_permissions_cannot_be_loade
         patches[2],
         patches[3],
         patches[4] as list_permissions,
-        patch("airbyte._util.api_util.list_workspaces") as list_workspaces,
-        pytest.raises(exc.AirbyteError, match="Permission lookup failed"),
+        patch("datarheo._util.api_util.list_workspaces") as list_workspaces,
+        pytest.raises(exc.DataRheoCloudError, match="Permission lookup failed"),
     ):
-        list_permissions.side_effect = exc.AirbyteError(
+        list_permissions.side_effect = exc.DataRheoCloudError(
             message="Permission lookup failed"
         )
         CloudClient(bearer_token="token").list_workspaces(
@@ -381,7 +381,7 @@ def test_list_workspaces_any_scope_uses_member_organizations_without_instance_ad
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.list_workspaces_in_organization",
+            "datarheo._util.api_util.list_workspaces_in_organization",
             return_value=[{"workspaceId": "workspace-1", "name": "Workspace 1"}],
         ) as list_workspaces_in_organization,
     ):
@@ -395,7 +395,7 @@ def test_list_workspaces_any_scope_uses_member_organizations_without_instance_ad
 
 def test_list_workspaces_explicit_organization_ignores_privilege_scope() -> None:
     with patch(
-        "airbyte._util.api_util.list_workspaces_in_organization",
+        "datarheo._util.api_util.list_workspaces_in_organization",
         return_value=[{"workspaceId": "workspace-1", "name": "Workspace 1"}],
     ) as list_workspaces_in_organization:
         workspaces = CloudClient(bearer_token="token").list_workspaces(
@@ -418,14 +418,14 @@ def test_list_workspaces_all_organizations_alias_warns_and_maps_to_any() -> None
         patches[2],
         patches[3],
         patches[4],
-        patch("airbyte._util.api_util.list_workspaces", return_value=[]),
+        patch("datarheo._util.api_util.list_workspaces", return_value=[]),
         pytest.warns(DeprecationWarning, match="all_organizations"),
     ):
         CloudClient(bearer_token="token").list_workspaces(all_organizations=True)
 
 
 def test_list_workspaces_all_organizations_alias_conflicts_with_scope() -> None:
-    with pytest.raises(exc.PyAirbyteInputError, match="privilege_scope"):
+    with pytest.raises(exc.DataRheoInputError, match="privilege_scope"):
         CloudClient(bearer_token="token").list_workspaces(
             all_organizations=True,
             privilege_scope=WorkspacePrivilegeScope.INSTANCE_ADMIN,
@@ -447,10 +447,10 @@ def test_list_workspaces_explicit_workspace_resolution_does_not_use_member_fallb
         patches[2],
         patches[3] as get_workspace_organization_info,
         patches[4],
-        patch("airbyte._util.api_util.get_workspace") as get_workspace,
-        pytest.raises(exc.PyAirbyteInputError),
+        patch("datarheo._util.api_util.get_workspace") as get_workspace,
+        pytest.raises(exc.DataRheoInputError),
     ):
-        get_workspace_organization_info.side_effect = exc.PyAirbyteInputError(
+        get_workspace_organization_info.side_effect = exc.DataRheoInputError(
             message="Workspace organization is ambiguous."
         )
         CloudClient(bearer_token="token").list_workspaces(
@@ -465,7 +465,7 @@ def test_get_workspace_raises_when_authenticated_user_has_no_default_workspace()
 ):
     patches = _api_patches(user={"userId": "user-id"})
     with patches[0], patches[1], patches[2], patches[3], patches[4]:
-        with pytest.raises(exc.PyAirbyteInputError, match="Workspace ID is required"):
+        with pytest.raises(exc.DataRheoInputError, match="Workspace ID is required"):
             CloudClient(bearer_token="token").get_workspace()
 
 
@@ -507,7 +507,7 @@ def test_ambient_organization_falls_back_to_memberships_when_user_lookup_fails()
         patches[3],
         patches[4] as list_permissions,
     ):
-        get_user.side_effect = exc.AirbyteError(message="User lookup failed.")
+        get_user.side_effect = exc.DataRheoCloudError(message="User lookup failed.")
         client = CloudClient(bearer_token="token")
         client._authenticated_user_id = "user-id"  # noqa: SLF001
         organization_id = client._resolve_ambient_organization_id()  # noqa: SLF001
@@ -562,7 +562,7 @@ def test_list_workspaces_uses_direct_grants_when_memberships_are_ambiguous() -> 
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             side_effect=[
                 models.WorkspaceResponse(
                     data_residency="auto",
@@ -579,10 +579,10 @@ def test_list_workspaces_uses_direct_grants_when_memberships_are_ambiguous() -> 
             ],
         ) as get_workspace,
         patch(
-            "airbyte._util.api_util.list_workspaces_in_organization",
+            "datarheo._util.api_util.list_workspaces_in_organization",
         ) as list_by_organization,
         patch(
-            "airbyte._util.api_util.get_organization_info",
+            "datarheo._util.api_util.get_organization_info",
             return_value={"organizationName": "Organization"},
         ),
     ):
@@ -614,14 +614,14 @@ def test_get_default_context_for_user_is_bounded_to_permission_derived_scope() -
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_organization_info",
+            "datarheo._util.api_util.get_organization_info",
             side_effect=[
                 {"organizationName": "Organization 1"},
                 {"organizationName": "Organization 2"},
             ],
         ),
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             side_effect=[
                 models.WorkspaceResponse(
                     data_residency="auto",
@@ -665,7 +665,7 @@ def test_get_default_context_for_user_truncates_organization_memberships() -> No
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_organization_info",
+            "datarheo._util.api_util.get_organization_info",
             side_effect=[
                 {"organizationName": f"Organization {index}"} for index in range(1, 11)
             ],
@@ -691,7 +691,7 @@ def test_get_default_context_for_user_truncates_workspace_memberships() -> None:
         patches[3],
         patches[4],
         patch(
-            "airbyte._util.api_util.get_workspace",
+            "datarheo._util.api_util.get_workspace",
             side_effect=[
                 models.WorkspaceResponse(
                     data_residency="auto",
@@ -720,7 +720,7 @@ def test_get_default_context_for_user_degrades_without_token_identity() -> None:
         patches[3],
         patches[4],
     ):
-        get_user_id.side_effect = exc.PyAirbyteInputError(
+        get_user_id.side_effect = exc.DataRheoInputError(
             message="The bearer token does not contain a user_id or sub claim."
         )
         context = CloudClient(bearer_token="token").get_default_context_for_user()

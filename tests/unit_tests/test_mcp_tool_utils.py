@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for MCP tool utility functions."""
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 from fastmcp_extensions import MCPServerConfigArg
 
-from airbyte.mcp._tool_utils import (
+from datarheo.mcp._tool_utils import (
     API_URL_CONFIG_ARG,
     CLIENT_ID_CONFIG_ARG,
     CLIENT_SECRET_CONFIG_ARG,
@@ -34,15 +34,15 @@ class _FakeAccessToken:
     ("verified_token", "headers", "expected"),
     [
         pytest.param(
-            "upstream-airbyte-token",
+            "upstream-datarheo-token",
             {"authorization": "Bearer minted-mcp-reference-jwt"},
-            "upstream-airbyte-token",
+            "upstream-datarheo-token",
             id="verified_token_wins_over_authorization_header",
         ),
         pytest.param(
             None,
-            {"authorization": "Bearer real-airbyte-token"},
-            "real-airbyte-token",
+            {"authorization": "Bearer real-datarheo-token"},
+            "real-datarheo-token",
             id="falls_back_to_bearer_prefixed_header",
         ),
         pytest.param(
@@ -80,9 +80,9 @@ def test_resolve_transport_bearer_token(
         _FakeAccessToken(verified_token) if verified_token is not None else None
     )
     with (
-        patch("airbyte.mcp._tool_utils.get_access_token", return_value=access_token),
+        patch("datarheo.mcp._tool_utils.get_access_token", return_value=access_token),
         patch(
-            "airbyte.mcp._tool_utils.get_http_headers", return_value=headers
+            "datarheo.mcp._tool_utils.get_http_headers", return_value=headers
         ) as mock_get_http_headers,
     ):
         assert _resolve_transport_bearer_token() == expected
@@ -115,7 +115,7 @@ def test_check_guid_created_in_session_passes_for_registered_guid() -> None:
 
 def test_check_guid_created_in_session_raises_for_unregistered_guid() -> None:
     """Test that check raises SafeModeError for unregistered GUIDs when safe mode is enabled."""
-    with patch("airbyte.mcp._tool_utils.AIRBYTE_CLOUD_MCP_SAFE_MODE", True):
+    with patch("datarheo.mcp._tool_utils.DATARHEO_CLOUD_MCP_SAFE_MODE", True):
         with pytest.raises(SafeModeError) as exc_info:
             check_guid_created_in_session("unregistered-guid")
         assert "unregistered-guid" in str(exc_info.value)
@@ -124,7 +124,7 @@ def test_check_guid_created_in_session_raises_for_unregistered_guid() -> None:
 
 def test_check_guid_created_in_session_passes_when_safe_mode_disabled() -> None:
     """Test that check passes for any GUID when safe mode is disabled."""
-    with patch("airbyte.mcp._tool_utils.AIRBYTE_CLOUD_MCP_SAFE_MODE", False):
+    with patch("datarheo.mcp._tool_utils.DATARHEO_CLOUD_MCP_SAFE_MODE", False):
         # Should not raise even for unregistered GUID
         check_guid_created_in_session("any-guid-at-all")
 

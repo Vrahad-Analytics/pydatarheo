@@ -1,17 +1,17 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
-"""A test of PyAirbyte calling a declarative manifest.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""A test of PyDataRheo calling a declarative manifest.
 
-Usage (from PyAirbyte root directory):
+Usage (from PyDataRheo root directory):
 > poetry run python examples/run_downloadable_yaml_source.py
 
 """
 
 from __future__ import annotations
 
-import airbyte as ab
-from airbyte import get_source
+import datarheo as dr
+from datarheo import get_source
 
-yaml_connectors: list[str] = ab.get_available_connectors(install_type="yaml")
+yaml_connectors: list[str] = dr.get_available_connectors(install_type="yaml")
 
 print(
     f"Downloadable yaml sources ({len(yaml_connectors)}): \n- "

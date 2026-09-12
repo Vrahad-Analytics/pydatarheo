@@ -1,14 +1,14 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
-"""A simple test of PyAirbyte, using the Faker source connector.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""A simple test of PyDataRheo, using the Faker source connector.
 
-Usage (from PyAirbyte root directory):
+Usage (from PyDataRheo root directory):
 > poetry run python ./examples/run_faker_samples.py
 """
 
-import airbyte as ab
+import datarheo as dr
 
 
-source = ab.get_source(
+source = dr.get_source(
     "source-faker",
     config={"count": 200_000},
     streams="*",

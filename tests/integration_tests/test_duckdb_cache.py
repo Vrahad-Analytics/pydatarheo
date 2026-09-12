@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which leverage the source-faker connector to test the framework end-to-end.
 
@@ -13,11 +13,11 @@ import sys
 from collections.abc import Generator
 from pathlib import Path
 
-import airbyte as ab
+import datarheo as dr
 import pytest
-from airbyte._util.venv_util import get_bin_dir
-from airbyte.caches.duckdb import DuckDBCache
-from airbyte.caches.util import new_local_cache
+from datarheo._util.venv_util import get_bin_dir
+from datarheo.caches.duckdb import DuckDBCache
+from datarheo.caches.util import new_local_cache
 
 
 # Product count is always the same, regardless of faker scale.
@@ -43,9 +43,9 @@ def add_venv_bin_to_path(monkeypatch):
     monkeypatch.setenv("PATH", new_path)
 
 
-def setup_source_faker(*, use_docker: bool) -> ab.Source:
+def setup_source_faker(*, use_docker: bool) -> dr.Source:
     """Test the source-faker setup."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         config={
             "count": FAKER_SCALE_A,
@@ -64,7 +64,7 @@ def setup_source_faker(*, use_docker: bool) -> ab.Source:
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_faker(*, use_docker: bool) -> ab.Source:
+def source_faker(*, use_docker: bool) -> dr.Source:
     """Fixture to return a source-faker connector instance."""
     return setup_source_faker(use_docker=use_docker)
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for Airbyte Cloud MCP tools."""
 
 from __future__ import annotations
@@ -8,14 +8,14 @@ from datetime import datetime, timezone
 from typing import Callable, cast
 
 import pytest
-from airbyte.cloud.connectors import CheckResult
-from airbyte.cloud.models import (
+from datarheo.cloud.connectors import CheckResult
+from datarheo.cloud.models import (
     CloudDefaultContextInfo,
     CloudOrganizationInfo,
     JobStatusEnum,
 )
-from airbyte.mcp import cloud as cloud_mcp
-from airbyte.mcp.cloud import (
+from datarheo.mcp import cloud as cloud_mcp
+from datarheo.mcp.cloud import (
     CloudConnectionResult,
     CloudDestinationResult,
     CloudSourceResult,

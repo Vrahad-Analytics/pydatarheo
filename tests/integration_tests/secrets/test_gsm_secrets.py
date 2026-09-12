@@ -1,10 +1,10 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Tests for the GSM secrets manager."""
 
 from __future__ import annotations
 
-from airbyte.secrets.base import SecretHandle
-from airbyte.secrets.google_gsm import GoogleGSMSecretManager
+from datarheo.secrets.base import SecretHandle
+from datarheo.secrets.google_gsm import GoogleGSMSecretManager
 
 
 def test_get_gsm_secret(ci_secret_manager: GoogleGSMSecretManager) -> dict:

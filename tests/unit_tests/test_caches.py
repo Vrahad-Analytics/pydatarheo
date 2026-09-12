@@ -1,11 +1,11 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 from pathlib import Path
 
 
-from airbyte.caches.base import CacheBase
-from airbyte.caches.duckdb import DuckDBCache
+from datarheo.caches.base import CacheBase
+from datarheo.caches.duckdb import DuckDBCache
 
 UNIT_TEST_DB_PATH: Path = Path(".cache") / "unit_tests" / "test_db.duckdb"
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Cloud Workspace integration tests.
 
 These tests are designed to be run against a running instance of the Airbyte API.
@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-import airbyte as ab
+import datarheo as dr
 import pytest
-from airbyte._util import text_util
-from airbyte.cloud import CloudWorkspace
-from airbyte.cloud.sync_results import SyncResult
-from airbyte.destinations.base import Destination
+from datarheo._util import text_util
+from datarheo.cloud import CloudWorkspace
+from datarheo.cloud.sync_results import SyncResult
+from datarheo.destinations.base import Destination
 
 
 @pytest.fixture
@@ -70,7 +70,7 @@ def test_deploy_and_run_connection(
     use_docker: bool,
 ) -> None:
     """Test deploying a source and cache to a workspace as a new connection."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         config={"count": 100},
         docker_image=use_docker,

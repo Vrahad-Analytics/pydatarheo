@@ -1,11 +1,11 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for generic camelCase ↔ snake_case key conversion helpers."""
 
 from __future__ import annotations
 
 import pytest
 
-from airbyte.cloud._case_conversion import (
+from datarheo.cloud._case_conversion import (
     _camel_to_snake,
     _snake_to_camel,
     camel_to_snake_keys,

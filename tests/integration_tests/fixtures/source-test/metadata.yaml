@@ -13,5 +13,5 @@ data:
   remoteRegistries:
     pypi:
       enabled: true
-      packageName: airbyte-source-test
+      packageName: datarheo-source-test
 metadataSpecVersion: "1.0"

@@ -1,9 +1,9 @@
 import pytest
-from airbyte import exceptions as exc
-from airbyte._util.name_normalizers import LowerCaseNormalizer
-from airbyte.constants import AB_INTERNAL_COLUMNS
-from airbyte.records import StreamRecord, StreamRecordHandler
-from airbyte._processors.sql.postgres import PostgresNormalizer
+from datarheo import exceptions as exc
+from datarheo._util.name_normalizers import LowerCaseNormalizer
+from datarheo.constants import DR_INTERNAL_COLUMNS
+from datarheo.records import StreamRecord, StreamRecordHandler
+from datarheo._processors.sql.postgres import PostgresNormalizer
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def test_record_columns_list(
     )
     keys = list(cid.keys())
     assert {"Upper", "lower"} <= set(keys)
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in cid
         assert internal_column in keys
         cid.pop(internal_column)
@@ -45,7 +45,7 @@ def test_record_columns_list(
     )
     keys = list(cid.keys())
     assert {"Upper", "lower"} <= set(keys)
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in cid
         assert internal_column in keys
         cid.pop(internal_column)
@@ -63,7 +63,7 @@ def test_case_insensitive_dict(
         {"Upper": 1, "lower": 2},
         stream_record_handler=stream_record_handler,
     )
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in cid
         cid.pop(internal_column)
 
@@ -132,7 +132,7 @@ def test_case_insensitive_dict_w(
         {"Upper": 1, "lower": 2},
         stream_record_handler=stream_record_handler,
     )
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in cid
         cid.pop(internal_column)
 
@@ -167,7 +167,7 @@ def test_case_insensitive_w_pretty_keys(
         {"Upper": 1, "lower": 2},
         stream_record_handler=stream_record_handler,
     )
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in cid
         cid.pop(internal_column)
 
@@ -190,7 +190,7 @@ def test_case_insensitive_w_pretty_keys(
 @pytest.mark.parametrize(
     "raw_value, expected_result, should_raise, normalizer_class",
     [
-        ("_airbyte_meta", "_airbyte_meta", False, LowerCaseNormalizer),
+        ("_datarheo_meta", "_datarheo_meta", False, LowerCaseNormalizer),
         ("Test_String", "test_string", False, LowerCaseNormalizer),
         ("ANOTHER-TEST", "another_test", False, LowerCaseNormalizer),
         ("another.test", "another_test", False, LowerCaseNormalizer),
@@ -233,7 +233,7 @@ def test_lower_case_normalizer(
 ):
     normalizer = normalizer_class()
     if should_raise:
-        with pytest.raises(exc.PyAirbyteNameNormalizationError):
+        with pytest.raises(exc.DataRheoNameNormalizationError):
             assert normalizer.normalize(raw_value) == expected_result
     else:
         assert normalizer.normalize(raw_value) == expected_result

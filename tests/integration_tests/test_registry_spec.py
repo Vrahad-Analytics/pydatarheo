@@ -1,11 +1,11 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Integration tests for registry spec helper functions."""
 
 from __future__ import annotations
 
 import pytest
 
-from airbyte._util.registry_spec import (
+from datarheo._util.registry_spec import (
     get_connector_spec_from_registry,
     validate_connector_config_from_registry,
 )

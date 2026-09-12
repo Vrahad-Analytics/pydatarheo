@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import os
@@ -8,20 +8,20 @@ from typing import NoReturn
 import pytest
 from airbyte_api import models
 
-from airbyte import constants
-from airbyte._util import api_util
-from airbyte.cloud import _credentials as cloud_credentials
-from airbyte.cloud.client import CloudClient
-from airbyte.cloud.models import CloudWorkspaceInfo, WorkspacePrivilegeScope
-from airbyte.cloud.organizations import CloudOrganization
-from airbyte.cloud.workspaces import CloudWorkspace
-from airbyte.exceptions import (
-    AirbyteError,
-    AirbyteMissingResourceError,
-    PyAirbyteInputError,
+from datarheo import constants
+from datarheo._util import api_util
+from datarheo.cloud import _credentials as cloud_credentials
+from datarheo.cloud.client import CloudClient
+from datarheo.cloud.models import CloudWorkspaceInfo, WorkspacePrivilegeScope
+from datarheo.cloud.organizations import CloudOrganization
+from datarheo.cloud.workspaces import CloudWorkspace
+from datarheo.exceptions import (
+    DataRheoCloudError,
+    DataRheoMissingResourceError,
+    DataRheoInputError,
 )
-from airbyte.mcp import cloud as mcp_cloud
-from airbyte.secrets.base import SecretString
+from datarheo.mcp import cloud as mcp_cloud
+from datarheo.secrets.base import SecretString
 
 
 def _raise(error: Exception) -> Callable[..., NoReturn]:
@@ -86,7 +86,7 @@ def _patch_workspace_discovery(
     return captured
 
 
-def test_airbyte_credentials_from_auth_uses_pyairbyte_secret_lookup(
+def test_datarheo_credentials_from_auth_uses_pydatarheo_secret_lookup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     secrets = {
@@ -111,7 +111,7 @@ def test_airbyte_credentials_from_auth_uses_pyairbyte_secret_lookup(
     assert credentials.workspace_id == "test-workspace-id"
 
 
-def test_airbyte_credentials_from_auth_defaults_to_env_var_lookup(
+def test_datarheo_credentials_from_auth_defaults_to_env_var_lookup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     secrets = {
@@ -134,11 +134,11 @@ def test_airbyte_credentials_from_auth_defaults_to_env_var_lookup(
     assert credentials.bearer_token == "test-bearer-token"
 
 
-def test_airbyte_credentials_from_auth_ignores_legacy_api_root_env_vars(
+def test_datarheo_credentials_from_auth_ignores_legacy_api_root_env_vars(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    legacy_public_api_root_env_var = "AIRBYTE_API_ROOT"
-    legacy_config_api_root_env_var = "AIRBYTE_CONFIG_API_ROOT"
+    legacy_public_api_root_env_var = "DATARHEO_API_ROOT"
+    legacy_config_api_root_env_var = "DATARHEO_CONFIG_API_ROOT"
     for env_var in (
         constants.CLOUD_API_ROOT_ENV_VAR,
         constants.CLOUD_CONFIG_API_ROOT_ENV_VAR,
@@ -200,29 +200,29 @@ def test_airbyte_credentials_from_auth_ignores_legacy_api_root_env_vars(
             True,
             (
                 "Provide `bearer_token`, or both `client_id` and `client_secret`, as "
-                "arguments or via the `AIRBYTE_CLOUD_BEARER_TOKEN`, "
-                "`AIRBYTE_CLOUD_CLIENT_ID`, and `AIRBYTE_CLOUD_CLIENT_SECRET` "
+                "arguments or via the `DATARHEO_CLOUD_BEARER_TOKEN`, "
+                "`DATARHEO_CLOUD_CLIENT_ID`, and `DATARHEO_CLOUD_CLIENT_SECRET` "
                 "environment variables."
             ),
             id="env_vars",
         ),
     ],
 )
-def test_airbyte_credentials_missing_credentials_guidance_matches_resolution_mode(
+def test_datarheo_credentials_missing_credentials_guidance_matches_resolution_mode(
     monkeypatch: pytest.MonkeyPatch,
     env_vars: bool,
     expected_guidance: str,
 ) -> None:
     monkeypatch.setattr(cloud_credentials, "try_get_secret", lambda *_, **__: None)
 
-    with pytest.raises(PyAirbyteInputError) as exc_info:
+    with pytest.raises(DataRheoInputError) as exc_info:
         cloud_credentials._AirbyteCredentials.from_auth(env_vars=env_vars)
 
     assert exc_info.value.guidance == expected_guidance
 
 
-def test_airbyte_credentials_rejects_mixed_auth_methods() -> None:
-    with pytest.raises(PyAirbyteInputError, match="Cannot use both"):
+def test_datarheo_credentials_rejects_mixed_auth_methods() -> None:
+    with pytest.raises(DataRheoInputError, match="Cannot use both"):
         cloud_credentials._AirbyteCredentials.from_auth(
             bearer_token="token",
             client_id="client-id",
@@ -256,7 +256,7 @@ def test_cloud_client_init_validates_auth_inputs(
     bearer_token: str | None,
     expected_message: str,
 ) -> None:
-    with pytest.raises(PyAirbyteInputError, match=expected_message):
+    with pytest.raises(DataRheoInputError, match=expected_message):
         CloudClient(
             client_id=client_id,
             client_secret=client_secret,
@@ -309,7 +309,7 @@ def test_cloud_client_list_workspaces_rejects_invalid_argument_combinations(
     request_kwargs: dict[str, object],
     expected_message: str,
 ) -> None:
-    with pytest.raises(PyAirbyteInputError, match=expected_message):
+    with pytest.raises(DataRheoInputError, match=expected_message):
         CloudClient(bearer_token="token").list_workspaces(**request_kwargs)
 
 
@@ -672,11 +672,11 @@ def test_cloud_client_get_organization_adds_missing_lookup_context(
     monkeypatch.setattr(
         api_util,
         "get_organization_info",
-        lambda **_: (_ for _ in ()).throw(AirbyteError(message="Unavailable")),
+        lambda **_: (_ for _ in ()).throw(DataRheoCloudError(message="Unavailable")),
     )
     monkeypatch.setattr(api_util, "list_organizations_for_user", lambda **_: [])
 
-    with pytest.raises(AirbyteMissingResourceError) as exc_info:
+    with pytest.raises(DataRheoMissingResourceError) as exc_info:
         CloudClient(bearer_token="token").get_organization(
             organization_id="missing-org"
         )
@@ -798,7 +798,7 @@ def test_cloud_client_get_organization_rejects_ambiguous_default_context(
         },
     )
 
-    with pytest.raises(PyAirbyteInputError) as exc_info:
+    with pytest.raises(DataRheoInputError) as exc_info:
         CloudClient(bearer_token="token").get_organization()
 
     error = exc_info.value
@@ -840,7 +840,7 @@ def test_cloud_client_default_organization_handles_resolution_failures(
         monkeypatch.setattr(
             client,
             "_get_workspace_parent_organization_id",
-            _raise(PyAirbyteInputError(message="workspace lookup failed")),
+            _raise(DataRheoInputError(message="workspace lookup failed")),
         )
         monkeypatch.setattr(
             client,
@@ -851,7 +851,7 @@ def test_cloud_client_default_organization_handles_resolution_failures(
         monkeypatch.setattr(
             client,
             "_get_membership_organization_ids",
-            _raise(AirbyteError(message="membership failed")),
+            _raise(DataRheoCloudError(message="membership failed")),
         )
 
     assert client._resolve_default_organization_id() == expected_id
@@ -1032,7 +1032,7 @@ def test_cloud_client_list_organizations_falls_back_to_public_listing(
     monkeypatch.setattr(
         api_util,
         "list_organizations_for_user_id",
-        lambda **_: (_ for _ in ()).throw(AirbyteError(message="Unavailable")),
+        lambda **_: (_ for _ in ()).throw(DataRheoCloudError(message="Unavailable")),
     )
     monkeypatch.setattr(
         api_util,
@@ -1134,7 +1134,7 @@ def test_cloud_client_get_organization_requires_context_without_defaults(
     monkeypatch.setattr(CloudClient, "_get_membership_organization_ids", lambda _: ())
 
     with pytest.raises(
-        PyAirbyteInputError,
+        DataRheoInputError,
         match="Organization ID or organization name is required.",
     ):
         CloudClient(bearer_token="token").get_organization()
@@ -1186,11 +1186,11 @@ def test_cloud_client_list_organizations_reports_ambiguity_candidates(
     monkeypatch.setattr(
         api_util,
         "list_organizations_for_user_id",
-        lambda **_: (_ for _ in ()).throw(AirbyteError(message="Unavailable")),
+        lambda **_: (_ for _ in ()).throw(DataRheoCloudError(message="Unavailable")),
     )
     monkeypatch.setattr(client, "_fetch_organizations", lambda: organizations)
 
-    with pytest.raises(PyAirbyteInputError) as exc_info:
+    with pytest.raises(DataRheoInputError) as exc_info:
         client.get_organization(organization_name="Duplicate")
 
     error = exc_info.value
@@ -1487,12 +1487,12 @@ def test_cloud_client_get_organization_uses_unbounded_organization_list(
     monkeypatch.setattr(
         api_util,
         "list_organizations_for_user_id",
-        lambda **_: (_ for _ in ()).throw(AirbyteError(message="Unavailable")),
+        lambda **_: (_ for _ in ()).throw(DataRheoCloudError(message="Unavailable")),
     )
     monkeypatch.setattr(
         api_util,
         "get_organization_info",
-        lambda **_: (_ for _ in ()).throw(AirbyteError(message="Unavailable")),
+        lambda **_: (_ for _ in ()).throw(DataRheoCloudError(message="Unavailable")),
     )
     monkeypatch.setattr(client, "_fetch_organizations", lambda: organizations)
 
@@ -1535,13 +1535,13 @@ def test_cloud_client_get_organization_uses_unbounded_organization_list(
             id="multiple-organizations",
         ),
         pytest.param(
-            AirbyteError(context={"status_code": 401}),
+            DataRheoCloudError(context={"status_code": 401}),
             0,
             "permission",
             id="unauthorized",
         ),
         pytest.param(
-            AirbyteError(context={"status_code": 403}),
+            DataRheoCloudError(context={"status_code": 403}),
             0,
             "permission",
             id="forbidden",
@@ -1550,13 +1550,13 @@ def test_cloud_client_get_organization_uses_unbounded_organization_list(
 )
 def test_mcp_list_cloud_organizations_discovery(
     monkeypatch: pytest.MonkeyPatch,
-    organizations_or_error: list[CloudOrganization] | AirbyteError,
+    organizations_or_error: list[CloudOrganization] | DataRheoCloudError,
     expected_count: int,
     expected_message: str | None,
 ) -> None:
     class DiscoveryClient:
         def list_organizations(self, **_: object) -> list[CloudOrganization]:
-            if isinstance(organizations_or_error, AirbyteError):
+            if isinstance(organizations_or_error, DataRheoCloudError):
                 raise organizations_or_error
             return organizations_or_error
 
@@ -1629,13 +1629,13 @@ def test_mcp_list_cloud_organizations_preserves_missing_details(
             id="org-less-public-api-without-organization-name",
         ),
         pytest.param(
-            AirbyteError(context={"status_code": 401}),
+            DataRheoCloudError(context={"status_code": 401}),
             True,
             None,
             id="unauthorized",
         ),
         pytest.param(
-            AirbyteError(context={"status_code": 403}),
+            DataRheoCloudError(context={"status_code": 403}),
             True,
             None,
             id="forbidden",
@@ -1644,7 +1644,7 @@ def test_mcp_list_cloud_organizations_preserves_missing_details(
 )
 def test_mcp_list_cloud_workspaces_discovery(
     monkeypatch: pytest.MonkeyPatch,
-    workspaces_or_error: list[CloudWorkspaceInfo] | AirbyteError,
+    workspaces_or_error: list[CloudWorkspaceInfo] | DataRheoCloudError,
     expect_message: bool,
     organization_name: str | None,
 ) -> None:
@@ -1658,7 +1658,7 @@ def test_mcp_list_cloud_workspaces_discovery(
         ) -> list[CloudWorkspaceInfo]:
             nonlocal captured_organization_id
             captured_organization_id = organization_id
-            if isinstance(workspaces_or_error, AirbyteError):
+            if isinstance(workspaces_or_error, DataRheoCloudError):
                 raise workspaces_or_error
             return workspaces_or_error
 

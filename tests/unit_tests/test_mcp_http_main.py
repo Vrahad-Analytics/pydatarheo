@@ -1,5 +1,5 @@
-# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
-"""Unit tests for the HTTP transport entry point in `airbyte.mcp.http_main`.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Unit tests for the HTTP transport entry point in `datarheo.mcp.http_main`.
 
 These cover `_advertise_root_mount_resource`, which normalizes the RFC 9728
 protected-resource identifier when the MCP endpoint is mounted at root behind a
@@ -17,8 +17,8 @@ from fastmcp.server.auth import MultiAuth
 from fastmcp.server.auth.auth import TokenVerifier
 from fastmcp_extensions import run_mcp_http_server
 
-from airbyte.mcp import http_main
-from airbyte.mcp.http_main import _advertise_root_mount_resource
+from datarheo.mcp import http_main
+from datarheo.mcp.http_main import _advertise_root_mount_resource
 
 
 _BASE_URL = "https://mcp.example.com/cloud-mcp"
@@ -68,32 +68,32 @@ def test_advertise_root_mount_resource_recurses_into_multiauth() -> None:
     [
         pytest.param(
             "0.54.0",
-            "https://github.com/airbytehq/PyAirbyte/releases/tag/v0.54.0",
+            "https://github.com/Vrahad-Analytics/pydatarheo/releases/tag/v0.54.0",
             id="tagged_release_links_to_its_release_page",
         ),
         pytest.param(
             "0.54.0.post4.dev0+32b9886",
-            "https://github.com/airbytehq/PyAirbyte/commit/32b9886",
+            "https://github.com/Vrahad-Analytics/pydatarheo/commit/32b9886",
             id="dev_build_links_to_the_commit_in_its_local_segment",
         ),
         pytest.param(
             "0.54.1a3",
-            "https://github.com/airbytehq/PyAirbyte/releases",
+            "https://github.com/Vrahad-Analytics/pydatarheo/releases",
             id="prerelease_build_without_a_sha_links_to_the_release_list",
         ),
         pytest.param(
             "0.54.1.dev3+1b1637b4",
-            "https://github.com/airbytehq/PyAirbyte/commit/1b1637b4",
+            "https://github.com/Vrahad-Analytics/pydatarheo/commit/1b1637b4",
             id="dev_build_links_to_the_commit_it_was_cut_from",
         ),
         pytest.param(
             "0.54.1.dev3+dirty",
-            "https://github.com/airbytehq/PyAirbyte/releases",
+            "https://github.com/Vrahad-Analytics/pydatarheo/releases",
             id="local_segment_without_a_sha_links_to_the_release_list",
         ),
         pytest.param(
             "0.54.1.dev3+1b1637b4.dirty",
-            "https://github.com/airbytehq/PyAirbyte/commit/1b1637b4",
+            "https://github.com/Vrahad-Analytics/pydatarheo/commit/1b1637b4",
             id="dirty_dev_build_links_to_the_bare_sha",
         ),
     ],
@@ -122,7 +122,7 @@ def test_landing_version_url(
         pytest.param(
             b"text/html,application/xhtml+xml",
             200,
-            b"<title>Airbyte MCP Server</title>",
+            b"<title>DataRheo MCP Server</title>",
             id="browser-get-reaches-landing-page",
         ),
     ],
@@ -151,7 +151,7 @@ def test_event_stream_get_content_negotiation(
         })
         await send({
             "type": "http.response.body",
-            "body": b"<title>Airbyte MCP Server</title>",
+            "body": b"<title>DataRheo MCP Server</title>",
         })
 
     class FakeServer:

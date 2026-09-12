@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Global pytest fixtures."""
 
 from __future__ import annotations
@@ -12,17 +12,17 @@ import time
 import warnings
 from pathlib import Path
 
-import airbyte
+import datarheo
 import docker
 import psycopg
 import pytest
 from _pytest.nodes import Item
-from airbyte._executors.util import get_connector_executor
-from airbyte._util import text_util
-from airbyte._util.meta import is_docker_installed, is_windows
-from airbyte.caches import PostgresCache
-from airbyte.caches.duckdb import DuckDBCache
-from airbyte.caches.util import new_local_cache
+from datarheo._executors.util import get_connector_executor
+from datarheo._util import text_util
+from datarheo._util.meta import is_docker_installed, is_windows
+from datarheo.caches import PostgresCache
+from datarheo.caches.duckdb import DuckDBCache
+from datarheo.caches.util import new_local_cache
 from requests.exceptions import HTTPError
 
 
@@ -250,7 +250,7 @@ def new_postgres_cache(new_postgres_db: str):
 def source_test_registry(monkeypatch):
     """Mock the registry to return our custom registry containing the 'source-test' connector.
 
-    This means the normal registry is not usable. Expect AirbyteConnectorNotRegisteredError for
+    This means the normal registry is not usable. Expect DataRheoConnectorNotRegisteredError for
     other connectors.
     """
 
@@ -259,15 +259,15 @@ def source_test_registry(monkeypatch):
         return LOCAL_TEST_REGISTRY_URL
 
     # Replace _get_registry_url() with the mock function
-    monkeypatch.setattr(airbyte.registry, "_get_registry_url", mock_get_registry_cache)
+    monkeypatch.setattr(datarheo.registry, "_get_registry_url", mock_get_registry_cache)
 
     # reset the registry cache
-    airbyte.registry.__cache = None
+    datarheo.registry.__cache = None
 
     yield
 
     # reset the registry cache (clean up)
-    airbyte.registry.__cache = None
+    datarheo.registry.__cache = None
 
 
 @pytest.fixture(autouse=True)
@@ -295,7 +295,7 @@ def source_test_installation(request):
     use_uv = request.param
 
     if not use_uv:
-        os.environ["AIRBYTE_NO_UV"] = "1"
+        os.environ["DATARHEO_NO_UV"] = "1"
 
     venv_dir = ".venv-source-test"
     if Path(venv_dir).exists():
@@ -314,8 +314,8 @@ def source_test_installation(request):
     finally:
         if Path(venv_dir).exists():
             shutil.rmtree(venv_dir)
-        if not use_uv and "AIRBYTE_NO_UV" in os.environ:
-            del os.environ["AIRBYTE_NO_UV"]
+        if not use_uv and "DATARHEO_NO_UV" in os.environ:
+            del os.environ["DATARHEO_NO_UV"]
 
 
 @pytest.fixture(scope="function")

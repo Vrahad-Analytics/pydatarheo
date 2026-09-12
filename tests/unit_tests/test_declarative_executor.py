@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for `DeclarativeExecutor` config handling."""
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from airbyte._executors.declarative import DeclarativeExecutor
+from datarheo._executors.declarative import DeclarativeExecutor
 
 MINIMAL_MANIFEST: dict[str, Any] = {
     "version": "0.1.0",
@@ -80,7 +80,7 @@ def test_declarative_source_receives_connector_config(
         return object()
 
     mocker.patch(
-        "airbyte._executors.declarative.ConcurrentDeclarativeSource",
+        "datarheo._executors.declarative.ConcurrentDeclarativeSource",
         side_effect=_capture,
     )
 
@@ -99,7 +99,7 @@ def test_injected_components_are_preserved(mocker: Any) -> None:
         return object()
 
     mocker.patch(
-        "airbyte._executors.declarative.ConcurrentDeclarativeSource",
+        "datarheo._executors.declarative.ConcurrentDeclarativeSource",
         side_effect=_capture,
     )
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which test CRUD operations on the Airbyte API.
 
@@ -13,14 +13,14 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 import responses
-from airbyte._util import api_util, text_util
-from airbyte._util.api_util import (
+from datarheo._util import api_util, text_util
+from datarheo._util.api_util import (
     CLOUD_API_ROOT,
-    AirbyteError,
+    DataRheoCloudError,
     check_connector,
     get_bearer_token,
 )
-from airbyte.secrets.base import SecretString
+from datarheo.secrets.base import SecretString
 from airbyte_api.models import (
     DestinationDuckdb,
     DestinationResponse,
@@ -32,15 +32,15 @@ from airbyte_api.models import (
 
 def test_get_workspace(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     workspace = api_util.get_workspace(
         workspace_id=workspace_id,
-        api_root=airbyte_cloud_api_root,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        api_root=datarheo_cloud_api_root,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert workspace.workspace_id == workspace_id
@@ -48,15 +48,15 @@ def test_get_workspace(
 
 def test_list_workspaces(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     result: list[WorkspaceResponse] = api_util.list_workspaces(
         workspace_id=workspace_id,
-        api_root=airbyte_cloud_api_root,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        api_root=datarheo_cloud_api_root,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
         limit=1,
     )
@@ -67,15 +67,15 @@ def test_list_workspaces(
 
 def test_list_sources(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     result: list[SourceResponse] = api_util.list_sources(
         workspace_id=workspace_id,
-        api_root=airbyte_cloud_api_root,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        api_root=datarheo_cloud_api_root,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert (
@@ -87,15 +87,15 @@ def test_list_sources(
 
 def test_list_destinations(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     result: list[DestinationResponse] = api_util.list_destinations(
         workspace_id=workspace_id,
-        api_root=airbyte_cloud_api_root,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        api_root=datarheo_cloud_api_root,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert (
@@ -107,9 +107,9 @@ def test_list_destinations(
 
 def test_create_and_delete_source(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     new_resource_name = "deleteme-source-faker" + text_util.generate_random_suffix()
     source_config = SourceFaker()
@@ -117,9 +117,9 @@ def test_create_and_delete_source(
         name=new_resource_name,
         workspace_id=workspace_id,
         config=source_config,
-        api_root=airbyte_cloud_api_root,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        api_root=datarheo_cloud_api_root,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert source.name == new_resource_name
@@ -128,20 +128,20 @@ def test_create_and_delete_source(
 
     api_util.delete_source(
         source_id=source.source_id,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
 
 
 def test_create_and_delete_destination(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
+    datarheo_cloud_api_root: str,
     motherduck_api_key: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
 ) -> None:
     new_resource_name = (
         "deleteme-destination-faker" + text_util.generate_random_suffix()
@@ -153,11 +153,11 @@ def test_create_and_delete_destination(
 
     destination = api_util.create_destination(
         name=new_resource_name,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
         config=destination_config,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert destination.name == new_resource_name
@@ -166,19 +166,19 @@ def test_create_and_delete_destination(
 
     api_util.delete_destination(
         destination_id=destination.destination_id,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
 
 
 def test_create_and_delete_connection(
     workspace_id: str,
-    airbyte_cloud_api_root: str,
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_api_root: str,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
     motherduck_api_key: str,
 ) -> None:
     new_source_name = "deleteme-source-faker" + text_util.generate_random_suffix()
@@ -190,11 +190,11 @@ def test_create_and_delete_connection(
     )
     source = api_util.create_source(
         name=new_source_name,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
         config=SourceFaker(),
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert source.name == new_source_name
@@ -203,14 +203,14 @@ def test_create_and_delete_connection(
 
     destination = api_util.create_destination(
         name=new_destination_name,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
         config=DestinationDuckdb(
             destination_path="temp_db",
             motherduck_api_key=motherduck_api_key,
         ),
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert destination.name == new_destination_name
@@ -219,14 +219,14 @@ def test_create_and_delete_connection(
 
     connection = api_util.create_connection(
         name=new_connection_name,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
         source_id=source.source_id,
         destination_id=destination.destination_id,
         prefix="",
         selected_stream_names=["users", "purchases", "products"],
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     assert connection.source_id == source.source_id
@@ -235,26 +235,26 @@ def test_create_and_delete_connection(
 
     api_util.delete_connection(
         connection_id=connection.connection_id,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     api_util.delete_source(
         source_id=source.source_id,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
     api_util.delete_destination(
         destination_id=destination.destination_id,
-        api_root=airbyte_cloud_api_root,
+        api_root=datarheo_cloud_api_root,
         workspace_id=workspace_id,
-        client_id=airbyte_cloud_client_id,
-        client_secret=airbyte_cloud_client_secret,
+        client_id=datarheo_cloud_client_id,
+        client_secret=datarheo_cloud_client_secret,
         bearer_token=None,
     )
 
@@ -266,18 +266,18 @@ def test_create_and_delete_connection(
     ],
 )
 def test_get_bearer_token(
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
     api_root: str,
 ) -> None:
     try:
         token: SecretString = get_bearer_token(
-            client_id=airbyte_cloud_client_id,
-            client_secret=airbyte_cloud_client_secret,
+            client_id=datarheo_cloud_client_id,
+            client_secret=datarheo_cloud_client_secret,
             api_root=api_root,
         )
         assert token is not None
-    except AirbyteError as e:
+    except DataRheoCloudError as e:
         pytest.fail(f"API call failed: {e}")
 
 
@@ -289,8 +289,8 @@ def test_get_bearer_token(
     ],
 )
 def test_check_connector(
-    airbyte_cloud_client_id: SecretString,
-    airbyte_cloud_client_secret: SecretString,
+    datarheo_cloud_client_id: SecretString,
+    datarheo_cloud_client_secret: SecretString,
     connector_id: str,
     connector_type: Literal["source", "destination"],
     expect_success: bool,
@@ -299,12 +299,12 @@ def test_check_connector(
         result, error_message = check_connector(
             actor_id=connector_id,
             connector_type=connector_type,
-            client_id=airbyte_cloud_client_id,
-            client_secret=airbyte_cloud_client_secret,
+            client_id=datarheo_cloud_client_id,
+            client_secret=datarheo_cloud_client_secret,
             bearer_token=None,
         )
         assert result == expect_success
-    except AirbyteError as e:
+    except DataRheoCloudError as e:
         pytest.fail(f"API call failed: {e}")
 
 
@@ -330,7 +330,7 @@ def test_404_error_includes_request_url_context() -> None:
         status=404,
     )
 
-    with pytest.raises(AirbyteError) as exc_info:
+    with pytest.raises(DataRheoCloudError) as exc_info:
         api_util.list_sources(
             workspace_id=workspace_id,
             api_root=api_root,
@@ -357,8 +357,8 @@ def test_404_error_includes_request_url_context() -> None:
     request_url = str(error.context["request_url"])
     parsed = urlparse(request_url)
 
-    assert parsed.netloc == "api.airbyte.example", (
-        f"Expected host 'api.airbyte.example', got '{parsed.netloc}'"
+    assert parsed.netloc == "api.datarheo.example", (
+        f"Expected host 'api.datarheo.example', got '{parsed.netloc}'"
     )
     assert parsed.path.endswith("/sources"), (
         f"Expected path ending with '/sources', got '{parsed.path}'"

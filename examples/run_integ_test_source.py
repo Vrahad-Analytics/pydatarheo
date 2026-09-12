@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """This script will run any source that is registered in the Airbyte integration tests.
 
 
@@ -15,16 +15,16 @@ from __future__ import annotations
 
 import sys
 
-import airbyte as ab
-from airbyte.secrets.google_gsm import GoogleGSMSecretManager
+import datarheo as dr
+from datarheo.secrets.google_gsm import GoogleGSMSecretManager
 
 
-AIRBYTE_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
+DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 SECRET_NAME = "SECRET_DESTINATION-BIGQUERY_CREDENTIALS__CREDS"
 
 secret_mgr = GoogleGSMSecretManager(
-    project=AIRBYTE_INTERNAL_GCP_PROJECT,
-    credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+    project=DATARHEO_INTERNAL_GCP_PROJECT,
+    credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
 )
 
 
@@ -52,7 +52,7 @@ def main(
     )
     assert secret is not None, f"Secret {secret_name} not found."
     config = secret.parse_json()
-    source = ab.get_source(
+    source = dr.get_source(
         connector_name,
         config=config,
         install_if_missing=True,
@@ -61,7 +61,7 @@ def main(
         source.select_streams(streams)
     else:
         source.select_all_streams()
-    cache = ab.new_local_cache()
+    cache = dr.new_local_cache()
     try:
         read_result = source.read(cache=cache)
         print(

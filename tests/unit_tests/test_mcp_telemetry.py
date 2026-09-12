@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for MCP tool-call telemetry configuration."""
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ import pytest
 from fastmcp_extensions import ToolCallTelemetryMiddleware
 from segment import analytics
 
-from airbyte import constants
-from airbyte.constants import set_hosted_mcp_mode
-from airbyte.mcp import server
+from datarheo import constants
+from datarheo.constants import set_hosted_mcp_mode
+from datarheo.mcp import server
 
 
 _DUMMY_SEGMENT_WRITE_KEY = "dummy-segment-write-key"
@@ -22,17 +22,17 @@ _DUMMY_SEGMENT_WRITE_KEY = "dummy-segment-write-key"
 @pytest.fixture(autouse=True)
 def force_online_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep in-process telemetry tests independent of the runner environment."""
-    monkeypatch.setattr(server, "AIRBYTE_OFFLINE_MODE", False)
+    monkeypatch.setattr(server, "DATARHEO_OFFLINE_MODE", False)
 
 
 def test_segment_write_key_defaults_to_app_tracking_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The telemetry key defaults to PyAirbyte's application key."""
+    """The telemetry key defaults to PyDataRheo's application key."""
     monkeypatch.delenv(server.SEGMENT_WRITE_KEY_ENV, raising=False)
     monkeypatch.delenv(server.DO_NOT_TRACK, raising=False)
 
-    assert server._segment_write_key() == server.PYAIRBYTE_APP_TRACKING_KEY
+    assert server._segment_write_key() == server.PYDATARHEO_APP_TRACKING_KEY
 
 
 def test_segment_write_key_uses_env_override(
@@ -61,7 +61,7 @@ def test_segment_write_key_respects_offline_mode(
     """Offline mode disables the external Segment sink."""
     monkeypatch.delenv(server.DO_NOT_TRACK, raising=False)
     monkeypatch.setenv(server.SEGMENT_WRITE_KEY_ENV, _DUMMY_SEGMENT_WRITE_KEY)
-    monkeypatch.setattr(server, "AIRBYTE_OFFLINE_MODE", True)
+    monkeypatch.setattr(server, "DATARHEO_OFFLINE_MODE", True)
 
     assert server._segment_write_key() is None
 
@@ -69,26 +69,26 @@ def test_segment_write_key_respects_offline_mode(
 def test_segment_write_key_rechecks_runtime_offline_mode() -> None:
     """Offline mode loaded after constants import still disables Segment."""
     child_env = os.environ.copy()
-    child_env.pop("AIRBYTE_OFFLINE_MODE", None)
-    child_env.pop("AIRBYTE_MCP_ENV_FILE", None)
+    child_env.pop("DATARHEO_OFFLINE_MODE", None)
+    child_env.pop("DATARHEO_MCP_ENV_FILE", None)
     child_env.pop(server.DO_NOT_TRACK, None)
     child_env[server.SEGMENT_WRITE_KEY_ENV] = _DUMMY_SEGMENT_WRITE_KEY
     child_script = f"""
 import os
 
-from airbyte import constants
-from airbyte.mcp import server
+from datarheo import constants
+from datarheo.mcp import server
 
-if constants.AIRBYTE_OFFLINE_MODE is not False:
+if constants.DATARHEO_OFFLINE_MODE is not False:
     raise SystemExit(
-        f"expected imported offline mode=False, got {{constants.AIRBYTE_OFFLINE_MODE!r}}"
+        f"expected imported offline mode=False, got {{constants.DATARHEO_OFFLINE_MODE!r}}"
     )
 
-os.environ["AIRBYTE_OFFLINE_MODE"] = "true"
+os.environ["DATARHEO_OFFLINE_MODE"] = "true"
 if server._segment_write_key() is not None:
     raise SystemExit("runtime offline mode did not disable Segment")
 
-os.environ["AIRBYTE_OFFLINE_MODE"] = "false"
+os.environ["DATARHEO_OFFLINE_MODE"] = "false"
 if server._segment_write_key() != {_DUMMY_SEGMENT_WRITE_KEY!r}:
     raise SystemExit("runtime false offline mode did not restore the Segment key")
 """
@@ -157,7 +157,7 @@ def test_hosted_attribution_is_resolved_per_call(
     [
         pytest.param(None, True, id="enabled"),
         pytest.param("DO_NOT_TRACK", False, id="do-not-track"),
-        pytest.param("AIRBYTE_OFFLINE_MODE", False, id="offline-mode"),
+        pytest.param("DATARHEO_OFFLINE_MODE", False, id="offline-mode"),
     ],
 )
 def test_module_level_registration_configures_telemetry(
@@ -167,14 +167,14 @@ def test_module_level_registration_configures_telemetry(
     """A clean import registers telemetry and respects external-sink opt-outs."""
     child_env = os.environ.copy()
     child_env.pop(server.DO_NOT_TRACK, None)
-    child_env.pop("AIRBYTE_OFFLINE_MODE", None)
+    child_env.pop("DATARHEO_OFFLINE_MODE", None)
     child_env[server.SEGMENT_WRITE_KEY_ENV] = _DUMMY_SEGMENT_WRITE_KEY
     if disabled_env is not None:
         child_env[disabled_env] = "1"
 
     child_script = f"""
 from fastmcp_extensions import ToolCallTelemetryMiddleware
-from airbyte.mcp import server
+from datarheo.mcp import server
 
 has_telemetry = any(
     isinstance(middleware, ToolCallTelemetryMiddleware)

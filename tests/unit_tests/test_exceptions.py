@@ -1,13 +1,13 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import inspect
-import airbyte.exceptions as exceptions_module
+import datarheo.exceptions as exceptions_module
 import pytest
 
-from airbyte.exceptions import (
-    AirbyteMissingWorkspaceContextError,
-    AirbyteNoCloudCredentialsError,
+from datarheo.exceptions import (
+    DataRheoMissingWorkspaceContextError,
+    DataRheoNoCloudCredentialsError,
 )
 
 
@@ -17,7 +17,7 @@ def test_exceptions():
         for name, obj in inspect.getmembers(exceptions_module)
         if inspect.isclass(obj) and name.endswith("Error")
     ]
-    assert "AirbyteError" in [name for name, _ in exception_classes]
+    assert "DataRheoCloudError" in [name for name, _ in exception_classes]
     assert "NotAnError" not in [name for name, _ in exception_classes]
     for name, obj in exception_classes:
         instance = obj()
@@ -26,8 +26,8 @@ def test_exceptions():
         assert message.count("\n") == 0
         assert message != ""
         assert message.strip() == message
-        assert any([name.startswith(prefix) for prefix in ["Airbyte", "PyAirbyte"]]), (
-            f"{name} does not start with Airbyte or PyAirbyte"
+        assert any([name.startswith(prefix) for prefix in ["Airbyte", "PyDataRheo"]]), (
+            f"{name} does not start with Airbyte or PyDataRheo"
         )
         assert name.endswith("Error")
 
@@ -56,8 +56,8 @@ def test_exceptions():
             True,
             True,
             "Provide `bearer_token`, or both `client_id` and `client_secret`, as arguments "
-            "or via the `AIRBYTE_CLOUD_BEARER_TOKEN`, `AIRBYTE_CLOUD_CLIENT_ID`, and "
-            "`AIRBYTE_CLOUD_CLIENT_SECRET` environment variables.",
+            "or via the `DATARHEO_CLOUD_BEARER_TOKEN`, `DATARHEO_CLOUD_CLIENT_ID`, and "
+            "`DATARHEO_CLOUD_CLIENT_SECRET` environment variables.",
             id="local_with_bearer",
         ),
         pytest.param(
@@ -65,7 +65,7 @@ def test_exceptions():
             False,
             True,
             "Provide both `client_id` and `client_secret`, as arguments or via the "
-            "`AIRBYTE_CLOUD_CLIENT_ID` and `AIRBYTE_CLOUD_CLIENT_SECRET` environment variables.",
+            "`DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET` environment variables.",
             id="local_client_credentials_only",
         ),
         pytest.param(
@@ -93,7 +93,7 @@ def test_cloud_credentials_error_guidance(
     """Render cloud credential guidance for each supported mode."""
     with pytest.MonkeyPatch.context() as monkeypatch:
         monkeypatch.setattr(exceptions_module, "is_hosted_mcp_mode", lambda: hosted)
-        error = AirbyteNoCloudCredentialsError(
+        error = DataRheoNoCloudCredentialsError(
             _allow_bearer=allow_bearer,
             _env_vars=env_vars,
         )
@@ -138,7 +138,7 @@ def test_missing_workspace_context_error_guidance(
     """Render workspace guidance for each supported mode."""
     with pytest.MonkeyPatch.context() as monkeypatch:
         monkeypatch.setattr(exceptions_module, "is_hosted_mcp_mode", lambda: hosted)
-        error = AirbyteMissingWorkspaceContextError()
+        error = DataRheoMissingWorkspaceContextError()
 
     assert error.get_message() == "Workspace ID is required but not provided."
     assert error.guidance == expected_guidance

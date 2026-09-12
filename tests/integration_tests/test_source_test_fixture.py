@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import os
@@ -10,23 +10,23 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
-import airbyte as ab
+import datarheo as dr
 import pandas as pd
 import pytest
-from airbyte import datasets
-from airbyte import exceptions as exc
-from airbyte._executors.docker import DockerExecutor
-from airbyte._executors.local import PathExecutor
-from airbyte._executors.python import VenvExecutor
-from airbyte._util import text_util
-from airbyte._util.venv_util import get_bin_dir
-from airbyte.caches import PostgresCache, SnowflakeCache
-from airbyte.caches.base import CacheBase
-from airbyte.constants import AB_INTERNAL_COLUMNS
-from airbyte.datasets import CachedDataset, LazyDataset, SQLDataset
-from airbyte.results import ReadResult
-from airbyte import registry
-from airbyte.version import get_version
+from datarheo import datasets
+from datarheo import exceptions as exc
+from datarheo._executors.docker import DockerExecutor
+from datarheo._executors.local import PathExecutor
+from datarheo._executors.python import VenvExecutor
+from datarheo._util import text_util
+from datarheo._util.venv_util import get_bin_dir
+from datarheo.caches import PostgresCache, SnowflakeCache
+from datarheo.caches.base import CacheBase
+from datarheo.constants import DR_INTERNAL_COLUMNS
+from datarheo.datasets import CachedDataset, LazyDataset, SQLDataset
+from datarheo.results import ReadResult
+from datarheo import registry
+from datarheo.version import get_version
 from sqlalchemy import column, text
 
 
@@ -41,7 +41,7 @@ def pop_internal_columns_from_dataset(
 ) -> list[dict]:
     result: list[dict] = []
     for record in list(dataset):
-        for internal_column in AB_INTERNAL_COLUMNS:
+        for internal_column in DR_INTERNAL_COLUMNS:
             if not isinstance(record, dict):
                 record = dict(record)
 
@@ -60,7 +60,7 @@ def pop_internal_columns_from_dataset(
 
 
 def pop_internal_columns_from_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    for internal_column in AB_INTERNAL_COLUMNS:
+    for internal_column in DR_INTERNAL_COLUMNS:
         assert internal_column in df.columns, (
             f"Column '{internal_column}' should exist in stream data."
         )
@@ -69,7 +69,7 @@ def pop_internal_columns_from_dataframe(df: pd.DataFrame) -> pd.DataFrame:
             f"Column '{internal_column}' should not contain null values "
         )
 
-    return df.drop(columns=AB_INTERNAL_COLUMNS)
+    return df.drop(columns=DR_INTERNAL_COLUMNS)
 
 
 def assert_data_matches_cache(
@@ -102,8 +102,8 @@ def autouse_source_test_installation(source_test_installation) -> None:
 
 
 @pytest.fixture
-def source_test(source_test_env) -> ab.Source:
-    return ab.get_source("source-test", config={"apiKey": "test"})
+def source_test(source_test_env) -> dr.Source:
+    return dr.get_source("source-test", config={"apiKey": "test"})
 
 
 @pytest.fixture
@@ -158,14 +158,14 @@ def test_registry_list() -> None:
         "source-test",
     ]
     with patch(
-        "airbyte.registry.is_docker_installed",
+        "datarheo.registry.is_docker_installed",
         return_value=False,
     ):
         assert set(registry.get_available_connectors()) == {
             "source-test",
         }
     with patch(
-        "airbyte.registry.is_docker_installed",
+        "datarheo.registry.is_docker_installed",
         return_value=True,
     ):
         assert set(registry.get_available_connectors()) == {
@@ -177,30 +177,30 @@ def test_registry_list() -> None:
 def test_list_streams(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source(
+    source = dr.get_source(
         "source-test", config={"apiKey": "test"}, install_if_missing=False
     )
     assert source.get_available_streams() == list(expected_test_stream_data.keys())
 
 
 def test_invalid_config() -> None:
-    source = ab.get_source(
+    source = dr.get_source(
         "source-test", config={"apiKey": 1234}, install_if_missing=False
     )
-    with pytest.raises(exc.AirbyteConnectorCheckFailedError):
+    with pytest.raises(exc.DataRheoConnectorCheckFailedError):
         source.check()
 
 
 def test_ensure_installation_detection() -> None:
     """Assert that install isn't called, since the connector is already installed by the fixture."""
     with (
-        patch("airbyte._executors.python.VenvExecutor.install") as mock_venv_install,
-        patch("airbyte.sources.base.Source.install") as mock_source_install,
+        patch("datarheo._executors.python.VenvExecutor.install") as mock_venv_install,
+        patch("datarheo.sources.base.Source.install") as mock_source_install,
         patch(
-            "airbyte._executors.python.VenvExecutor.ensure_installation"
+            "datarheo._executors.python.VenvExecutor.ensure_installation"
         ) as mock_ensure_installed,
     ):
-        source = ab.get_source(
+        source = dr.get_source(
             "source-test",
             config={"apiKey": 1234},
             pip_url="https://pypi.org/project/airbyte-not-found",
@@ -212,7 +212,7 @@ def test_ensure_installation_detection() -> None:
 
 
 def test_source_yaml_spec() -> None:
-    source = ab.get_source(
+    source = dr.get_source(
         "source-test", config={"apiKey": 1234}, install_if_missing=False
     )
     assert isinstance(source.executor, VenvExecutor), "Expected VenvExecutor."
@@ -220,13 +220,13 @@ def test_source_yaml_spec() -> None:
 
 
 def test_non_existing_connector() -> None:
-    with pytest.raises(exc.AirbyteConnectorNotRegisteredError):
-        ab.get_source("source-not-existing", config={"apiKey": "abc"})
+    with pytest.raises(exc.DataRheoConnectorNotRegisteredError):
+        dr.get_source("source-not-existing", config={"apiKey": "abc"})
 
 
 def test_non_existing_connector_with_local_exe() -> None:
     # We should not complain about the missing source if we provide a local executable
-    source = ab.get_source(
+    source = dr.get_source(
         "source-not-existing",
         local_executable=Path("dummy-exe-path"),
         config={"apiKey": "abc"},
@@ -235,7 +235,7 @@ def test_non_existing_connector_with_local_exe() -> None:
 
 
 def test_docker_only_connector() -> None:
-    source = ab.get_source("source-docker-only", config={"apiKey": "abc"})
+    source = dr.get_source("source-docker-only", config={"apiKey": "abc"})
     assert isinstance(source.executor, DockerExecutor), "Expected DockerExecutor."
 
 
@@ -266,7 +266,7 @@ def test_version_enforcement(
     patched_entry = registry.ConnectorMetadata(
         name="source-test",
         latest_available_version=latest_available_version,
-        pypi_package_name="airbyte-source-test",
+        pypi_package_name="datarheo-source-test",
         language=registry.Language.PYTHON,
         install_types={registry.InstallType.PYTHON, registry.InstallType.DOCKER},
     )
@@ -274,11 +274,11 @@ def test_version_enforcement(
     # We need to initialize the cache before we can patch it.
     _ = registry._get_registry_cache()
     with patch.dict(
-        "airbyte.registry.__cache", {"source-test": patched_entry}, clear=False
+        "datarheo.registry.__cache", {"source-test": patched_entry}, clear=False
     ):
         if raises:
             with pytest.raises(Exception):
-                source = ab.get_source(
+                source = dr.get_source(
                     "source-test",
                     version=requested_version,
                     config={"apiKey": "abc"},
@@ -286,7 +286,7 @@ def test_version_enforcement(
                 )
                 source.executor.ensure_installation(auto_fix=False)
         else:
-            source = ab.get_source(
+            source = dr.get_source(
                 "source-test",
                 version=requested_version,
                 config={"apiKey": "abc"},
@@ -300,7 +300,7 @@ def test_version_enforcement(
 
 
 def test_check() -> None:
-    source = ab.get_source(
+    source = dr.get_source(
         "source-test",
         config={"apiKey": "test"},
         install_if_missing=False,
@@ -309,7 +309,7 @@ def test_check() -> None:
 
 
 def test_check_fail() -> None:
-    source = ab.get_source("source-test", config={"apiKey": "wrong"})
+    source = dr.get_source("source-test", config={"apiKey": "wrong"})
 
     with pytest.raises(Exception):
         source.check()
@@ -321,10 +321,10 @@ def test_file_write_and_cleanup() -> None:
     temp_dir_1 = temp_dir_root / "cache_1"
     temp_dir_2 = temp_dir_root / "cache_2"
 
-    cache_w_cleanup = ab.new_local_cache(cache_dir=temp_dir_1, cleanup=True)
-    cache_wo_cleanup = ab.new_local_cache(cache_dir=temp_dir_2, cleanup=False)
+    cache_w_cleanup = dr.new_local_cache(cache_dir=temp_dir_1, cleanup=True)
+    cache_wo_cleanup = dr.new_local_cache(cache_dir=temp_dir_2, cleanup=False)
 
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
     _ = source.read(cache_w_cleanup)
@@ -347,10 +347,10 @@ def test_file_write_and_cleanup() -> None:
 def test_sync_to_duckdb(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    cache = ab.new_local_cache()
+    cache = dr.new_local_cache()
 
     result: ReadResult = source.read(cache)
 
@@ -361,9 +361,9 @@ def test_sync_to_duckdb(
 
 
 def test_read_result_mapping() -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
-    result: ReadResult = source.read(ab.new_local_cache())
+    result: ReadResult = source.read(dr.new_local_cache())
     assert len(result) == 4
     assert isinstance(result, Mapping)
     assert "stream1" in result
@@ -381,7 +381,7 @@ def test_read_result_mapping() -> None:
 def test_dataset_list_and_len(
     expected_test_stream_data,
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
     # Test the lazy dataset implementation
@@ -392,7 +392,7 @@ def test_dataset_list_and_len(
     assert len(list(lazy_dataset_list)) == 2
 
     # Test the cached dataset implementation
-    result: ReadResult = source.read(ab.new_local_cache())
+    result: ReadResult = source.read(dr.new_local_cache())
     stream_1 = result["stream1"]
     assert len(stream_1) == 2
     assert len(list(stream_1)) == 2
@@ -417,15 +417,15 @@ def test_read_from_cache(
     Test that we can read from a cache that already has data (identifier by name)
     """
     cache_name = text_util.generate_random_suffix()
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    cache = ab.new_local_cache(cache_name)
+    cache = dr.new_local_cache(cache_name)
 
     source.read(cache)
 
     # Create a new cache pointing to the same duckdb file
-    second_cache = ab.new_local_cache(cache_name)
+    second_cache = dr.new_local_cache(cache_name)
 
     assert_data_matches_cache(expected_test_stream_data, second_cache)
 
@@ -438,17 +438,17 @@ def test_read_isolated_by_prefix(
     """
     cache_name = text_util.generate_random_suffix()
     db_path = Path(f"./.cache/{cache_name}.duckdb")
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
-    cache = ab.DuckDBCache(db_path=db_path, table_prefix="prefix_")
+    cache = dr.DuckDBCache(db_path=db_path, table_prefix="prefix_")
 
     source.read(cache)
 
-    same_prefix_cache = ab.DuckDBCache(db_path=db_path, table_prefix="prefix_")
-    different_prefix_cache = ab.DuckDBCache(
+    same_prefix_cache = dr.DuckDBCache(db_path=db_path, table_prefix="prefix_")
+    different_prefix_cache = dr.DuckDBCache(
         db_path=db_path, table_prefix="different_prefix_"
     )
-    no_prefix_cache = ab.DuckDBCache(db_path=db_path, table_prefix=None)
+    no_prefix_cache = dr.DuckDBCache(db_path=db_path, table_prefix=None)
 
     # validate that the cache with the same prefix has the data as expected, while the other two are empty
     assert_data_matches_cache(expected_test_stream_data, same_prefix_cache)
@@ -460,11 +460,11 @@ def test_read_isolated_by_prefix(
     source.read(different_prefix_cache)
     source.read(no_prefix_cache)
 
-    second_same_prefix_cache = ab.DuckDBCache(db_path=db_path, table_prefix="prefix_")
-    second_different_prefix_cache = ab.DuckDBCache(
+    second_same_prefix_cache = dr.DuckDBCache(db_path=db_path, table_prefix="prefix_")
+    second_different_prefix_cache = dr.DuckDBCache(
         db_path=db_path, table_prefix="different_prefix_"
     )
-    second_no_prefix_cache = ab.DuckDBCache(db_path=db_path, table_prefix=None)
+    second_no_prefix_cache = dr.DuckDBCache(db_path=db_path, table_prefix=None)
 
     # validate that the first cache still has full data, while the other two have partial data
     assert_data_matches_cache(
@@ -494,8 +494,8 @@ def test_merge_streams_in_cache(
     )  # Stream not needed for this test.
 
     cache_name = text_util.generate_random_suffix()
-    source = ab.get_source("source-test", config={"apiKey": "test"})
-    cache = ab.new_local_cache(cache_name)
+    source = dr.get_source("source-test", config={"apiKey": "test"})
+    cache = dr.new_local_cache(cache_name)
 
     source.select_streams(["stream1"])
     source.read(cache)
@@ -505,11 +505,11 @@ def test_merge_streams_in_cache(
         cache["stream2"]
 
     # Create a new cache with the same name
-    second_cache = ab.new_local_cache(cache_name)
+    second_cache = dr.new_local_cache(cache_name)
     source.select_streams(["stream2"])
     result = source.read(second_cache)
 
-    third_cache = ab.new_local_cache(cache_name)
+    third_cache = dr.new_local_cache(cache_name)
     source.select_streams(["always-empty-stream"])
     result = source.read(third_cache)
 
@@ -525,10 +525,10 @@ def test_merge_streams_in_cache(
 def test_read_result_as_list(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    cache = ab.new_local_cache()
+    cache = dr.new_local_cache()
 
     result: ReadResult = source.read(cache)
     stream_1_list = list(result["stream1"])
@@ -551,7 +551,7 @@ def test_read_result_as_list(
 def test_get_records_result_as_list(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
 
     stream_1_list = list(source.get_records("stream1"))
     stream_2_list = list(source.get_records("stream2"))
@@ -580,10 +580,10 @@ def test_sync_with_merge_to_duckdb(
 
     # TODO: Add a check with a primary key to ensure that the merge strategy works as expected.
     """
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    cache = ab.new_local_cache()
+    cache = dr.new_local_cache()
 
     # Read twice to test merge strategy
     result: ReadResult = source.read(cache)
@@ -605,10 +605,10 @@ def test_sync_with_merge_to_duckdb(
 def test_cached_dataset(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    result: ReadResult = source.read(ab.new_local_cache())
+    result: ReadResult = source.read(dr.new_local_cache())
 
     stream_name = "stream1"
     not_a_stream_name = "not_a_stream"
@@ -674,10 +674,10 @@ def test_cached_dataset(
 
 
 def test_cached_dataset_filter() -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
-    result: ReadResult = source.read(ab.new_local_cache())
+    result: ReadResult = source.read(dr.new_local_cache())
 
     stream_name = "stream1"
 
@@ -723,7 +723,7 @@ def test_cached_dataset_filter() -> None:
 def test_lazy_dataset_from_source(
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
 
     stream_name = "stream1"
     not_a_stream_name = "not_a_stream"
@@ -743,7 +743,7 @@ def test_lazy_dataset_from_source(
     ) == pop_internal_columns_from_dataset(list_from_iter_b)
 
     # Make sure that we get a key error if we try to access a stream that doesn't exist
-    with pytest.raises(exc.PyAirbyteInputError):
+    with pytest.raises(exc.DataRheoInputError):
         source.get_records(not_a_stream_name)
 
     # Make sure we can iterate on all available streams
@@ -774,9 +774,9 @@ def test_lazy_dataset_from_source(
     ],
 )
 def test_check_fail_on_missing_config(method_call):
-    source = ab.get_source("source-test")
+    source = dr.get_source("source-test")
 
-    with pytest.raises(exc.AirbyteConnectorConfigurationMissingError):
+    with pytest.raises(exc.DataRheoConnectorConfigurationMissingError):
         method_call(source)
 
 
@@ -789,7 +789,7 @@ def test_sync_with_merge_to_postgres(
     In this test, we sync the same data twice. If the data is not duplicated, we assume
     the merge was successful.
     """
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
     # Read twice to test merge strategy
@@ -805,7 +805,7 @@ def test_sync_with_merge_to_postgres(
     )
 
 
-def test_airbyte_version() -> None:
+def test_datarheo_version() -> None:
     version = get_version()
     assert version
     assert isinstance(version, str)
@@ -821,7 +821,7 @@ def test_sync_to_postgres(
     new_postgres_cache: PostgresCache,
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
     result: ReadResult = source.read(new_postgres_cache)
@@ -847,7 +847,7 @@ def test_sync_to_snowflake(
     new_snowflake_cache: SnowflakeCache,
     expected_test_stream_data: dict[str, list[dict[str, str | int]]],
 ) -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
     source.select_all_streams()
 
     result: ReadResult = source.read(new_snowflake_cache)
@@ -868,8 +868,8 @@ def test_sync_to_snowflake(
 
 
 def test_sync_limited_streams(expected_test_stream_data):
-    source = ab.get_source("source-test", config={"apiKey": "test"})
-    cache = ab.new_local_cache()
+    source = dr.get_source("source-test", config={"apiKey": "test"})
+    cache = dr.new_local_cache()
 
     source.select_streams(["stream2"])
 
@@ -884,7 +884,7 @@ def test_sync_limited_streams(expected_test_stream_data):
 
 
 def test_read_stream_nonexisting() -> None:
-    source = ab.get_source("source-test", config={"apiKey": "test"})
+    source = dr.get_source("source-test", config={"apiKey": "test"})
 
     with pytest.raises(Exception):
         list(source.get_records("non-existing"))
@@ -892,7 +892,7 @@ def test_read_stream_nonexisting() -> None:
 
 def test_failing_path_connector() -> None:
     with pytest.raises(Exception):
-        source = ab.get_source(
+        source = dr.get_source(
             "source-test",
             config={"apiKey": "test"},
             local_executable=Path("non-existing"),
@@ -903,7 +903,7 @@ def test_failing_path_connector() -> None:
 def test_succeeding_path_connector(monkeypatch) -> None:
     venv_bin_path = str(get_bin_dir(Path(".venv-source-test")))
 
-    source = ab.get_source(
+    source = dr.get_source(
         "source-test",
         config={"apiKey": "test"},
         local_executable=Path(venv_bin_path) / "source-test",
@@ -913,7 +913,7 @@ def test_succeeding_path_connector(monkeypatch) -> None:
 
 def test_install_uninstall() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
-        source = ab.get_source(
+        source = dr.get_source(
             "source-test",
             pip_url="./tests/integration_tests/fixtures/source-test",
             config={"apiKey": "test"},

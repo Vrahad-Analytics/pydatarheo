@@ -1,23 +1,23 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import os
 
-import airbyte as ab
+import datarheo as dr
 
-# preparation (from PyAirbyte main folder):
+# preparation (from PyDataRheo main folder):
 #   python -m venv .venv-source-test
 #   source .venv-source-test/bin/activate
 #   pip install -e ./tests/integration_tests/fixtures/source-test
 # In separate terminal:
 #   poetry run python examples/run_test_source.py
 
-os.environ["AIRBYTE_LOCAL_REGISTRY"] = (
+os.environ["DATARHEO_LOCAL_REGISTRY"] = (
     "./tests/integration_tests/fixtures/registry.json"
 )
 
-source = ab.get_source("source-test", config={"apiKey": "test"})
-cache = ab.new_local_cache("cache_test")
+source = dr.get_source("source-test", config={"apiKey": "test"})
+cache = dr.new_local_cache("cache_test")
 
 source.check()
 
@@ -28,5 +28,5 @@ result = source.read(cache)
 print(result.processed_records)
 print(list(result["stream1"]))
 
-different_cache = ab.new_local_cache("cache_test")
+different_cache = dr.new_local_cache("cache_test")
 print(list(different_cache["stream1"]))

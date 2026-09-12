@@ -1,9 +1,11 @@
 [project]
-name = "airbyte"
-description = "PyAirbyte"
+name = "pydatarheo"
+description = "PyDataRheo: run data-integration connectors from Python."
 readme = "README.md"
+license = "MIT"
+keywords = ["datarheo", "etl", "elt", "data-integration", "connectors", "mcp"]
 authors = [
-    { name = "Airbyte", email = "contact@airbyte.io" }
+    { name = "Vrahad Analytics LLP", email = "ardb40@gmail.com" }
 ]
 requires-python = ">=3.10,<3.13"
 dynamic = ["version"]
@@ -79,11 +81,17 @@ dev = [
 ]
 
 [project.scripts]
-pyairbyte = "airbyte.cli.pyab:cli"
-pyab = "airbyte.cli.pyab:cli"
-airbyte-mcp = "airbyte.mcp.server:main"
-airbyte-mcp-http = "airbyte.mcp.http_main:main"
-source-smoke-test = "airbyte.cli.smoke_test_source.run:run"
+pydatarheo = "datarheo.cli.pydr:cli"
+pydr = "datarheo.cli.pydr:cli"
+datarheo-mcp = "datarheo.mcp.server:main"
+datarheo-mcp-http = "datarheo.mcp.http_main:main"
+source-smoke-test = "datarheo.cli.smoke_test_source.run:run"
+
+[project.urls]
+Homepage = "https://github.com/Vrahad-Analytics/pydatarheo"
+Documentation = "https://vrahad-analytics.github.io/pydatarheo"
+Repository = "https://github.com/Vrahad-Analytics/pydatarheo"
+Issues = "https://github.com/Vrahad-Analytics/pydatarheo/issues"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
@@ -105,7 +113,7 @@ fallback-version = "0.0.0"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["airbyte"]
+packages = ["datarheo"]
 
 [tool.pytest.ini_options]
 # Pytest configuration as follows:
@@ -132,7 +140,7 @@ filterwarnings = [ # syntax: "action:message_regex:category:module:line"
     # Order matters here. This must be last because it will fail if we
     # hit another warning during the import.
     "ignore::airbyte_cdk.sources.source.ExperimentalClassWarning",
-    "ignore::airbyte.exceptions.AirbyteExperimentalFeatureWarning",
+    "ignore::datarheo.exceptions.DataRheoExperimentalFeatureWarning",
     # CDK has these refs:
     "ignore::pydantic.warnings.PydanticDeprecatedSince20",
 ]
@@ -172,18 +180,18 @@ fix-unsafe = { shell = "ruff format . && ruff check --fix --unsafe-fixes . && ru
 fix-and-check = { shell = "poe fix && poe check" }
 
 # MCP Server Tasks
-mcp-serve-local = { cmd = "airbyte-mcp", help = "Start the MCP server with STDIO transport" }
-mcp-serve-http = { cmd = "python -c \"from airbyte.mcp.server import app; app.run(transport='http', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with HTTP transport" }
-mcp-serve-sse = { cmd = "python -c \"from airbyte.mcp.server import app; app.run(transport='sse', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with SSE transport" }
-mcp-inspect = { cmd = "fastmcp inspect airbyte/mcp/server.py:app", help = "Inspect MCP tools and resources (supports --tools, --health, etc.)" }
-mcp-tool-test = { cmd = "python -m fastmcp_extensions.utils.test_tool --app airbyte.mcp.server:app", help = "Test MCP tools directly with JSON arguments: poe mcp-tool-test <tool_name> '<json_args>'" }
+mcp-serve-local = { cmd = "datarheo-mcp", help = "Start the MCP server with STDIO transport" }
+mcp-serve-http = { cmd = "python -c \"from datarheo.mcp.server import app; app.run(transport='http', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with HTTP transport" }
+mcp-serve-sse = { cmd = "python -c \"from datarheo.mcp.server import app; app.run(transport='sse', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with SSE transport" }
+mcp-inspect = { cmd = "fastmcp inspect datarheo/mcp/server.py:app", help = "Inspect MCP tools and resources (supports --tools, --health, etc.)" }
+mcp-tool-test = { cmd = "python -m fastmcp_extensions.utils.test_tool --app datarheo.mcp.server:app", help = "Test MCP tools directly with JSON arguments: poe mcp-tool-test <tool_name> '<json_args>'" }
 mcp-docs-md = { cmd = "python scripts/generate_mcp_markdown.py", help = "Generate Markdown docs for the MCP server into docs/mcp-generated/ (Docusaurus- and pdoc-compatible)" }
 
 # Claude Code MCP Testing Tasks
 [tool.poe.tasks.test-my-tools]
 help = "Run Claude Code in headless mode with the test-my-tools MCP prompt"
 shell = """
-npx @anthropic-ai/claude-code --print "/mcp__airbyte-mcp__test-my-tools ${scope:+ $scope}" \
+npx @anthropic-ai/claude-code --print "/mcp__datarheo-mcp__test-my-tools ${scope:+ $scope}" \
     --mcp-config=.github/mcp-ci-tests.mcp.json \
     --dangerously-skip-permissions \
     --verbose --output-format=stream-json | \

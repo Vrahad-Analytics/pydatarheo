@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Cloud Workspace integration tests.
 
 These tests are designed to be run against a running instance of the Airbyte API.
@@ -8,15 +8,15 @@ from __future__ import annotations
 
 import pytest
 
-import airbyte as ab
-from airbyte.cloud import CloudWorkspace
-from airbyte.cloud.connections import CloudConnection
-from airbyte.cloud.connectors import CloudSource
+import datarheo as dr
+from datarheo.cloud import CloudWorkspace
+from datarheo.cloud.connections import CloudConnection
+from datarheo.cloud.connectors import CloudSource
 
 
 def test_deploy_destination(
     cloud_workspace: CloudWorkspace,
-    deployable_dummy_destination: ab.Destination,
+    deployable_dummy_destination: dr.Destination,
 ) -> None:
     """Test deploying a source to a workspace."""
     cloud_destination = cloud_workspace.deploy_destination(
@@ -33,7 +33,7 @@ def test_deploy_source(
     use_docker: bool,
 ) -> None:
     """Test deploying a source to a workspace."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         config={"count": 100},
         docker_image=use_docker,
@@ -48,7 +48,7 @@ def test_deploy_source(
 
 
 def test_deploy_dummy_source(
-    deployable_dummy_source: ab.Source,
+    deployable_dummy_source: dr.Source,
     cloud_workspace: CloudWorkspace,
 ) -> None:
     """Test deploying a source to a workspace."""
@@ -68,8 +68,8 @@ def test_deploy_dummy_source(
 )
 def test_deploy_connection(
     cloud_workspace: CloudWorkspace,
-    deployable_dummy_source: ab.Source,
-    deployable_dummy_destination: ab.Destination,
+    deployable_dummy_source: dr.Source,
+    deployable_dummy_destination: dr.Destination,
 ) -> None:
     """Test deploying a source and cache to a workspace as a new connection."""
     stream_names = deployable_dummy_source.get_selected_streams()

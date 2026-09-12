@@ -5,9 +5,9 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import pytest
-from airbyte.cloud import CloudWorkspace
-from airbyte.cloud.connectors import CloudDestination, CloudSource
-from airbyte.cloud.models import CloudDestinationInfo, CloudSourceInfo
+from datarheo.cloud import CloudWorkspace
+from datarheo.cloud.connectors import CloudDestination, CloudSource
+from datarheo.cloud.models import CloudDestinationInfo, CloudSourceInfo
 from airbyte_api.models import (
     DestinationDuckdb,
     DestinationResponse,

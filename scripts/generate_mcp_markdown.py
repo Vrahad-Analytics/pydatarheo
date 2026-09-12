@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
-"""Generate Markdown documentation for the Airbyte Replication MCP server.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Generate Markdown documentation for the DataRheo MCP server.
 
-Runs a two-pass inspect against the default `airbyte/mcp/server.py:app` spec
+Runs a two-pass inspect against the default `datarheo/mcp/server.py:app` spec
 (override with `--server-spec`) to obtain the full FastMCP protocol surface
 (tools, resources, resource templates, prompts) as a JSON report, then renders
 it into one Markdown file **per MCP module** under `docs/mcp-generated/`, plus
@@ -13,7 +13,7 @@ registered tool.
 
 The per-module grouping uses the `mcp_module` annotation that
 `fastmcp_extensions.mcp_tool` attaches to every registered tool (derived from
-the Python file the tool is defined in — e.g. tools in `airbyte/mcp/cloud.py`
+the Python file the tool is defined in — e.g. tools in `datarheo/mcp/cloud.py`
 get `mcp_module="cloud"`). Prompts and resources fall back to `meta.mcp_module`
 when present, and otherwise to an import-based lookup against
 `fastmcp_extensions.decorators._REGISTERED_*`; anything still unresolved lands
@@ -95,7 +95,7 @@ from fastmcp_extensions.capability_tokens import DEFAULT_EXTENSIONS_HEADER
 from fastmcp_extensions.tool_filters import ANNOTATION_REQUIRES_CLIENT_FILESYSTEM
 from starlette.requests import Request
 
-from airbyte.constants import (
+from datarheo.constants import (
     MCP_INSIDERS_ENV_VAR,
     MCP_INSIDERS_HEADER,
     MCP_INSIDERS_MODULES,
@@ -104,7 +104,7 @@ from airbyte.constants import (
 
 
 DEFAULT_OUTPUT = Path("docs/mcp-generated")
-DEFAULT_SERVER_SPEC = "airbyte/mcp/server.py:app"
+DEFAULT_SERVER_SPEC = "datarheo/mcp/server.py:app"
 MISC_MODULE = "misc"
 # Upper bound on how long `fastmcp inspect` may take before we fail the build.
 # 120s is generous: local runs finish in ~10s, but CI / cold caches occasionally

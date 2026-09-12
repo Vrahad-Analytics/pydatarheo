@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import json
@@ -6,10 +6,10 @@ import re
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import airbyte as ab
+import datarheo as dr
 import pytest
 import responses
-from airbyte._util import telemetry
+from datarheo._util import telemetry
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -22,8 +22,8 @@ def test_telemetry_track(monkeypatch, source_test_registry):
     """Check that track is called and the correct data is sent."""
     monkeypatch.delenv("DO_NOT_TRACK", raising=False)
 
-    source_test = ab.get_source("source-test", install_if_missing=False)
-    cache = ab.new_local_cache()
+    source_test = dr.get_source("source-test", install_if_missing=False)
+    cache = dr.new_local_cache()
 
     # Add a response for the telemetry endpoint
     responses.add(responses.POST, "https://api.segment.io/v1/track", status=200)
@@ -81,8 +81,8 @@ def test_do_not_track(
     """Check that track is called and the correct data is sent."""
     monkeypatch.setenv("DO_NOT_TRACK", do_not_track)
 
-    source_test = ab.get_source("source-test", install_if_missing=False)
-    cache = ab.new_local_cache()
+    source_test = dr.get_source("source-test", install_if_missing=False)
+    cache = dr.new_local_cache()
 
     # Add a response for the telemetry endpoint
     responses.add(responses.POST, "https://api.segment.io/v1/track", status=200)

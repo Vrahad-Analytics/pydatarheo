@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for Airbyte Cloud connections."""
 
 from __future__ import annotations
@@ -6,11 +6,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import pytest
-from airbyte._util import api_util
-from airbyte.cloud.connections import CloudConnection
-from airbyte.cloud.models import JobStatusEnum, JobTypeEnum
-from airbyte.cloud.workspaces import CloudWorkspace
-from airbyte.exceptions import PyAirbyteInputError
+from datarheo._util import api_util
+from datarheo.cloud.connections import CloudConnection
+from datarheo.cloud.models import JobStatusEnum, JobTypeEnum
+from datarheo.cloud.workspaces import CloudWorkspace
+from datarheo.exceptions import DataRheoInputError
 from airbyte_api import models
 
 
@@ -161,7 +161,7 @@ def test_cancel_sync_rejects_latest_completed_job(
 
     monkeypatch.setattr(connection, "get_previous_sync_logs", get_previous_sync_logs)
 
-    with pytest.raises(PyAirbyteInputError, match="succeeded"):
+    with pytest.raises(DataRheoInputError, match="succeeded"):
         connection.cancel_sync()
 
 
@@ -183,7 +183,7 @@ def test_cancel_sync_rejects_connection_without_jobs(
 
     monkeypatch.setattr(connection, "get_previous_sync_logs", get_previous_sync_logs)
 
-    with pytest.raises(PyAirbyteInputError, match="No sync jobs found"):
+    with pytest.raises(DataRheoInputError, match="No sync jobs found"):
         connection.cancel_sync()
 
 
@@ -242,7 +242,7 @@ def test_cancel_sync_rejects_explicit_job_from_different_connection(
     )
 
     with pytest.raises(
-        PyAirbyteInputError,
+        DataRheoInputError,
         match="different-connection-id.*connection-id",
     ):
         connection.cancel_sync(job_id=123)
@@ -269,7 +269,7 @@ def test_cancel_sync_rejects_explicit_completed_job(
         _job_response(123, models.JobStatusEnum.CANCELLED),
     )
 
-    with pytest.raises(PyAirbyteInputError, match="succeeded"):
+    with pytest.raises(DataRheoInputError, match="succeeded"):
         connection.cancel_sync(job_id=123)
 
     assert captured_lookup_job_ids == [123]

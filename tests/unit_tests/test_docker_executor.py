@@ -1,12 +1,12 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for the `DockerExecutor` CLI arg mapping."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from airbyte._executors.docker import (
-    DEFAULT_AIRBYTE_CONTAINER_TEMP_DIR,
+from datarheo._executors.docker import (
+    DEFAULT_CONTAINER_TEMP_DIR,
     DockerExecutor,
 )
 
@@ -16,7 +16,7 @@ def _make_executor(local_volume: Path) -> DockerExecutor:
         name="source-faker",
         image_name_full="airbyte/source-faker:latest",
         executable=["docker", "run", "airbyte/source-faker:latest"],
-        volumes={local_volume: DEFAULT_AIRBYTE_CONTAINER_TEMP_DIR},
+        volumes={local_volume: DEFAULT_CONTAINER_TEMP_DIR},
     )
 
 
@@ -24,7 +24,7 @@ def test_map_cli_args_emits_posix_container_paths(tmp_path: Path) -> None:
     r"""Mapped paths must use POSIX separators, since the container is always Linux.
 
     Regression test: on Windows, joining via `pathlib.Path` produced backslash paths
-    such as `\airbyte\tmp\config.json`, which the connector could not open.
+    such as `\datarheo\tmp\config.json`, which the connector could not open.
     """
     config_file = tmp_path / "config.json"
     config_file.write_text("{}")
@@ -35,7 +35,7 @@ def test_map_cli_args_emits_posix_container_paths(tmp_path: Path) -> None:
     assert mapped == [
         "check",
         "--config",
-        f"{DEFAULT_AIRBYTE_CONTAINER_TEMP_DIR}/config.json",
+        f"{DEFAULT_CONTAINER_TEMP_DIR}/config.json",
     ]
 
 
@@ -50,7 +50,7 @@ def test_map_cli_args_maps_nested_paths_with_posix_separators(tmp_path: Path) ->
     mapped = executor.map_cli_args([str(catalog_file)])
 
     assert mapped == [
-        f"{DEFAULT_AIRBYTE_CONTAINER_TEMP_DIR}/sub/dir/catalog.json",
+        f"{DEFAULT_CONTAINER_TEMP_DIR}/sub/dir/catalog.json",
     ]
 
 

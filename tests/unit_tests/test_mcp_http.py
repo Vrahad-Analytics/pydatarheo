@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Tests for stateless HTTP extension declarations and UI tool visibility."""
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamable_http_client
 from starlette.middleware import Middleware
 
-from airbyte.constants import MCP_EXTENSIONS_HEADER
-from airbyte.mcp.server import app
+from datarheo.constants import MCP_EXTENSIONS_HEADER
+from datarheo.mcp.server import app
 from fastmcp_extensions import CapabilityTokenMiddleware
 from fastmcp_extensions import DEFAULT_EXTENSIONS_HEADER
 
@@ -40,13 +40,13 @@ def test_mcp_extensions_header_matches_fastmcp_extensions() -> None:
     assert MCP_EXTENSIONS_HEADER == DEFAULT_EXTENSIONS_HEADER
 
 
-def test_importing_airbyte_does_not_load_mcp_dependencies() -> None:
-    """Keep importing `airbyte` free of optional MCP dependencies."""
+def test_importing_datarheo_does_not_load_mcp_dependencies() -> None:
+    """Keep importing `datarheo` free of optional MCP dependencies."""
     result = subprocess.run(
         [
             sys.executable,
             "-c",
-            "import airbyte, sys; print(*sys.modules, sep='\\n')",
+            "import datarheo, sys; print(*sys.modules, sep='\\n')",
         ],
         capture_output=True,
         check=True,
@@ -67,7 +67,7 @@ def test_importing_airbyte_does_not_load_mcp_dependencies() -> None:
         or any(module.startswith(f"{prefix}.") for prefix in forbidden_modules)
     )
     assert not offending_modules, (
-        "Importing `airbyte` loaded optional MCP dependencies: "
+        "Importing `datarheo` loaded optional MCP dependencies: "
         + ", ".join(offending_modules)
     )
 
@@ -112,11 +112,11 @@ async def _stdio_session(
     environment = {
         key: value
         for key, value in os.environ.items()
-        if not key.startswith("AIRBYTE_MCP_")
+        if not key.startswith("DATARHEO_MCP_")
     }
     parameters = StdioServerParameters(
         command=sys.executable,
-        args=["-m", "airbyte.mcp.server"],
+        args=["-m", "datarheo.mcp.server"],
         cwd=REPO_ROOT,
         env=environment,
     )

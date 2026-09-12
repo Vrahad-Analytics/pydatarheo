@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for the MCP trusted-execution gate and its function-layer guards."""
 
 from __future__ import annotations
@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Callable
 
 import pytest
 
-from airbyte.constants import MCP_TRUSTED_EXECUTION_ENV_VAR
-from airbyte.exceptions import (
-    AirbyteTrustedExecutionRequiredError,
-    PyAirbyteInputError,
+from datarheo.constants import MCP_TRUSTED_EXECUTION_ENV_VAR
+from datarheo.exceptions import (
+    DataRheoTrustedExecutionRequiredError,
+    DataRheoInputError,
 )
-from airbyte.mcp import local
-from airbyte.mcp._arg_resolvers import resolve_connector_config
-from airbyte.mcp._guards import (
+from datarheo.mcp import local
+from datarheo.mcp._arg_resolvers import resolve_connector_config
+from datarheo.mcp._guards import (
     is_trusted_execution_enabled,
     raise_if_untrusted_execution_context,
 )
@@ -27,8 +27,8 @@ if TYPE_CHECKING:
     from pytest import MonkeyPatch
 
 
-TRUSTED_DOMAINS_INCLUDE_ENV = "AIRBYTE_MCP_DOMAINS"
-TRUSTED_DOMAINS_EXCLUDE_ENV = "AIRBYTE_MCP_DOMAINS_DISABLED"
+TRUSTED_DOMAINS_INCLUDE_ENV = "DATARHEO_MCP_DOMAINS"
+TRUSTED_DOMAINS_EXCLUDE_ENV = "DATARHEO_MCP_DOMAINS_DISABLED"
 
 
 def _set_trusted(monkeypatch: MonkeyPatch, *, enabled: bool) -> None:
@@ -81,7 +81,7 @@ def test_raise_if_untrusted_execution_context(
     if enabled:
         raise_if_untrusted_execution_context("some feature")
         return
-    with pytest.raises(AirbyteTrustedExecutionRequiredError) as exc_info:
+    with pytest.raises(DataRheoTrustedExecutionRequiredError) as exc_info:
         raise_if_untrusted_execution_context("some feature")
     assert exc_info.value.feature == "some feature"
 
@@ -131,7 +131,7 @@ def test_resolve_connector_config_rejects_when_untrusted(
 ) -> None:
     """Filesystem, server-side-secret, and `secret_reference::` paths are gated when untrusted."""
     _set_trusted(monkeypatch, enabled=False)
-    with pytest.raises(AirbyteTrustedExecutionRequiredError):
+    with pytest.raises(DataRheoTrustedExecutionRequiredError):
         resolve_connector_config(**build_kwargs(tmp_path))
 
 
@@ -207,7 +207,7 @@ def test_local_helpers_reject_when_untrusted(
     though a registration mistake could leave the tool listed.
     """
     _set_trusted(monkeypatch, enabled=False)
-    with pytest.raises(AirbyteTrustedExecutionRequiredError):
+    with pytest.raises(DataRheoTrustedExecutionRequiredError):
         call_helper()
 
 
@@ -219,7 +219,7 @@ def test_assert_http_trusted_execution_disabled(
     """The HTTP startup guard hard-fails only when trusted execution is explicitly enabled."""
     from fastmcp_extensions import assert_http_trusted_execution_disabled
 
-    from airbyte.mcp.server import app
+    from datarheo.mcp.server import app
 
     _set_trusted(monkeypatch, enabled=enabled)
     if enabled:
@@ -236,12 +236,12 @@ def test_load_secrets_registers_secret_managers_only_when_trusted(
     trusted: bool,
 ) -> None:
     """Dotenv/GSM secret managers register only when trusted; env vars always load either way."""
-    from airbyte.mcp import _config
+    from datarheo.mcp import _config
 
     _set_trusted(monkeypatch, enabled=trusted)
     env_file = tmp_path / "custom.env"
     env_file.write_text("MY_SAFE_VAR=hello\n")
-    monkeypatch.setenv(_config.AIRBYTE_MCP_DOTENV_PATH_ENVVAR, str(env_file))
+    monkeypatch.setenv(_config.DATARHEO_MCP_DOTENV_PATH_ENVVAR, str(env_file))
     monkeypatch.delenv("MY_SAFE_VAR", raising=False)
 
     registered: list[object] = []
@@ -257,43 +257,43 @@ def test_load_secrets_registers_secret_managers_only_when_trusted(
         assert registered == []
 
 
-def test_validate_airbyte_domains_rejects_include_and_exclude(
+def test_validate_datarheo_domains_rejects_include_and_exclude(
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Setting both include and exclude domain lists hard-fails with remediation guidance."""
-    from airbyte.mcp._tool_utils import validate_airbyte_domains
-    from airbyte.mcp.server import app
+    from datarheo.mcp._tool_utils import validate_datarheo_domains
+    from datarheo.mcp.server import app
 
     monkeypatch.setenv(TRUSTED_DOMAINS_INCLUDE_ENV, "cloud")
     monkeypatch.setenv(TRUSTED_DOMAINS_EXCLUDE_ENV, "local")
-    with pytest.raises(PyAirbyteInputError) as exc_info:
-        validate_airbyte_domains(app)
+    with pytest.raises(DataRheoInputError) as exc_info:
+        validate_datarheo_domains(app)
     rendered = str(exc_info.value)
     assert "mutually exclusive" in rendered
     assert "restart" in rendered.lower()
 
 
-def test_validate_airbyte_domains_rejects_unknown_domain(
+def test_validate_datarheo_domains_rejects_unknown_domain(
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Requesting a domain with no registered tools hard-fails instead of silently dropping it."""
-    from airbyte.mcp._tool_utils import validate_airbyte_domains
-    from airbyte.mcp.server import app
+    from datarheo.mcp._tool_utils import validate_datarheo_domains
+    from datarheo.mcp.server import app
 
     monkeypatch.delenv(TRUSTED_DOMAINS_EXCLUDE_ENV, raising=False)
     monkeypatch.setenv(TRUSTED_DOMAINS_INCLUDE_ENV, "not_a_real_domain")
-    with pytest.raises(PyAirbyteInputError) as exc_info:
-        validate_airbyte_domains(app)
+    with pytest.raises(DataRheoInputError) as exc_info:
+        validate_datarheo_domains(app)
     assert "not_a_real_domain" in exc_info.value.context["unknown_domains"]
 
 
-def test_validate_airbyte_domains_allows_known_single_domain(
+def test_validate_datarheo_domains_allows_known_single_domain(
     monkeypatch: MonkeyPatch,
 ) -> None:
     """A single valid include domain passes validation."""
-    from airbyte.mcp._tool_utils import validate_airbyte_domains
-    from airbyte.mcp.server import app
+    from datarheo.mcp._tool_utils import validate_datarheo_domains
+    from datarheo.mcp.server import app
 
     monkeypatch.delenv(TRUSTED_DOMAINS_EXCLUDE_ENV, raising=False)
     monkeypatch.setenv(TRUSTED_DOMAINS_INCLUDE_ENV, "cloud")
-    validate_airbyte_domains(app)
+    validate_datarheo_domains(app)

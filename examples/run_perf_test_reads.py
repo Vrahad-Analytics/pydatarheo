@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """
 Simple script to get performance profile of read throughput.
 
@@ -44,12 +44,12 @@ You can also use this script to test destination load performance:
 poetry run python ./examples/run_perf_test_reads.py -n=5e3 --destination=e2e
 ```
 
-Testing raw PyAirbyte throughput with and without caching:
+Testing raw PyDataRheo throughput with and without caching:
 
 ```bash
-# Test raw PyAirbyte throughput with caching (Source->Cache):
+# Test raw PyDataRheo throughput with caching (Source->Cache):
 poetry run python ./examples/run_perf_test_reads.py -n=1e3
-# Test raw PyAirbyte throughput without caching (Source->Destination):
+# Test raw PyDataRheo throughput without caching (Source->Destination):
 poetry run python ./examples/run_perf_test_reads.py -n=1e3 --destination=e2e --no-cache
 ```
 
@@ -71,19 +71,19 @@ import tempfile
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-import airbyte as ab
-from airbyte.caches import BigQueryCache, CacheBase, SnowflakeCache
-from airbyte.destinations import Destination, get_noop_destination
-from airbyte.secrets.google_gsm import GoogleGSMSecretManager
-from airbyte.sources import get_benchmark_source
+import datarheo as dr
+from datarheo.caches import BigQueryCache, CacheBase, SnowflakeCache
+from datarheo.destinations import Destination, get_noop_destination
+from datarheo.secrets.google_gsm import GoogleGSMSecretManager
+from datarheo.sources import get_benchmark_source
 from typing_extensions import Literal
 from ulid import ULID
 
 if TYPE_CHECKING:
-    from airbyte.sources.base import Source
+    from datarheo.sources.base import Source
 
 
-AIRBYTE_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
+DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 
 
 def _random_suffix() -> str:
@@ -94,8 +94,8 @@ def _random_suffix() -> str:
 
 def get_gsm_secret_json(secret_name: str) -> dict:
     secret_mgr = GoogleGSMSecretManager(
-        project=AIRBYTE_INTERNAL_GCP_PROJECT,
-        credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+        project=DATARHEO_INTERNAL_GCP_PROJECT,
+        credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
     )
     secret = secret_mgr.get_secret(
         secret_name=secret_name,
@@ -111,11 +111,11 @@ def get_cache(
         return False
 
     if cache_type == "duckdb":
-        return ab.new_local_cache()
+        return dr.new_local_cache()
 
     if cache_type == "snowflake":
         snowflake_config = get_gsm_secret_json(
-            secret_name="AIRBYTE_LIB_SNOWFLAKE_CREDS",
+            secret_name="DATARHEO_LIB_SNOWFLAKE_CREDS",
         )
         return SnowflakeCache(
             account=snowflake_config["account"],
@@ -141,7 +141,7 @@ def get_cache(
 
         return BigQueryCache(
             project_name=secret_config["project_id"],
-            dataset_name=secret_config.get("dataset_id", "pyairbyte_integtest"),
+            dataset_name=secret_config.get("dataset_id", "pydatarheo_integtest"),
             credentials_path=temp.name,
         )
 
@@ -156,7 +156,7 @@ def get_source(
         num_records = int(Decimal(num_records))
 
     if source_alias == "faker":
-        return ab.get_source(
+        return dr.get_source(
             "source-faker",
             config={"count": num_records},
             install_if_missing=False,
@@ -167,7 +167,7 @@ def get_source(
         return get_benchmark_source(num_records=num_records)
 
     if source_alias == "hardcoded":
-        return ab.get_source(
+        return dr.get_source(
             "source-hardcoded-records",
             streams=["dummy_fields"],
             config={
@@ -178,19 +178,19 @@ def get_source(
     raise ValueError(f"Unknown source alias: {source_alias}")  # noqa: TRY003
 
 
-def get_destination(destination_type: str) -> ab.Destination:
+def get_destination(destination_type: str) -> dr.Destination:
     if destination_type in ["e2e", "noop"]:
         return get_noop_destination()
 
     if destination_type.removeprefix("destination-") == "snowflake":
         snowflake_config = get_gsm_secret_json(
-            secret_name="AIRBYTE_LIB_SNOWFLAKE_CREDS",
+            secret_name="DATARHEO_LIB_SNOWFLAKE_CREDS",
         )
         snowflake_config["host"] = (
             f"{snowflake_config['account']}.snowflakecomputing.com"
         )
         snowflake_config["schema"] = f"INTEGTEST_{_random_suffix()}"
-        return ab.get_destination(
+        return dr.get_destination(
             "destination-snowflake",
             config=snowflake_config,
             docker_image=True,

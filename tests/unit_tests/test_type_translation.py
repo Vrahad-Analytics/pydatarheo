@@ -1,8 +1,8 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import pytest
-from airbyte.types import SQLTypeConversionError, SQLTypeConverter, _get_airbyte_type
+from datarheo.types import SQLTypeConversionError, SQLTypeConverter, _get_datarheo_type
 from sqlalchemy import types
 
 
@@ -76,7 +76,7 @@ def test_to_sql_type(json_schema_property_def, expected_sql_type):
 
 
 @pytest.mark.parametrize(
-    "json_schema_property_def, expected_airbyte_type, raises",
+    "json_schema_property_def, expected_datarheo_type, raises",
     [
         ({"type": "string"}, "string", None),
         ({"type": ["boolean", "null"]}, "boolean", None),
@@ -134,22 +134,22 @@ def test_to_sql_type(json_schema_property_def, expected_sql_type):
         ({"type": ["null", "array"], "items": {"items": {}}}, "array", None),
     ],
 )
-def test_to_airbyte_type(
+def test_to_datarheo_type(
     json_schema_property_def,
-    expected_airbyte_type: str,
+    expected_datarheo_type: str,
     raises: type[Exception] | None,
 ):
     if raises:
         with pytest.raises(raises):
-            _get_airbyte_type(json_schema_property_def)
+            _get_datarheo_type(json_schema_property_def)
         return
 
-    airbyte_type, _ = _get_airbyte_type(json_schema_property_def)
-    assert airbyte_type == expected_airbyte_type
+    airbyte_type, _ = _get_datarheo_type(json_schema_property_def)
+    assert airbyte_type == expected_datarheo_type
 
 
 @pytest.mark.parametrize(
-    "json_schema_property_def, expected_airbyte_type, expected_airbyte_subtype",
+    "json_schema_property_def, expected_datarheo_type, expected_datarheo_subtype",
     [
         ({"type": "string"}, "string", None),
         ({"type": "number"}, "number", None),
@@ -162,11 +162,11 @@ def test_to_airbyte_type(
         ({"type": ["null", "array"], "items": {"items": {}}}, "array", None),
     ],
 )
-def test_to_airbyte_subtype(
+def test_to_datarheo_subtype(
     json_schema_property_def,
-    expected_airbyte_type,
-    expected_airbyte_subtype,
+    expected_datarheo_type,
+    expected_datarheo_subtype,
 ):
-    airbyte_type, subtype = _get_airbyte_type(json_schema_property_def)
-    assert airbyte_type == expected_airbyte_type
-    assert subtype == expected_airbyte_subtype
+    airbyte_type, subtype = _get_datarheo_type(json_schema_property_def)
+    assert airbyte_type == expected_datarheo_type
+    assert subtype == expected_datarheo_subtype

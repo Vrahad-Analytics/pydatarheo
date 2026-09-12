@@ -1,7 +1,7 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
-"""Unit tests for the PyAirbyte CLI.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Unit tests for the PyDataRheo CLI.
 
-These tests exercise the Cyclopts-based `pyab` CLI to confirm that `--help`
+These tests exercise the Cyclopts-based `pydr` CLI to confirm that `--help`
 remains invocable for the root app and every subcommand after the migration
 from Click to Cyclopts.
 """
@@ -14,7 +14,7 @@ from contextlib import redirect_stdout
 import pytest
 from cyclopts import App
 
-from airbyte.cli.pyab import cli
+from datarheo.cli.pydr import cli
 
 
 def _capture_help(tokens: list[str] | None = None) -> str:
@@ -63,16 +63,16 @@ def test_cli_help_renders(tokens: list[str]) -> None:
 
 
 def test_benchmark_help_includes_key_flags() -> None:
-    """`pyab benchmark --help` surfaces all the previous Click options."""
+    """`pydr benchmark --help` surfaces all the previous Click options."""
     output = _capture_help(["benchmark"])
     for flag in ("--source", "--streams", "--num-records", "--destination", "--config"):
         assert flag in output, f"Expected {flag} in benchmark help output"
 
 
 def test_validate_help_includes_cli_guidance() -> None:
-    """`pyab validate --help` continues to include the PyAirbyte CLI guidance."""
+    """`pydr validate --help` continues to include the PyDataRheo CLI guidance."""
     output = _capture_help(["validate"])
-    assert "PyAirbyte CLI Guidance" in output
+    assert "PyDataRheo CLI Guidance" in output
 
 
 def test_destination_smoke_test_has_no_auto_negated_flag() -> None:

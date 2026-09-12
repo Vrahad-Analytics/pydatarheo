@@ -1,7 +1,7 @@
-# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
-"""Unit tests for branded transport-auth resolution in `airbyte.mcp.server`.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Unit tests for branded transport-auth resolution in `datarheo.mcp.server`.
 
-These cover what this server owns: mapping its branded `AIRBYTE_MCP_*` env vars
+These cover what this server owns: mapping its branded `DATARHEO_MCP_*` env vars
 into the typed `JWTAuthConfig` / `OIDCAuthConfig` objects it hands to
 `fastmcp_extensions.build_mcp_auth`, activation of the headless and interactive
 paths from env, blank-as-unset handling, and the durable-storage factory
@@ -20,10 +20,10 @@ import pytest
 from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp_extensions import JWTAuthConfig, OIDCAuthConfig
 
-from airbyte.mcp import _client_credentials as client_credentials
-from airbyte.mcp import http_main
-from airbyte.mcp import server
-from airbyte.mcp._transport_security import HostOriginGuardMiddleware
+from datarheo.mcp import _client_credentials as client_credentials
+from datarheo.mcp import http_main
+from datarheo.mcp import server
+from datarheo.mcp._transport_security import HostOriginGuardMiddleware
 
 
 if TYPE_CHECKING:
@@ -64,26 +64,26 @@ def _capture_build_mcp_auth(monkeypatch: MonkeyPatch) -> dict[str, Any]:
 
 
 def test_auth_env_names_are_branded() -> None:
-    """The transport-auth env vars all use this server's `AIRBYTE_MCP_*` namespace."""
-    assert server.OIDC_CLIENT_ID_ENV == "AIRBYTE_MCP_OIDC_CLIENT_ID"
-    assert server.OIDC_CLIENT_SECRET_ENV == "AIRBYTE_MCP_OIDC_CLIENT_SECRET"
-    assert server.OIDC_CONFIG_URL_ENV == "AIRBYTE_MCP_OIDC_CONFIG_URL"
+    """The transport-auth env vars all use this server's `DATARHEO_MCP_*` namespace."""
+    assert server.OIDC_CLIENT_ID_ENV == "DATARHEO_MCP_OIDC_CLIENT_ID"
+    assert server.OIDC_CLIENT_SECRET_ENV == "DATARHEO_MCP_OIDC_CLIENT_SECRET"
+    assert server.OIDC_CONFIG_URL_ENV == "DATARHEO_MCP_OIDC_CONFIG_URL"
     assert (
         server.OIDC_CLIENT_STORAGE_FACTORY_ENV
-        == "AIRBYTE_MCP_OIDC_CLIENT_STORAGE_FACTORY"
+        == "DATARHEO_MCP_OIDC_CLIENT_STORAGE_FACTORY"
     )
-    assert server.JWKS_URI_ENV == "AIRBYTE_MCP_AUTH_JWKS_URI"
-    assert server.JWT_PUBLIC_KEY_ENV == "AIRBYTE_MCP_AUTH_JWT_PUBLIC_KEY"
-    assert server.JWT_ISSUER_ENV == "AIRBYTE_MCP_AUTH_ISSUER"
-    assert server.JWT_AUDIENCE_ENV == "AIRBYTE_MCP_AUTH_AUDIENCE"
-    assert server.JWT_ALGORITHM_ENV == "AIRBYTE_MCP_AUTH_ALGORITHM"
+    assert server.JWKS_URI_ENV == "DATARHEO_MCP_AUTH_JWKS_URI"
+    assert server.JWT_PUBLIC_KEY_ENV == "DATARHEO_MCP_AUTH_JWT_PUBLIC_KEY"
+    assert server.JWT_ISSUER_ENV == "DATARHEO_MCP_AUTH_ISSUER"
+    assert server.JWT_AUDIENCE_ENV == "DATARHEO_MCP_AUTH_AUDIENCE"
+    assert server.JWT_ALGORITHM_ENV == "DATARHEO_MCP_AUTH_ALGORITHM"
     assert (
         client_credentials.ALLOW_CLIENT_CREDENTIALS_ENV
-        == "AIRBYTE_MCP_AUTH_ALLOW_CLIENT_CREDENTIALS"
+        == "DATARHEO_MCP_AUTH_ALLOW_CLIENT_CREDENTIALS"
     )
     assert (
         client_credentials.TOKEN_URL_ENV
-        == "AIRBYTE_MCP_AUTH_CLIENT_CREDENTIALS_TOKEN_URL"
+        == "DATARHEO_MCP_AUTH_CLIENT_CREDENTIALS_TOKEN_URL"
     )
 
 
@@ -181,17 +181,17 @@ def test_http_main_delegates_http_serving_to_fastmcp_extensions(
     [
         pytest.param(
             None,
-            client_credentials.AIRBYTE_CLOUD_TOKEN_URL,
+            client_credentials.DATARHEO_CLOUD_TOKEN_URL,
             id="unset-uses-default",
         ),
         pytest.param(
             "",
-            client_credentials.AIRBYTE_CLOUD_TOKEN_URL,
+            client_credentials.DATARHEO_CLOUD_TOKEN_URL,
             id="empty-uses-default",
         ),
         pytest.param(
             "   ",
-            client_credentials.AIRBYTE_CLOUD_TOKEN_URL,
+            client_credentials.DATARHEO_CLOUD_TOKEN_URL,
             id="whitespace-uses-default",
         ),
         pytest.param(

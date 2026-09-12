@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Unit tests for SnowflakeConfig methods."""
 
@@ -13,8 +13,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from airbyte._processors.sql.snowflake import SnowflakeConfig
-from airbyte.secrets.base import SecretString
+from datarheo._processors.sql.snowflake import SnowflakeConfig
+from datarheo.secrets.base import SecretString
 
 
 @pytest.fixture
@@ -242,7 +242,7 @@ class TestGetSqlAlchemyUrl:
         url_str = str(url)
         assert (
             url_str
-            == "snowflake://test_user:test_password@test_account/test_database/airbyte_raw?role=test_role&warehouse=test_warehouse"
+            == "snowflake://test_user:test_password@test_account/test_database/datarheo_raw?role=test_role&warehouse=test_warehouse"
         )
 
     def test_get_sql_alchemy_url_without_password(self, private_key_config):
@@ -251,14 +251,14 @@ class TestGetSqlAlchemyUrl:
         url_str = str(url)
         assert (
             url_str
-            == "snowflake://test_user:@test_account/test_database/airbyte_raw?role=test_role&warehouse=test_warehouse"
+            == "snowflake://test_user:@test_account/test_database/datarheo_raw?role=test_role&warehouse=test_warehouse"
         )
 
 
 class TestGetVendorClient:
     """Tests for get_vendor_client method."""
 
-    @patch("airbyte._processors.sql.snowflake.connector.connect")
+    @patch("datarheo._processors.sql.snowflake.connector.connect")
     def test_get_vendor_client_with_password(self, mock_connect, password_config):
         """Test vendor client creation with password authentication."""
         mock_client = Mock()
@@ -271,13 +271,13 @@ class TestGetVendorClient:
             account="test_account",
             warehouse="test_warehouse",
             database="test_database",
-            schema="airbyte_raw",
+            schema="datarheo_raw",
             role="test_role",
             password=password_config.password,
         )
         assert client == mock_client
 
-    @patch("airbyte._processors.sql.snowflake.connector.connect")
+    @patch("datarheo._processors.sql.snowflake.connector.connect")
     def test_get_vendor_client_with_private_key_path(self, mock_connect):
         """Test vendor client creation with private key path authentication."""
         mock_client = Mock()
@@ -306,7 +306,7 @@ class TestGetVendorClient:
                 account="test_account",
                 warehouse="test_warehouse",
                 database="test_database",
-                schema="airbyte_raw",
+                schema="datarheo_raw",
                 role="test_role",
                 private_key_file=temp_file_path,
                 private_key_file_pwd=config.private_key_passphrase,
@@ -316,7 +316,7 @@ class TestGetVendorClient:
         finally:
             Path(temp_file_path).unlink()
 
-    @patch("airbyte._processors.sql.snowflake.connector.connect")
+    @patch("datarheo._processors.sql.snowflake.connector.connect")
     def test_get_vendor_client_with_private_key_string(
         self, mock_connect, private_key_config
     ):
@@ -334,7 +334,7 @@ class TestGetVendorClient:
             account="test_account",
             warehouse="test_warehouse",
             database="test_database",
-            schema="airbyte_raw",
+            schema="datarheo_raw",
             role="test_role",
             private_key=expected_private_key_bytes,
             authenticator="SNOWFLAKE_JWT",

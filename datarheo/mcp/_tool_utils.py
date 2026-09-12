@@ -1,0 +1,590 @@
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""MCP tool utility functions for safe mode and config args.
+
+This module provides:
+- Safe mode functionality for MCP tools, allowing tracking of resources created
+  during a session to prevent accidental deletion of pre-existing resources.
+- Config args and filters for backward compatibility with legacy Airbyte env vars.
+"""
+
+from __future__ import annotations
+
+import inspect
+import os
+from collections.abc import Callable, Mapping
+from pathlib import Path
+from typing import TYPE_CHECKING, TypeVar
+
+from fastmcp.server.dependencies import get_access_token, get_http_headers
+from fastmcp_extensions import (
+    ANNOTATION_INTERACTIVE_UI,
+    MCPServerConfigArg,
+    get_mcp_config,
+)
+from fastmcp_extensions import mcp_tool as _mcp_tool
+from fastmcp_extensions.decorators import (
+    _REGISTERED_PROVIDERS,  # noqa: PLC2701
+    _REGISTERED_TOOLS,  # noqa: PLC2701
+)
+from fastmcp_extensions.registration import _ProviderToolAnnotations  # noqa: PLC2701
+from fastmcp_extensions.tool_filters import (
+    ANNOTATION_MCP_MODULE,
+    ANNOTATION_READ_ONLY_HINT,
+    CONFIG_INCLUDE_MODULES,
+    CONFIG_TRUSTED_EXECUTION,
+    get_annotation,
+)
+
+from datarheo.constants import (
+    CLOUD_API_ROOT_ENV_VAR,
+    CLOUD_BEARER_TOKEN_ENV_VAR,
+    CLOUD_CLIENT_ID_ENV_VAR,
+    CLOUD_CLIENT_SECRET_ENV_VAR,
+    CLOUD_CONFIG_API_ROOT_ENV_VAR,
+    CLOUD_ORGANIZATION_ID_ENV_VAR,
+    CLOUD_WORKSPACE_ID_ENV_VAR,
+    MCP_BEARER_TOKEN_HEADER,
+    MCP_CONFIG_API_URL,
+    MCP_CONFIG_BEARER_TOKEN,
+    MCP_CONFIG_CLIENT_ID,
+    MCP_CONFIG_CLIENT_SECRET,
+    MCP_CONFIG_CONFIG_API_URL,
+    MCP_CONFIG_EXCLUDE_MODULES,
+    MCP_CONFIG_INCLUDE_MODULES,
+    MCP_CONFIG_INSIDERS,
+    MCP_CONFIG_ORGANIZATION_ID,
+    MCP_CONFIG_READONLY_MODE,
+    MCP_CONFIG_WORKSPACE_ID,
+    MCP_DOMAINS_DISABLED_ENV_VAR,
+    MCP_DOMAINS_ENV_VAR,
+    MCP_INSIDERS_ENV_VAR,
+    MCP_INSIDERS_HEADER,
+    MCP_INSIDERS_MODULES,
+    MCP_ORGANIZATION_ID_HEADER,
+    MCP_READONLY_MODE_ENV_VAR,
+    MCP_TRUSTED_EXECUTION_ENV_VAR,
+    MCP_WORKSPACE_ID_HEADER,
+    _str_to_bool,
+)
+from datarheo.exceptions import DataRheoInputError
+
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
+    from mcp.types import Tool
+
+_MCP_TOOL_FUNC = TypeVar("_MCP_TOOL_FUNC", bound=Callable[..., object])
+_TOOL_APP_KEY = "_datarheo_tool_app"
+_TOOL_META_KEY = "_datarheo_tool_meta"
+
+INTERACTIVE_UI_ANNOTATION = ANNOTATION_INTERACTIVE_UI
+"""Annotation indicating the tool requires MCP Apps UI support."""
+
+# =============================================================================
+# Safe Mode Configuration
+# =============================================================================
+
+DATARHEO_CLOUD_MCP_SAFE_MODE = os.environ.get("DATARHEO_CLOUD_MCP_SAFE_MODE", "1").strip() != "0"
+"""Whether safe mode is enabled for cloud operations.
+
+When enabled (default), destructive operations are only allowed on resources
+created during the current session.
+"""
+
+DATARHEO_CLOUD_WORKSPACE_ID_IS_SET = bool(os.environ.get("DATARHEO_CLOUD_WORKSPACE_ID", "").strip())
+"""Whether the DATARHEO_CLOUD_WORKSPACE_ID environment variable is set.
+
+When set, the workspace_id parameter is hidden from cloud tools.
+"""
+
+_GUIDS_CREATED_IN_SESSION: set[str] = set()
+
+
+class SafeModeError(Exception):
+    """Raised when a tool is blocked by safe mode restrictions."""
+
+    pass
+
+
+def register_guid_created_in_session(guid: str) -> None:
+    """Register a GUID as created in this session.
+
+    Args:
+        guid: The GUID to register
+    """
+    _GUIDS_CREATED_IN_SESSION.add(guid)
+
+
+def check_guid_created_in_session(guid: str) -> None:
+    """Check if a GUID was created in this session.
+
+    This is a no-op if DATARHEO_CLOUD_MCP_SAFE_MODE is set to "0".
+
+    Raises SafeModeError if the GUID was not created in this session and
+    DATARHEO_CLOUD_MCP_SAFE_MODE is set to 1.
+
+    Args:
+        guid: The GUID to check
+    """
+    if DATARHEO_CLOUD_MCP_SAFE_MODE and guid not in _GUIDS_CREATED_IN_SESSION:
+        raise SafeModeError(
+            f"Cannot perform destructive operation on '{guid}': "
+            f"Object was not created in this session. "
+            f"DATARHEO_CLOUD_MCP_SAFE_MODE is set to '1'."
+        )
+
+
+# =============================================================================
+# Backward-Compatible Config Args
+# =============================================================================
+# These config args support the legacy Airbyte-specific environment variables
+# while the standard fastmcp-extensions config args support the new MCP_* vars.
+# Both sets of filters are applied, so either env var will work.
+# =============================================================================
+
+DATARHEO_READONLY_MODE_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_READONLY_MODE,
+    env_var=MCP_READONLY_MODE_ENV_VAR,
+    default="0",
+    required=False,
+)
+"""Config arg for legacy DATARHEO_CLOUD_MCP_READONLY_MODE env var."""
+
+DATARHEO_EXCLUDE_MODULES_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_EXCLUDE_MODULES,
+    env_var=MCP_DOMAINS_DISABLED_ENV_VAR,
+    default="",
+    required=False,
+)
+"""Config arg for legacy DATARHEO_MCP_DOMAINS_DISABLED env var."""
+
+DATARHEO_INCLUDE_MODULES_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_INCLUDE_MODULES,
+    env_var=MCP_DOMAINS_ENV_VAR,
+    default="",
+    required=False,
+)
+"""Config arg for legacy DATARHEO_MCP_DOMAINS env var."""
+
+INSIDERS_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_INSIDERS,
+    http_header_key=MCP_INSIDERS_HEADER,
+    env_var=MCP_INSIDERS_ENV_VAR,
+    default="",
+    required=False,
+)
+"""Config arg for the insiders tools gate.
+
+The default is empty rather than `0`, because `0` is an explicit denial that also refuses
+the include-list opt-in.
+"""
+
+TRUSTED_EXECUTION_CONFIG_ARG = MCPServerConfigArg(
+    name=CONFIG_TRUSTED_EXECUTION,
+    env_var=MCP_TRUSTED_EXECUTION_ENV_VAR,
+    default="0",
+    required=False,
+)
+"""Config arg mapping the generic `trusted_execution` gate to `DATARHEO_MCP_TRUSTED_EXECUTION`.
+
+Registering this lets `fastmcp_extensions` resolve the trusted-execution gate from the
+Airbyte-specific env var while keeping the generic library Airbyte-agnostic. It
+deliberately has no `http_header_key`: the gate *widens* the tool surface, so it must never
+be caller-controllable.
+"""
+
+WORKSPACE_ID_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_WORKSPACE_ID,
+    http_header_key=MCP_WORKSPACE_ID_HEADER,
+    env_var=CLOUD_WORKSPACE_ID_ENV_VAR,
+    required=False,
+    sensitive=False,
+)
+"""Config arg for workspace ID, supporting both HTTP header and env var."""
+
+ORGANIZATION_ID_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_ORGANIZATION_ID,
+    http_header_key=MCP_ORGANIZATION_ID_HEADER,
+    env_var=CLOUD_ORGANIZATION_ID_ENV_VAR,
+    required=False,
+    sensitive=False,
+)
+"""Config arg for organization ID, supporting both HTTP header and env var.
+
+Only the tools that scope a listing to an organization use it; workspace-scoped tools
+resolve their organization from the resolved workspace when none is configured.
+"""
+
+
+def _normalize_bearer_token(value: str) -> str | None:
+    """Strip an optional `Bearer ` prefix from an `Authorization` value.
+
+    Accepts either a full `Authorization` header value (`Bearer <token>`,
+    case-insensitive prefix) or a bare token, and returns the bare token so it
+    can be forwarded downstream. Returns `None` for an empty value so config
+    resolution falls through to the next source.
+    """
+    stripped = value.strip()
+    if stripped.lower().startswith("bearer "):
+        stripped = stripped[len("bearer ") :].strip()
+    return stripped or None
+
+
+def _resolve_transport_bearer_token() -> str:
+    """Resolve the bearer token to forward to the downstream Airbyte Cloud API.
+
+    Prefers the token the transport auth provider *verified* for the request,
+    exposed by `get_access_token`. Behind a token-swapping proxy (`OAuthProxy`/
+    `OIDCProxy`) this is the upstream Airbyte access token, not the reference
+    JWT the proxy minted for the MCP client and put in the raw `Authorization`
+    header — forwarding that reference JWT downstream yields a `401` because
+    Airbyte never issued it.
+
+    Falls back to the raw `Authorization` header only when there is no verified
+    token (a server with no transport auth provider, where the client passes a
+    real Airbyte token directly), and to an empty string when neither is present
+    (for example stdio mode), so config resolution can reach client-credentials.
+    """
+    access_token = get_access_token()
+    if access_token and access_token.token:
+        return access_token.token
+
+    headers = get_http_headers(include={MCP_BEARER_TOKEN_HEADER.lower()})
+    header_lower = MCP_BEARER_TOKEN_HEADER.lower()
+    for key, value in headers.items():
+        if key.lower() == header_lower:
+            normalized = _normalize_bearer_token(value)
+            if normalized:
+                return normalized
+    return ""
+
+
+BEARER_TOKEN_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_BEARER_TOKEN,
+    env_var=CLOUD_BEARER_TOKEN_ENV_VAR,
+    normalize_fn=_normalize_bearer_token,
+    default=_resolve_transport_bearer_token,
+    required=False,
+    sensitive=True,
+)
+"""Config arg for the downstream Airbyte Cloud bearer token.
+
+Resolves an explicit `DATARHEO_CLOUD_BEARER_TOKEN` override first, then defers to
+`_resolve_transport_bearer_token`. The raw `Authorization` header is
+deliberately *not* a first-class source: behind `OAuthProxy`/`OIDCProxy` it
+carries the proxy's self-minted reference JWT, which Airbyte Cloud rejects with
+`401`; the resolver consults it only as a last-resort fallback."""
+
+CLIENT_ID_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_CLIENT_ID,
+    env_var=CLOUD_CLIENT_ID_ENV_VAR,
+    required=False,
+    sensitive=True,
+)
+"""Config arg for client ID, supporting env var only.
+
+Deliberately has no `http_header_key`: the supported headless transport path
+uses standard `Client-Id` and `Client-Secret` headers, or
+`Authorization: Basic base64(client_id:client_secret)`, handled by
+`datarheo/mcp/_client_credentials.py` and
+`fastmcp_extensions.wrap_client_credentials`. That exchange produces a
+short-lived bearer token server-side and rewrites the request to
+`Authorization: Bearer`. A per-request downstream credential header would let
+a caller act as a Cloud identity other than the authenticated one.
+"""
+
+CLIENT_SECRET_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_CLIENT_SECRET,
+    env_var=CLOUD_CLIENT_SECRET_ENV_VAR,
+    required=False,
+    sensitive=True,
+)
+"""Config arg for client secret, supporting env var only.
+
+Deliberately has no `http_header_key`: the supported headless transport path
+uses standard `Client-Id` and `Client-Secret` headers, or
+`Authorization: Basic base64(client_id:client_secret)`, handled by
+`datarheo/mcp/_client_credentials.py` and
+`fastmcp_extensions.wrap_client_credentials`. That exchange produces a
+short-lived bearer token server-side and rewrites the request to
+`Authorization: Bearer`. A per-request downstream credential header would let
+a caller act as a Cloud identity other than the authenticated one.
+"""
+
+API_URL_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_API_URL,
+    env_var=CLOUD_API_ROOT_ENV_VAR,
+    required=False,
+    sensitive=False,
+)
+"""Config arg for API URL, supporting env var only.
+
+Deliberately has no `http_header_key`: each hosted deployment is paired to a
+single backend, so the API root must not be caller-controllable via an HTTP
+header. Accepting it from a header would let a caller redirect the server's
+credentialed requests to an arbitrary URL and exfiltrate them. The base URLs
+are still configurable via env var for local (stdio) deployments.
+"""
+
+CONFIG_API_URL_CONFIG_ARG = MCPServerConfigArg(
+    name=MCP_CONFIG_CONFIG_API_URL,
+    env_var=CLOUD_CONFIG_API_ROOT_ENV_VAR,
+    required=False,
+    sensitive=False,
+)
+"""Config arg for Config API URL, supporting env var only.
+
+See `API_URL_CONFIG_ARG` for why no `http_header_key` is exposed.
+"""
+
+
+# =============================================================================
+# Tool Filters for Backward Compatibility
+# =============================================================================
+
+
+def _parse_csv_config(value: str) -> list[str]:
+    """Parse a comma-separated config value into a list of strings."""
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def mcp_tool(
+    *,
+    read_only: bool = False,
+    destructive: bool = False,
+    idempotent: bool = False,
+    open_world: bool = False,
+    annotations: Mapping[str, object] | None = None,
+    meta: Mapping[str, object] | None = None,
+    app: object | None = None,
+    extra_help_text: str | None = None,
+) -> Callable[[_MCP_TOOL_FUNC], _MCP_TOOL_FUNC]:
+    """Decorate an MCP tool with deferred Airbyte registration metadata."""
+    base_decorator = _mcp_tool(
+        read_only=read_only,
+        destructive=destructive,
+        idempotent=idempotent,
+        open_world=open_world,
+        extra_help_text=extra_help_text,
+    )
+
+    def decorator(func: _MCP_TOOL_FUNC) -> _MCP_TOOL_FUNC:
+        decorated = base_decorator(func)
+        registered_func, registered_annotations = _REGISTERED_TOOLS[-1]
+        if registered_func is not decorated:
+            raise RuntimeError("Unexpected MCP tool registration state.")
+        registered_annotations[ANNOTATION_MCP_MODULE] = _mcp_module_for_tool(decorated)
+        registered_annotations.update(annotations or {})
+        if meta:
+            registered_annotations[_TOOL_META_KEY] = dict(meta)
+        if app is not None:
+            registered_annotations[_TOOL_APP_KEY] = app
+        return decorated
+
+    return decorator
+
+
+def _mcp_module_for_tool(func: Callable[..., object]) -> str:
+    module_parts = func.__module__.split(".")
+    return next(
+        module_part for module_part in reversed(module_parts) if not module_part.startswith("_")
+    )
+
+
+def _get_caller_file_stem() -> str:
+    for frame_info in inspect.stack():
+        if frame_info.filename != __file__:
+            return Path(frame_info.filename).stem
+    return "unknown"
+
+
+def register_mcp_tools(
+    app: FastMCP,
+    mcp_module: str | None = None,
+    *,
+    exclude_args: list[str] | None = None,
+) -> None:
+    """Register deferred MCP tools with Airbyte-specific metadata support."""
+    if mcp_module is None:
+        mcp_module = _get_caller_file_stem()
+    mcp_module = _normalize_mcp_module(mcp_module)
+    matching_tools = [
+        (func, tool_annotations)
+        for func, tool_annotations in _REGISTERED_TOOLS
+        if tool_annotations.get(ANNOTATION_MCP_MODULE) == mcp_module
+    ]
+
+    for func, tool_annotations in matching_tools:
+        tool_exclude_args: list[str] | None = None
+        if exclude_args:
+            params = set(inspect.signature(func).parameters.keys())
+            excluded = [name for name in exclude_args if name in params]
+            tool_exclude_args = excluded or None
+
+        app.tool(
+            func,
+            annotations={
+                key: value
+                for key, value in tool_annotations.items()
+                if key not in {_TOOL_APP_KEY, _TOOL_META_KEY}
+            },
+            exclude_args=tool_exclude_args,
+            meta=tool_annotations.get(_TOOL_META_KEY),
+            app=tool_annotations.get(_TOOL_APP_KEY),
+        )
+
+    matching_providers = [
+        (provider_factory, tool_annotations)
+        for provider_factory, tool_annotations in _REGISTERED_PROVIDERS
+        if _normalize_mcp_module(str(tool_annotations.get(ANNOTATION_MCP_MODULE))) == mcp_module
+    ]
+    for provider_factory, tool_annotations in matching_providers:
+        provider = provider_factory()
+        provider.add_transform(_ProviderToolAnnotations(tool_annotations))
+        app.add_provider(provider)
+
+
+def _normalize_mcp_module(mcp_module: str) -> str:
+    for module_part in reversed(mcp_module.split(".")):
+        if not module_part.startswith("_"):
+            return module_part
+    return mcp_module
+
+
+def datarheo_readonly_mode_filter(tool: Tool, app: FastMCP) -> bool:
+    """Filter tools based on legacy DATARHEO_CLOUD_MCP_READONLY_MODE env var.
+
+    When set to "1", only show tools with readOnlyHint=True.
+    """
+    config_value = (get_mcp_config(app, MCP_CONFIG_READONLY_MODE) or "").lower()
+    if config_value in {"1", "true"}:
+        return bool(get_annotation(tool, ANNOTATION_READ_ONLY_HINT, default=False))
+    return True
+
+
+def _insiders_mode(app: FastMCP) -> bool | None:
+    """Return whether insiders tool modules are advertised for this request.
+
+    `DATARHEO_MCP_INSIDERS` sets the deployment default and callers may only narrow it: a
+    falsy host value denies insiders tools outright, while a truthy one still honors an
+    explicit `X-MCP-Insiders: 0`. Returns `None` when neither is set to a recognized value.
+    """
+    hosted_mode = _str_to_bool(os.environ.get(MCP_INSIDERS_ENV_VAR))
+    caller_mode = _str_to_bool(get_mcp_config(app, MCP_CONFIG_INSIDERS))
+
+    if hosted_mode is False:
+        return False
+    if hosted_mode is True:
+        return caller_mode is not False
+
+    return caller_mode
+
+
+def datarheo_module_filter(tool: Tool, app: FastMCP) -> bool:
+    """Filter tools based on legacy DATARHEO_MCP_DOMAINS and DATARHEO_MCP_DOMAINS_DISABLED.
+
+    When DATARHEO_MCP_DOMAINS_DISABLED is set, hide tools from those modules.
+    When DATARHEO_MCP_DOMAINS is set, only show tools from those modules.
+
+    Modules in `MCP_INSIDERS_MODULES` are hidden unless insiders mode is on or the include
+    list names them. `DATARHEO_MCP_INSIDERS=0` hides them outright, including from an
+    include list.
+    """
+    exclude_modules = _parse_csv_config(get_mcp_config(app, MCP_CONFIG_EXCLUDE_MODULES) or "")
+    include_modules = [
+        *_parse_csv_config(get_mcp_config(app, MCP_CONFIG_INCLUDE_MODULES) or ""),
+        *_parse_csv_config(get_mcp_config(app, CONFIG_INCLUDE_MODULES) or ""),
+    ]
+
+    # Get the tool's mcp_module from annotations
+    tool_module = get_annotation(tool, ANNOTATION_MCP_MODULE, None)
+
+    # Hide tools from excluded modules
+    if exclude_modules and tool_module and tool_module in exclude_modules:
+        return False
+
+    if tool_module in MCP_INSIDERS_MODULES:
+        insiders_mode = _insiders_mode(app)
+        if insiders_mode is False:
+            return False
+        if insiders_mode is None:
+            return tool_module in include_modules
+
+    if include_modules:
+        # Only show tools from included modules
+        return bool(tool_module and tool_module in include_modules)
+
+    return True
+
+
+def _known_mcp_modules() -> set[str]:
+    """Return the set of DataRheo MCP domain (module) names that have registered tools."""
+    modules: set[str] = set()
+    for _func, tool_annotations in _REGISTERED_TOOLS:
+        module = tool_annotations.get(ANNOTATION_MCP_MODULE)
+        if module:
+            modules.add(_normalize_mcp_module(str(module)))
+    for _provider_factory, tool_annotations in _REGISTERED_PROVIDERS:
+        module = tool_annotations.get(ANNOTATION_MCP_MODULE)
+        if module:
+            modules.add(_normalize_mcp_module(str(module)))
+    return modules
+
+
+def validate_datarheo_domains(app: FastMCP) -> None:
+    """Validate the `DATARHEO_MCP_DOMAINS` / `DATARHEO_MCP_DOMAINS_DISABLED` selection.
+
+    Hard-fails at startup instead of silently dropping a domain that was explicitly
+    requested. Two incompatibilities are rejected:
+
+    1. Setting both `DATARHEO_MCP_DOMAINS` (include) and `DATARHEO_MCP_DOMAINS_DISABLED`
+       (exclude), which are mutually exclusive -- `datarheo_module_filter` would otherwise
+       silently honor only the exclude list and drop the requested includes.
+    2. Naming a domain that has no registered tools (typically a typo), which would
+       otherwise silently expose or hide nothing for that name.
+
+    Call this once at startup, after all tools are registered.
+
+    Args:
+        app: The FastMCP app instance.
+
+    Raises:
+        DataRheoInputError: If the domain configuration is incompatible.
+    """
+    exclude_modules = _parse_csv_config(get_mcp_config(app, MCP_CONFIG_EXCLUDE_MODULES) or "")
+    include_modules = _parse_csv_config(get_mcp_config(app, MCP_CONFIG_INCLUDE_MODULES) or "")
+
+    if include_modules and exclude_modules:
+        raise DataRheoInputError(
+            message=(
+                "DATARHEO_MCP_DOMAINS and DATARHEO_MCP_DOMAINS_DISABLED are mutually exclusive."
+            ),
+            guidance=(
+                "Clear one of `DATARHEO_MCP_DOMAINS` (include) or `DATARHEO_MCP_DOMAINS_DISABLED` "
+                "(exclude) so only one is set, then restart the MCP server process."
+            ),
+            context={
+                "include_domains": include_modules,
+                "exclude_domains": exclude_modules,
+            },
+        )
+
+    known_modules = _known_mcp_modules()
+    unknown_modules = sorted(
+        {module for module in (*include_modules, *exclude_modules) if module not in known_modules}
+    )
+    if unknown_modules:
+        raise DataRheoInputError(
+            message="One or more requested MCP domains are not recognized.",
+            guidance=(
+                "Correct the unknown domain name(s) in `DATARHEO_MCP_DOMAINS` / "
+                "`DATARHEO_MCP_DOMAINS_DISABLED` (or clear the variable), then restart the MCP "
+                "server process."
+            ),
+            context={
+                "unknown_domains": unknown_modules,
+                "known_domains": sorted(known_modules),
+            },
+        )

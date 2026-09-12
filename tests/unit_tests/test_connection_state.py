@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for connection state models and helper functions."""
 
 from __future__ import annotations
@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from airbyte.cloud._connection_state import (
+from datarheo.cloud._connection_state import (
     ConnectionStateResponse,
     GlobalState,
     StreamDescriptor,

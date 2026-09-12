@@ -1,0 +1,26 @@
+PyDataRheo
+Copyright (c) 2026 Vrahad Analytics LLP
+
+This product is a derivative work of PyAirbyte
+(https://github.com/airbytehq/PyAirbyte), Copyright (c) 2023-2025 Airbyte, Inc.,
+distributed under the MIT License. PyDataRheo is a rebranded and modified fork:
+the package, public API names, CLI commands, environment variables, and
+documentation have been renamed, and usage reporting has been changed to
+opt-in with no default endpoint.
+
+The MIT License requires that the original copyright notice be retained. Both
+copyright lines appear in the LICENSE file at the root of this repository.
+
+PyDataRheo executes connectors that implement the Airbyte protocol and can talk
+to the Airbyte Cloud API. "Airbyte" is a trademark of Airbyte, Inc. References
+to Airbyte in this project identify those external systems and do not imply
+endorsement by, or affiliation with, Airbyte, Inc.
+
+This product depends on the following third-party packages, which retain their
+own licenses and copyright:
+
+  - airbyte-cdk                   (Airbyte, Inc.)
+  - airbyte-api                   (Airbyte, Inc.)
+  - airbyte-protocol-models-pdv2  (Airbyte, Inc.)
+
+See the distribution metadata of each dependency for its full license text.

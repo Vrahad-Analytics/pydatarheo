@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for MCP connector registry tools."""
 
 from __future__ import annotations
@@ -9,16 +9,16 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 from mcp.types import TextContent
 
-from airbyte import exceptions as exc
-from airbyte.mcp._tool_utils import _mcp_module_for_tool
-from airbyte.mcp.interactive import show_connectors_list, show_workspace_sync_status
-from airbyte.mcp.interactive._registry_ui import (
+from datarheo import exceptions as exc
+from datarheo.mcp._tool_utils import _mcp_module_for_tool
+from datarheo.mcp.interactive import show_connectors_list, show_workspace_sync_status
+from datarheo.mcp.interactive._registry_ui import (
     _connector_metadata_to_public_summary,
     _list_public_registry_connectors,
 )
-from airbyte.mcp.interactive._shared_models import ConnectorType, SupportLevel
-from airbyte.mcp.registry import get_api_docs_urls, get_connector_info
-from airbyte.registry import (
+from datarheo.mcp.interactive._shared_models import ConnectorType, SupportLevel
+from datarheo.mcp.registry import get_api_docs_urls, get_connector_info
+from datarheo.registry import (
     ApiDocsUrl,
     ConnectorMetadata,
     _fetch_manifest_dict,
@@ -110,7 +110,7 @@ class TestFetchManifestDict:
 
     def test_manifest_not_found(self) -> None:
         """Test handling when manifest.yaml doesn't exist (404)."""
-        with patch("airbyte.registry.requests.get") as mock_get:
+        with patch("datarheo.registry.requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.status_code = 404
             mock_get.return_value = mock_response
@@ -126,7 +126,7 @@ type: DeclarativeSource
 data:
   name: Example
 """
-        with patch("airbyte.registry.requests.get") as mock_get:
+        with patch("datarheo.registry.requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.text = manifest_yaml
@@ -212,8 +212,8 @@ class TestGetApiDocsUrls:
 
     def test_connector_not_found(self) -> None:
         """Test handling when connector is not found."""
-        with patch("airbyte.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
-            mock_get_docs.side_effect = exc.AirbyteConnectorNotRegisteredError(
+        with patch("datarheo.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
+            mock_get_docs.side_effect = exc.DataRheoConnectorNotRegisteredError(
                 connector_name="nonexistent-connector",
                 context={},
             )
@@ -223,7 +223,7 @@ class TestGetApiDocsUrls:
 
     def test_deduplication_of_urls(self) -> None:
         """Test that duplicate URLs are deduplicated."""
-        with patch("airbyte.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
+        with patch("datarheo.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
             mock_get_docs.return_value = [
                 ApiDocsUrl(
                     title="Airbyte Documentation",
@@ -261,7 +261,7 @@ def test_show_connectors_list_limits_text_and_meta_payload() -> None:
     ]
 
     with patch(
-        "airbyte.mcp.interactive._registry_ui._list_public_registry_connectors"
+        "datarheo.mcp.interactive._registry_ui._list_public_registry_connectors"
     ) as mock_list_connectors:
         mock_list_connectors.return_value = [
             _connector_metadata_to_public_summary(connector)
@@ -276,8 +276,8 @@ def test_show_connectors_list_limits_text_and_meta_payload() -> None:
     assert '"model_preview_truncated": true' in text_payload
     assert '"full_count_rendered_to_user": 30' in text_payload
     assert result.meta is not None
-    assert result.meta["airbyte_mcp_raw_result"]["model_preview_count"] == 25
-    assert result.meta["airbyte_mcp_raw_result"]["full_count_rendered_to_user"] == 30
+    assert result.meta["datarheo_mcp_raw_result"]["model_preview_count"] == 25
+    assert result.meta["datarheo_mcp_raw_result"]["full_count_rendered_to_user"] == 30
     assert result.structured_content is not None
     structured_content = result.structured_content
     assert "$prefab" in structured_content
@@ -288,10 +288,10 @@ def test_list_public_registry_connectors_uses_existing_registry_tool() -> None:
     """Test that the interactive list starts from the existing MCP registry tool."""
     with (
         patch(
-            "airbyte.mcp.interactive._registry_ui._list_connectors",
+            "datarheo.mcp.interactive._registry_ui._list_connectors",
             return_value=[],
         ) as mock_list_connectors,
-        patch("airbyte.mcp.interactive._registry_ui.get_connector_metadata"),
+        patch("datarheo.mcp.interactive._registry_ui.get_connector_metadata"),
     ):
         _list_public_registry_connectors(
             support_level=SupportLevel.CERTIFIED,
@@ -377,11 +377,11 @@ def test_list_public_registry_connectors_applies_filters(
     """Test that connector metadata filters are applied by the interactive list."""
     with (
         patch(
-            "airbyte.mcp.interactive._registry_ui._list_connectors",
+            "datarheo.mcp.interactive._registry_ui._list_connectors",
             return_value=list(connector_metadata_cache),
         ),
         patch(
-            "airbyte.mcp.interactive._registry_ui.get_connector_metadata",
+            "datarheo.mcp.interactive._registry_ui.get_connector_metadata",
             side_effect=connector_metadata_cache.get,
         ),
     ):
@@ -401,7 +401,7 @@ def test_list_public_registry_connectors_applies_filters(
 def test_show_connectors_list_rejects_negative_limit() -> None:
     """Test that negative connector limits fail clearly."""
     with pytest.raises(
-        exc.PyAirbyteInputError, match="Limit parameter must be non-negative."
+        exc.DataRheoInputError, match="Limit parameter must be non-negative."
     ):
         show_connectors_list(limit=-1)
 
@@ -413,22 +413,22 @@ def test_show_connectors_list_uses_resolved_registry_url(
     registry_url = "file:///tmp/local_registry.json"
     with (
         patch(
-            "airbyte.mcp.interactive._registry_ui._list_connectors",
+            "datarheo.mcp.interactive._registry_ui._list_connectors",
             return_value=list(connector_metadata_cache),
         ),
         patch(
-            "airbyte.mcp.interactive._registry_ui.get_connector_metadata",
+            "datarheo.mcp.interactive._registry_ui.get_connector_metadata",
             side_effect=connector_metadata_cache.get,
         ),
         patch(
-            "airbyte.mcp.interactive._registry_ui._get_registry_url",
+            "datarheo.mcp.interactive._registry_ui._get_registry_url",
             return_value=registry_url,
         ),
     ):
         result = show_connectors_list(limit=1)
 
     assert result.meta is not None
-    assert result.meta["airbyte_mcp_raw_result"]["registry_url"] == registry_url
+    assert result.meta["datarheo_mcp_raw_result"]["registry_url"] == registry_url
 
 
 def test_show_connectors_list_rejects_conflicting_support_filters() -> None:
@@ -451,7 +451,7 @@ def test_interactive_tools_are_filtered_by_ui_support(
     expected_visible: bool,
 ) -> None:
     """Test that interactive tools are filtered by MCP Apps UI support."""
-    from airbyte.mcp import interactive
+    from datarheo.mcp import interactive
     from fastmcp_extensions import mcp_server
 
     app = mcp_server(
@@ -475,7 +475,7 @@ def test_interactive_tools_are_rejected_by_tool_filter_without_ui_support() -> N
     """Test that non-UI clients cannot call interactive tools directly."""
     from fastmcp_extensions import mcp_server
 
-    from airbyte.mcp import interactive
+    from datarheo.mcp import interactive
 
     app = mcp_server(
         name="test",
@@ -491,7 +491,7 @@ def test_interactive_tools_include_prefab_metadata() -> None:
     """Test that Prefab metadata is registered for interactive tools."""
     from fastmcp_extensions import mcp_server
 
-    from airbyte.mcp import interactive
+    from datarheo.mcp import interactive
 
     app = mcp_server(name="test")
     interactive.register_interactive_tools(app)
@@ -525,13 +525,13 @@ def test_get_connector_info_resolves_spec_from_registry_without_docker() -> None
 
     with (
         patch(
-            "airbyte.mcp.registry.get_available_connectors",
+            "datarheo.mcp.registry.get_available_connectors",
             return_value=["source-faker"],
         ),
-        patch("airbyte.mcp.registry.get_source", return_value=connector),
-        patch("airbyte.mcp.registry.get_connector_metadata", return_value=None),
+        patch("datarheo.mcp.registry.get_source", return_value=connector),
+        patch("datarheo.mcp.registry.get_connector_metadata", return_value=None),
         patch(
-            "airbyte.mcp.registry.get_connector_spec_from_registry",
+            "datarheo.mcp.registry.get_connector_spec_from_registry",
             return_value=cloud_spec,
         ) as mock_get_spec,
     ):
@@ -556,13 +556,13 @@ def test_get_connector_info_falls_back_to_oss_spec() -> None:
 
     with (
         patch(
-            "airbyte.mcp.registry.get_available_connectors",
+            "datarheo.mcp.registry.get_available_connectors",
             return_value=["source-faker"],
         ),
-        patch("airbyte.mcp.registry.get_source", return_value=connector),
-        patch("airbyte.mcp.registry.get_connector_metadata", return_value=None),
+        patch("datarheo.mcp.registry.get_source", return_value=connector),
+        patch("datarheo.mcp.registry.get_connector_metadata", return_value=None),
         patch(
-            "airbyte.mcp.registry.get_connector_spec_from_registry",
+            "datarheo.mcp.registry.get_connector_spec_from_registry",
             side_effect=[None, oss_spec],
         ) as mock_get_spec,
     ):
@@ -585,13 +585,13 @@ def test_get_connector_info_spec_none_when_registry_has_no_spec() -> None:
 
     with (
         patch(
-            "airbyte.mcp.registry.get_available_connectors",
+            "datarheo.mcp.registry.get_available_connectors",
             return_value=["source-faker"],
         ),
-        patch("airbyte.mcp.registry.get_source", return_value=connector),
-        patch("airbyte.mcp.registry.get_connector_metadata", return_value=None),
+        patch("datarheo.mcp.registry.get_source", return_value=connector),
+        patch("datarheo.mcp.registry.get_connector_metadata", return_value=None),
         patch(
-            "airbyte.mcp.registry.get_connector_spec_from_registry",
+            "datarheo.mcp.registry.get_connector_spec_from_registry",
             return_value=None,
         ),
     ):

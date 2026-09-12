@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which leverage the source-faker connector to test the framework end-to-end with the Docker Executor."""
 
@@ -8,11 +8,11 @@ import tempfile
 from collections.abc import Generator
 from pathlib import Path
 
-import airbyte as ab
+import datarheo as dr
 import pytest
-from airbyte.caches.base import CacheBase
-from airbyte.caches.duckdb import DuckDBCache
-from airbyte.caches.util import new_local_cache
+from datarheo.caches.base import CacheBase
+from datarheo.caches.duckdb import DuckDBCache
+from datarheo.caches.util import new_local_cache
 
 # Product count is always the same, regardless of faker scale.
 NUM_PRODUCTS = 100
@@ -30,9 +30,9 @@ FAKER_SCALE_B = 300
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_docker_faker_seed_a() -> ab.Source:
+def source_docker_faker_seed_a() -> dr.Source:
     """Fixture to return a source-faker connector instance."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         docker_image=True,
         config={
@@ -46,9 +46,9 @@ def source_docker_faker_seed_a() -> ab.Source:
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_docker_faker_seed_b() -> ab.Source:
+def source_docker_faker_seed_b() -> dr.Source:
     """Fixture to return a source-faker connector instance."""
-    source = ab.get_source(
+    source = dr.get_source(
         "source-faker",
         docker_image=True,
         config={
@@ -71,7 +71,7 @@ def new_duckdb_cache() -> Generator[DuckDBCache, None, None]:
 
 
 def test_faker_pks(
-    source_docker_faker_seed_a: ab.Source,
+    source_docker_faker_seed_a: dr.Source,
     new_duckdb_cache: DuckDBCache,
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -94,7 +94,7 @@ def test_faker_pks(
 
 @pytest.mark.slow
 def test_replace_strategy(
-    source_docker_faker_seed_a: ab.Source,
+    source_docker_faker_seed_a: dr.Source,
     new_duckdb_cache: CacheBase,
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -111,7 +111,7 @@ def test_replace_strategy(
 
 @pytest.mark.slow
 def test_append_strategy(
-    source_docker_faker_seed_a: ab.Source,
+    source_docker_faker_seed_a: dr.Source,
     new_duckdb_cache: CacheBase,
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -133,8 +133,8 @@ def test_append_strategy(
 @pytest.mark.parametrize("strategy", ["merge", "auto"])
 def test_merge_strategy(
     strategy: str,
-    source_docker_faker_seed_a: ab.Source,
-    source_docker_faker_seed_b: ab.Source,
+    source_docker_faker_seed_a: dr.Source,
+    source_docker_faker_seed_b: dr.Source,
     new_duckdb_cache: CacheBase,
 ) -> None:
     """Test that the merge strategy works as expected.
@@ -169,8 +169,8 @@ def test_merge_strategy(
 
 
 def test_incremental_sync(
-    source_docker_faker_seed_a: ab.Source,
-    source_docker_faker_seed_b: ab.Source,
+    source_docker_faker_seed_a: dr.Source,
+    source_docker_faker_seed_b: dr.Source,
     new_duckdb_cache: CacheBase,
 ) -> None:
     config_a = source_docker_faker_seed_a.get_config()
@@ -195,11 +195,11 @@ def test_incremental_sync(
     assert len(list(result2.cache.streams["purchases"])) == FAKER_SCALE_A
 
 
-def test_config_spec(source_docker_faker_seed_a: ab.Source) -> None:
+def test_config_spec(source_docker_faker_seed_a: dr.Source) -> None:
     assert source_docker_faker_seed_a.config_spec
 
 
-def test_example_config_file(source_docker_faker_seed_a: ab.Source) -> None:
+def test_example_config_file(source_docker_faker_seed_a: dr.Source) -> None:
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp:
         source_docker_faker_seed_a.print_config_spec(
             format="json",

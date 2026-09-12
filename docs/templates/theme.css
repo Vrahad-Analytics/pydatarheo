@@ -1,46 +1,46 @@
-/* pdoc color scheme - Airbyte branded version */
+/* pdoc color scheme - DataRheo branded version */
 :root {
     --pdoc-background: #fff;
 }
 
 .pdoc {
-    /* Airbyte purple color scheme */
-    --text: hsl(240, 19%, 18%);
-    --muted: #6c757d;
-    --link: #615eff;
-    --link-hover: #3f3bff;
-    --code: hsl(240, 100%, 98%);
-    --active: #fff598;
+    /* DataRheo flow-teal color scheme */
+    --text: hsl(198, 24%, 16%);
+    --muted: hsl(198, 12%, 45%);
+    --link: #0E7C86;
+    --link-hover: #0B646D;
+    --code: hsl(190, 60%, 97%);
+    --active: #ffe9a8;
 
-    --accent: hsl(240, 25%, 98%);
-    --accent2: #c1c1c1;
+    --accent: hsl(192, 30%, 97%);
+    --accent2: hsl(192, 16%, 78%);
 
-    --nav-hover: rgba(97, 94, 255, 0.1);
-    --name: #615eff;
-    --def: #3f3bff;
-    --annotation: #007020;
+    --nav-hover: rgba(14, 124, 134, 0.1);
+    --name: #0E7C86;
+    --def: #0B646D;
+    --annotation: hsl(168, 76%, 24%);
 }
 
 /* Dark mode theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --pdoc-background: #212529;
+        --pdoc-background: #142124;
     }
 
     .pdoc {
-        --text: hsl(240, 10%, 90%);
-        --muted: #9d9d9d;
-        --link: #9492ff;
-        --link-hover: #c8c7ff;
-        --code: hsl(252, 25%, 18%);
-        --active: #555;
+        --text: hsl(198, 15%, 90%);
+        --muted: hsl(198, 12%, 70%);
+        --link: #3FC8D2;
+        --link-hover: #9AE6EB;
+        --code: hsl(198, 24%, 16%);
+        --active: hsl(198, 16%, 33%);
 
-        --accent: hsl(240, 14%, 14%);
-        --accent2: #555;
+        --accent: hsl(198, 20%, 13%);
+        --accent2: hsl(198, 16%, 33%);
 
-        --nav-hover: rgba(0, 0, 0, 0.1);
-        --name: #9492ff;
-        --def: #8381ff;
-        --annotation: #00c037;
+        --nav-hover: rgba(63, 200, 210, 0.12);
+        --name: #3FC8D2;
+        --def: #6FD9E1;
+        --annotation: hsl(168, 65%, 55%);
     }
 }

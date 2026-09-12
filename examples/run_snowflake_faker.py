@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """
 Usage:
     poetry install
@@ -7,22 +7,22 @@ Usage:
 
 from __future__ import annotations
 
-import airbyte as ab
-from airbyte.caches import SnowflakeCache
-from airbyte.secrets.google_gsm import GoogleGSMSecretManager
+import datarheo as dr
+from datarheo.caches import SnowflakeCache
+from datarheo.secrets.google_gsm import GoogleGSMSecretManager
 
 
 SCALE = 10_000
 
 
-AIRBYTE_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
+DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 secret_mgr = GoogleGSMSecretManager(
-    project=AIRBYTE_INTERNAL_GCP_PROJECT,
-    credentials_json=ab.get_secret("GCP_GSM_CREDENTIALS"),
+    project=DATARHEO_INTERNAL_GCP_PROJECT,
+    credentials_json=dr.get_secret("GCP_GSM_CREDENTIALS"),
 )
 
 secret = secret_mgr.get_secret(
-    secret_name="AIRBYTE_LIB_SNOWFLAKE_CREDS",
+    secret_name="DATARHEO_LIB_SNOWFLAKE_CREDS",
 )
 assert secret is not None, "Secret not found."
 secret_config = secret.parse_json()
@@ -37,7 +37,7 @@ cache = SnowflakeCache(
     role=secret_config["role"],
 )
 
-source = ab.get_source(
+source = dr.get_source(
     "source-faker",
     config={
         "count": SCALE,

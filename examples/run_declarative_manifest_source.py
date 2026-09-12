@@ -1,7 +1,7 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
-"""A test of PyAirbyte calling a declarative manifest.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""A test of PyDataRheo calling a declarative manifest.
 
-Usage (from PyAirbyte root directory):
+Usage (from PyDataRheo root directory):
 > poetry run python examples/run_declarative_manifest_source.py
 
 """
@@ -12,7 +12,7 @@ from typing import cast
 
 import yaml
 
-from airbyte import get_source
+from datarheo import get_source
 
 
 # Copy-pasted from the Builder "Yaml" view:

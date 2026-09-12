@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Test a sync to an Airbyte destination.
 
@@ -12,20 +12,20 @@ from __future__ import annotations
 
 import datetime
 
-import airbyte as ab
+import datarheo as dr
 
 SCALE = 200_000
 
 
-def get_my_source() -> ab.Source:
+def get_my_source() -> dr.Source:
     # Create a token here: https://github.com/settings/tokens
     # Then export as env var `GITHUB_PERSONAL_ACCESS_TOKEN`
-    github_pat = ab.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
+    github_pat = dr.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
     assert str(github_pat), "Could not locate Github PAT"
-    source = ab.get_source(
+    source = dr.get_source(
         "source-github",
         config={
-            "repositories": ["airbytehq/PyAirbyte"],
+            "repositories": ["Vrahad-Analytics/pydatarheo"],
             "credentials": {
                 "personal_access_token": github_pat,
             },
@@ -36,14 +36,14 @@ def get_my_source() -> ab.Source:
     return source
 
 
-def get_cache() -> ab.DuckDBCache:
-    return ab.new_local_cache(
+def get_cache() -> dr.DuckDBCache:
+    return dr.new_local_cache(
         cache_name="state_cache",
     )
 
 
-def get_my_destination() -> ab.Destination:
-    return ab.get_destination(
+def get_my_destination() -> dr.Destination:
+    return dr.get_destination(
         name="destination-duckdb",
         config={
             # This path is relative to the container:
@@ -62,7 +62,7 @@ def main() -> None:
     destination = get_my_destination()
     destination.check()
     state_cache = get_cache()
-    write_result: ab.WriteResult = destination.write(
+    write_result: dr.WriteResult = destination.write(
         source,
         cache=False,
         state_cache=state_cache,

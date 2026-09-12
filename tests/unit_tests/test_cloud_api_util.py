@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for Cloud API utilities."""
 
 from __future__ import annotations
@@ -8,14 +8,14 @@ from types import SimpleNamespace
 
 import pytest
 import requests
-from airbyte._util import api_util
-from airbyte.exceptions import (
-    AirbyteError,
-    AirbyteMissingResourceError,
-    AirbyteWorkspaceNotEmptyError,
-    PyAirbyteInputError,
+from datarheo._util import api_util
+from datarheo.exceptions import (
+    DataRheoCloudError,
+    DataRheoMissingResourceError,
+    DataRheoWorkspaceNotEmptyError,
+    DataRheoInputError,
 )
-from airbyte.secrets.base import SecretString
+from datarheo.secrets.base import SecretString
 from airbyte_api import api, models
 from airbyte_api.errors import SDKError
 
@@ -117,13 +117,13 @@ def _list_workspaces_response(
 @pytest.mark.parametrize(
     ("status_code", "expected_error_type"),
     [
-        pytest.param(404, AirbyteMissingResourceError, id="not_found"),
-        pytest.param(500, AirbyteError, id="server_error"),
+        pytest.param(404, DataRheoMissingResourceError, id="not_found"),
+        pytest.param(500, DataRheoCloudError, id="server_error"),
     ],
 )
 def test_wrap_sdk_error_classifies_not_found(
     status_code: int,
-    expected_error_type: type[AirbyteError],
+    expected_error_type: type[DataRheoCloudError],
 ) -> None:
     raw_response = requests.Response()
     raw_response.status_code = status_code
@@ -182,7 +182,7 @@ def test_get_user_id_from_bearer_token_rejects_invalid_tokens(
     token: str,
     expected_message: str,
 ) -> None:
-    with pytest.raises(PyAirbyteInputError, match=expected_message):
+    with pytest.raises(DataRheoInputError, match=expected_message):
         api_util.get_user_id_from_bearer_token(SecretString(token))
 
 
@@ -352,7 +352,7 @@ def test_config_api_helpers_reject_unexpected_response(
         lambda **_: response,
     )
 
-    with pytest.raises(AirbyteError, match=expected_message) as exc_info:
+    with pytest.raises(DataRheoCloudError, match=expected_message) as exc_info:
         helper(
             **kwargs,
             api_root="https://api.example",
@@ -459,13 +459,13 @@ def test_create_workspace_forwards_request(
             workspace_response=_workspace_response("New workspace", 1),
         )
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(create_workspace=create_workspace)
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     workspace = api_util.create_workspace(
@@ -504,13 +504,13 @@ def test_rename_workspace_forwards_request(
             workspace_response=_workspace_response("Renamed workspace", 1),
         )
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(update_workspace=update_workspace)
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     workspace = api_util.rename_workspace(
@@ -548,13 +548,13 @@ def test_patch_connection_normalizes_status_string(
             connection_response=_connection_response("Connection", 1),
         )
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         connections=SimpleNamespace(patch_connection=patch_connection)
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     api_util.patch_connection(
@@ -576,15 +576,15 @@ def test_patch_connection_normalizes_status_string(
 def test_patch_connection_rejects_invalid_status(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Verify invalid string connection statuses produce PyAirbyte errors."""
-    airbyte_instance = SimpleNamespace(connections=SimpleNamespace())
+    """Verify invalid string connection statuses produce PyDataRheo errors."""
+    datarheo_instance = SimpleNamespace(connections=SimpleNamespace())
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
-    with pytest.raises(PyAirbyteInputError, match="`status` must be one of"):
+    with pytest.raises(DataRheoInputError, match="`status` must be one of"):
         api_util.patch_connection(
             connection_id="connection-1",
             api_root="https://api.airbyte.com/v1",
@@ -632,14 +632,14 @@ def test_permanently_delete_workspace_requires_safe_name(
             raw_response=raw_response,
         )
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(delete_workspace=delete_workspace)
     )
     monkeypatch.setattr(api_util, "get_workspace", get_workspace)
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
     monkeypatch.setattr(api_util, "list_connections", lambda **_: [])
 
@@ -653,7 +653,7 @@ def test_permanently_delete_workspace_requires_safe_name(
         )
         assert delete_calls == 1
     else:
-        with pytest.raises(PyAirbyteInputError):
+        with pytest.raises(DataRheoInputError):
             api_util.permanently_delete_workspace(
                 workspace_id="workspace-1",
                 api_root="https://api.airbyte.com/v1",
@@ -682,13 +682,13 @@ def test_permanently_delete_workspace_requires_empty_workspace(
             raw_response=raw_response,
         )
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(delete_workspace=delete_workspace)
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
     monkeypatch.setattr(
         api_util,
@@ -696,7 +696,7 @@ def test_permanently_delete_workspace_requires_empty_workspace(
         lambda **_: [_connection_response("existing connection", 1)],
     )
 
-    with pytest.raises(AirbyteWorkspaceNotEmptyError) as exc_info:
+    with pytest.raises(DataRheoWorkspaceNotEmptyError) as exc_info:
         api_util.permanently_delete_workspace(
             workspace_id="workspace-id",
             workspace_name="delete-me workspace",
@@ -798,13 +798,13 @@ def test_list_connections_paginates_resources(
         captured_requests.append(request)
         return pages.pop(0)
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         connections=SimpleNamespace(list_connections=list_connections),
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.list_connections(
@@ -845,13 +845,13 @@ def test_list_workspaces_does_not_filter_by_workspace_id(
         captured_requests.append(request)
         return pages.pop(0)
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(list_workspaces=list_workspaces),
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.list_workspaces(
@@ -894,13 +894,13 @@ def test_list_workspaces_caps_unfiltered_api_page_size(
         captured_requests.append(request)
         return pages.pop(0)
 
-    airbyte_instance = SimpleNamespace(
+    datarheo_instance = SimpleNamespace(
         workspaces=SimpleNamespace(list_workspaces=list_workspaces),
     )
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.list_workspaces(
@@ -922,7 +922,7 @@ def test_list_workspaces_caps_unfiltered_api_page_size(
 @pytest.mark.parametrize("limit", [0, -1])
 def test_list_connections_rejects_invalid_limits(limit: int) -> None:
     """Verify connection list pagination rejects non-positive limits."""
-    with pytest.raises(PyAirbyteInputError, match="`limit` must be greater than 0."):
+    with pytest.raises(DataRheoInputError, match="`limit` must be greater than 0."):
         api_util.list_connections(
             workspace_id="workspace-id",
             api_root="https://api.airbyte.com/v1/",
@@ -952,11 +952,11 @@ def test_get_job_logs_paginates_until_limit(monkeypatch: pytest.MonkeyPatch) -> 
         captured_requests.append(request)
         return pages.pop(0)
 
-    airbyte_instance = SimpleNamespace(jobs=SimpleNamespace(list_jobs=list_jobs))
+    datarheo_instance = SimpleNamespace(jobs=SimpleNamespace(list_jobs=list_jobs))
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.get_job_logs(
@@ -997,11 +997,11 @@ def test_get_job_logs_uses_offset_and_allows_unbounded_limit(
         captured_requests.append(request)
         return pages.pop(0)
 
-    airbyte_instance = SimpleNamespace(jobs=SimpleNamespace(list_jobs=list_jobs))
+    datarheo_instance = SimpleNamespace(jobs=SimpleNamespace(list_jobs=list_jobs))
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.get_job_logs(
@@ -1042,11 +1042,11 @@ def test_cancel_job_forwards_request_and_returns_job_response(
             job_response=job_response,
         )
 
-    airbyte_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
+    datarheo_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
     result = api_util.cancel_job(
@@ -1079,14 +1079,14 @@ def test_cancel_job_raises_for_non_ok_response(
             raw_response=raw_response,
         )
 
-    airbyte_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
+    datarheo_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
-    with pytest.raises(AirbyteMissingResourceError):
+    with pytest.raises(DataRheoMissingResourceError):
         api_util.cancel_job(
             job_id=42,
             api_root="https://api.airbyte.com/v1/",
@@ -1096,7 +1096,7 @@ def test_cancel_job_raises_for_non_ok_response(
         )
 
 
-def test_cancel_job_raises_airbyte_error_for_non_not_found_response(
+def test_cancel_job_raises_datarheo_error_for_non_not_found_response(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify non-not-found cancellation failures use a general API error."""
@@ -1113,14 +1113,14 @@ def test_cancel_job_raises_airbyte_error_for_non_not_found_response(
             raw_response=raw_response,
         )
 
-    airbyte_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
+    datarheo_instance = SimpleNamespace(jobs=SimpleNamespace(cancel_job=cancel_job))
     monkeypatch.setattr(
         api_util,
-        "get_airbyte_server_instance",
-        lambda **_: airbyte_instance,
+        "get_datarheo_server_instance",
+        lambda **_: datarheo_instance,
     )
 
-    with pytest.raises(AirbyteError) as error:
+    with pytest.raises(DataRheoCloudError) as error:
         api_util.cancel_job(
             job_id=42,
             api_root="https://api.airbyte.com/v1/",
@@ -1129,4 +1129,4 @@ def test_cancel_job_raises_airbyte_error_for_non_not_found_response(
             bearer_token=None,
         )
 
-    assert not isinstance(error.value, AirbyteMissingResourceError)
+    assert not isinstance(error.value, DataRheoMissingResourceError)

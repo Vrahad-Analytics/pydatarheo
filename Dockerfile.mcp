@@ -9,7 +9,7 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY pyproject.toml uv.lock README.md /app/
-COPY airbyte/ /app/airbyte/
+COPY datarheo/ /app/datarheo/
 
 RUN uv sync --frozen --no-dev
 
@@ -22,4 +22,4 @@ EXPOSE 8080
 
 USER appuser
 
-CMD ["airbyte-mcp-http"]
+CMD ["datarheo-mcp-http"]

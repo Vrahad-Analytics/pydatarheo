@@ -1,5 +1,5 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
-"""Unit tests for the `airbyte.agents` module."""
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Unit tests for the `datarheo.agents` module."""
 
 from __future__ import annotations
 
@@ -7,16 +7,16 @@ from typing import Any
 
 import pytest
 import requests
-from airbyte.agents import _api_util
-from airbyte.agents.connectors import AgentConnector
-from airbyte.agents.models import AgentConnectorMetadata, AgentExecuteResult
-from airbyte.agents.organizations import AgentOrganization
-from airbyte.agents.workspaces import AgentWorkspace
-from airbyte.cloud._credentials import _AirbyteCredentials
-from airbyte.cloud.organizations import CloudOrganization
-from airbyte.cloud.workspaces import CloudWorkspace
-from airbyte.exceptions import AirbyteError, PyAirbyteInputError
-from airbyte.secrets.base import SecretString
+from datarheo.agents import _api_util
+from datarheo.agents.connectors import AgentConnector
+from datarheo.agents.models import AgentConnectorMetadata, AgentExecuteResult
+from datarheo.agents.organizations import AgentOrganization
+from datarheo.agents.workspaces import AgentWorkspace
+from datarheo.cloud._credentials import _AirbyteCredentials
+from datarheo.cloud.organizations import CloudOrganization
+from datarheo.cloud.workspaces import CloudWorkspace
+from datarheo.exceptions import DataRheoCloudError, DataRheoInputError
+from datarheo.secrets.base import SecretString
 
 
 EXECUTE_RESPONSE: dict[str, Any] = {
@@ -175,10 +175,10 @@ def test_agents_api_request_failures(
     expected_match: str,
     expected_status: int | None,
 ) -> None:
-    """Malformed and non-2xx Agents API responses raise `AirbyteError`."""
+    """Malformed and non-2xx Agents API responses raise `DataRheoCloudError`."""
     monkeypatch.setattr(requests, "request", lambda **_: response)
 
-    with pytest.raises(AirbyteError, match=expected_match) as error_info:
+    with pytest.raises(DataRheoCloudError, match=expected_match) as error_info:
         _api_util.list_agent_workspaces(
             credentials=_credentials(),
             organization_id="org-id",
@@ -203,7 +203,7 @@ def test_agents_api_request_failures(
         ),
         pytest.param(
             {
-                "api_args": {"repository": "airbytehq/PyAirbyte"},
+                "api_args": {"repository": "Vrahad-Analytics/pydatarheo"},
                 "page_size": 5,
                 "cursor": "c1",
             },
@@ -211,7 +211,7 @@ def test_agents_api_request_failures(
                 "entity": "issues",
                 "action": "list",
                 "params": {
-                    "repository": "airbytehq/PyAirbyte",
+                    "repository": "Vrahad-Analytics/pydatarheo",
                     "limit": 5,
                     "cursor": "c1",
                 },
@@ -235,7 +235,7 @@ def test_agents_api_request_failures(
                 "exclude_fields": ["body"],
                 "intent": "triage",
             },
-            id="all_pyairbyte_args",
+            id="all_pydatarheo_args",
         ),
     ],
 )
@@ -280,7 +280,7 @@ def test_execute_rejects_invalid_args(
     expected_error: str,
 ) -> None:
     """`execute()` rejects unsupported actions and duplicated args before any request."""
-    with pytest.raises(PyAirbyteInputError, match=expected_error):
+    with pytest.raises(DataRheoInputError, match=expected_error):
         _connector().execute(*args, **kwargs)
     assert captured_requests == []
 
@@ -303,12 +303,12 @@ def test_convenience_methods(
 ) -> None:
     """Each convenience method executes its corresponding action."""
     connector = _connector()
-    getattr(connector, method_name)("issues", {"repository": "airbytehq/PyAirbyte"})
+    getattr(connector, method_name)("issues", {"repository": "Vrahad-Analytics/pydatarheo"})
 
     assert captured_requests[0]["json"]["action"] == expected_action
     assert captured_requests[0]["json"]["entity"] == "issues"
     assert captured_requests[0]["json"]["params"] == {
-        "repository": "airbytehq/PyAirbyte"
+        "repository": "Vrahad-Analytics/pydatarheo"
     }
 
 
@@ -328,7 +328,7 @@ def test_entities(
     """`entities` returns entity lists and raises on any other payload shape."""
     result = AgentExecuteResult(status="success", result=result_payload)
     if expectation is None:
-        with pytest.raises(PyAirbyteInputError):
+        with pytest.raises(DataRheoInputError):
             _ = result.entities
     else:
         assert result.entities == expectation
@@ -589,7 +589,7 @@ def test_get_connector(
     workspace = AgentWorkspace(workspace_id="workspace-id", bearer_token="test-token")
 
     if expected_error:
-        with pytest.raises((AirbyteError, PyAirbyteInputError), match=expected_error):
+        with pytest.raises((DataRheoCloudError, DataRheoInputError), match=expected_error):
             workspace.get_connector(*args, **kwargs)
         return
 
@@ -645,7 +645,7 @@ def test_get_workspace(
     )
 
     if expected_error:
-        with pytest.raises((AirbyteError, PyAirbyteInputError), match=expected_error):
+        with pytest.raises((DataRheoCloudError, DataRheoInputError), match=expected_error):
             organization.get_workspace(*args, **kwargs)
         return
 
@@ -765,7 +765,7 @@ def test_conversion_rejects_non_public_cloud_api_roots(
     convert: Any,
 ) -> None:
     """A Cloud object with custom API roots cannot become an Agents object."""
-    with pytest.raises(PyAirbyteInputError, match="only available on Airbyte Cloud"):
+    with pytest.raises(DataRheoInputError, match="only available on Airbyte Cloud"):
         convert()
 
     assert captured_requests == []

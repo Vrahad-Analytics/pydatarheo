@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which test destination capabilities using the JSONL destination (docker-based)."""
 
@@ -8,17 +8,17 @@ import shutil
 from pathlib import Path
 
 import pytest
-from airbyte import get_source
-from airbyte._executors.base import Executor
-from airbyte._executors.util import get_connector_executor
-from airbyte._message_iterators import AirbyteMessageIterator
-from airbyte.caches.util import new_local_cache
-from airbyte.destinations.base import Destination
-from airbyte.progress import ProgressTracker
-from airbyte.results import ReadResult, WriteResult
-from airbyte.shared.catalog_providers import CatalogProvider
-from airbyte.sources.base import Source
-from airbyte.strategies import WriteStrategy
+from datarheo import get_source
+from datarheo._executors.base import Executor
+from datarheo._executors.util import get_connector_executor
+from datarheo._message_iterators import AirbyteMessageIterator
+from datarheo.caches.util import new_local_cache
+from datarheo.destinations.base import Destination
+from datarheo.progress import ProgressTracker
+from datarheo.results import ReadResult, WriteResult
+from datarheo.shared.catalog_providers import CatalogProvider
+from datarheo.sources.base import Source
+from datarheo.strategies import WriteStrategy
 
 from airbyte_protocol.models import AirbyteMessage, AirbyteRecordMessage, Type
 
@@ -88,7 +88,7 @@ def test_duckdb_destination_write_components(
     """Test the JSONL destination."""
     read_result: ReadResult = new_source_faker.read()
     # Read from the source and write to the destination.
-    airbyte_messages = (
+    datarheo_messages = (
         AirbyteMessage(
             type=Type.RECORD,
             record=AirbyteRecordMessage(
@@ -99,8 +99,8 @@ def test_duckdb_destination_write_components(
         )
         for record_dict in read_result["products"]
     )
-    new_duckdb_destination._write_airbyte_message_stream(
-        stdin=AirbyteMessageIterator(airbyte_messages),
+    new_duckdb_destination._write_datarheo_message_stream(
+        stdin=AirbyteMessageIterator(datarheo_messages),
         catalog_provider=CatalogProvider(
             configured_catalog=new_source_faker.configured_catalog
         ),

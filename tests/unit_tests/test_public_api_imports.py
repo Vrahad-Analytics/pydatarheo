@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Validate public modules do not import generated Airbyte API models directly."""
 
 from __future__ import annotations
@@ -11,14 +11,14 @@ import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 PUBLIC_MODULE_RESTRICTED_IMPORTS = {
-    Path("airbyte/cli"): ("airbyte_api", "airbyte._util.api_imports"),
-    Path("airbyte/mcp"): ("airbyte_api", "airbyte._util.api_imports"),
-    Path("airbyte/cloud"): ("airbyte_api", "airbyte._util.api_imports"),
+    Path("datarheo/cli"): ("airbyte_api", "datarheo._util.api_imports"),
+    Path("datarheo/mcp"): ("airbyte_api", "datarheo._util.api_imports"),
+    Path("datarheo/cloud"): ("airbyte_api", "datarheo._util.api_imports"),
 }
 PUBLIC_MODULE_RESTRICTED_REFERENCES = {
-    Path("airbyte/cli"): ("api_util.models",),
-    Path("airbyte/mcp"): ("api_util.models",),
-    Path("airbyte/cloud"): ("api_util.models",),
+    Path("datarheo/cli"): ("api_util.models",),
+    Path("datarheo/mcp"): ("api_util.models",),
+    Path("datarheo/cloud"): ("api_util.models",),
 }
 
 
@@ -66,9 +66,9 @@ def _api_util_model_reference_aliases(path: Path) -> tuple[str, ...]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                if alias.name == "airbyte._util.api_util":
+                if alias.name == "datarheo._util.api_util":
                     aliases.add(f"{alias.asname or alias.name}.models")
-        elif isinstance(node, ast.ImportFrom) and node.module == "airbyte._util":
+        elif isinstance(node, ast.ImportFrom) and node.module == "datarheo._util":
             for alias in node.names:
                 if alias.name == "api_util":
                     aliases.add(f"{alias.asname or alias.name}.models")
@@ -97,12 +97,12 @@ def _is_restricted_import(imported_module: str, restricted_import: str) -> bool:
     ("source", "expected_reference"),
     [
         pytest.param(
-            "from airbyte._util import api_util as au\nvalue = au.models.JobTypeEnum.SYNC\n",
+            "from datarheo._util import api_util as au\nvalue = au.models.JobTypeEnum.SYNC\n",
             "au.models",
             id="from_import_alias",
         ),
         pytest.param(
-            "import airbyte._util.api_util as au\nvalue = au.models.JobTypeEnum.SYNC\n",
+            "import datarheo._util.api_util as au\nvalue = au.models.JobTypeEnum.SYNC\n",
             "au.models",
             id="import_alias",
         ),
@@ -143,7 +143,7 @@ def test_public_modules_do_not_import_generated_api_model_modules(
 
     assert not violations, (
         "Public CLI, MCP, and cloud modules must not import generated Airbyte API "
-        "models directly. Wrap generated API models in PyAirbyte-owned response models "
+        "models directly. Wrap generated API models in PyDataRheo-owned response models "
         "before exposing them through public or presentation-layer modules.\n"
         + "\n".join(violations)
     )
@@ -178,5 +178,5 @@ def test_public_modules_do_not_reference_generated_api_model_namespaces(
     assert not violations, (
         "Public CLI, MCP, and cloud modules must not reference generated Airbyte API "
         "model namespaces through internal utilities. Keep generated API models behind "
-        "internal helpers or PyAirbyte-owned response models.\n" + "\n".join(violations)
+        "internal helpers or PyDataRheo-owned response models.\n" + "\n".join(violations)
     )

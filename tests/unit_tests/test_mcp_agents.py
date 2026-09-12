@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for the Airbyte Agents MCP tools."""
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from collections.abc import Callable
 from typing import Any, cast
 
 import pytest
-from airbyte.agents.models import (
+from datarheo.agents.models import (
     AgentConnectorDetails,
     AgentConnectorMetadata,
     AgentContextStoreEntity,
@@ -16,15 +16,15 @@ from airbyte.agents.models import (
     AgentExecuteResult,
     AgentExecutionMetadata,
 )
-from airbyte.agents.connectors import AgentConnector
-from airbyte.cloud.client import CloudClient
-from airbyte.constants import (
+from datarheo.agents.connectors import AgentConnector
+from datarheo.cloud.client import CloudClient
+from datarheo.constants import (
     MCP_CONFIG_BEARER_TOKEN,
     MCP_CONFIG_ORGANIZATION_ID,
     MCP_CONFIG_WORKSPACE_ID,
 )
-from airbyte.exceptions import AirbyteError, PyAirbyteInputError
-from airbyte.mcp import agents as agents_mcp
+from datarheo.exceptions import DataRheoCloudError, DataRheoInputError
+from datarheo.mcp import agents as agents_mcp
 from fastmcp import Context
 
 
@@ -65,7 +65,7 @@ class _AgentConnectorLike:
 class _RaisingOrganization:
     """Stands in for `AgentOrganization` and fails the way the Agents API does."""
 
-    def __init__(self, error: AirbyteError) -> None:
+    def __init__(self, error: DataRheoCloudError) -> None:
         self._error = error
 
     def list_workspaces(self) -> list[Any]:
@@ -76,7 +76,7 @@ class _RaisingOrganization:
 class _RaisingWorkspace:
     """Stands in for `AgentWorkspace` and fails the way the Agents API does."""
 
-    def __init__(self, error: AirbyteError) -> None:
+    def __init__(self, error: DataRheoCloudError) -> None:
         self._error = error
 
     def list_connectors(self) -> list[Any]:
@@ -87,7 +87,7 @@ class _RaisingWorkspace:
 class _RaisingConnector:
     """Stands in for `AgentConnector` and fails the way the Agents API does."""
 
-    def __init__(self, error: AirbyteError) -> None:
+    def __init__(self, error: DataRheoCloudError) -> None:
         self._error = error
 
     def execute(self, *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
@@ -210,7 +210,7 @@ def test_execute_unknown_connector_raises_when_not_a_cloud_destination(
     )
 
     with pytest.raises(
-        AirbyteError, match="No connector found with the given ID or name"
+        DataRheoCloudError, match="No connector found with the given ID or name"
     ):
         _execute(action="sql_select")
 
@@ -222,7 +222,7 @@ def test_execute_connector_lookup_error_is_not_treated_as_missing_connector(
     _patch_mcp_config(monkeypatch)
 
     def raise_lookup_error(self: Any) -> list[Any]:
-        raise AirbyteError(message="Connector listing failed.")
+        raise DataRheoCloudError(message="Connector listing failed.")
 
     monkeypatch.setattr(
         agents_mcp.AgentWorkspace, "list_connectors", raise_lookup_error
@@ -233,7 +233,7 @@ def test_execute_connector_lookup_error_is_not_treated_as_missing_connector(
         lambda ctx, workspace_id: pytest.fail("Cloud fallback should not run"),
     )
 
-    with pytest.raises(AirbyteError, match="Connector listing failed"):
+    with pytest.raises(DataRheoCloudError, match="Connector listing failed"):
         _execute(action="sql_select")
 
 
@@ -293,7 +293,7 @@ def test_argument_coercion(
 ) -> None:
     """Verify agent-supplied arguments are coerced, or rejected when unusable."""
     if expected_forwarded is None:
-        with pytest.raises(PyAirbyteInputError):
+        with pytest.raises(DataRheoInputError):
             _execute_ro(**tool_kwargs)
         assert connector.calls == []
         return
@@ -321,7 +321,7 @@ def test_write_tool_read_only_enforcement(
 ) -> None:
     """Verify the write-capable tool honors the caller's `read_only` request."""
     if is_rejected:
-        with pytest.raises(PyAirbyteInputError):
+        with pytest.raises(DataRheoInputError):
             _execute(action=action, read_only=read_only)
         assert connector.calls == []
         return
@@ -382,7 +382,7 @@ def test_inspect_tool_reports_context_store_entities(
 
 def test_agents_tools_are_registered_with_expected_read_only_hints() -> None:
     """Verify the Agents tools reach the server with the intended readonly annotations."""
-    from airbyte.mcp.server import app  # noqa: PLC0415  # Importing builds the server.
+    from datarheo.mcp.server import app  # noqa: PLC0415  # Importing builds the server.
 
     tools = {
         tool.name: tool
@@ -457,7 +457,7 @@ def test_connector_resolution_validates_workspace_scope(
     )
 
     if expect_error:
-        with pytest.raises((PyAirbyteInputError, AirbyteError)):
+        with pytest.raises((DataRheoInputError, DataRheoCloudError)):
             agents_mcp._get_agent_connector(  # noqa: SLF001
                 cast(Context, object()),
                 "connector-id",
@@ -473,9 +473,9 @@ def test_connector_resolution_validates_workspace_scope(
     assert connector.connector_id == "connector-id"
 
 
-def _agents_error(status_code: int | None) -> AirbyteError:
+def _agents_error(status_code: int | None) -> DataRheoCloudError:
     """Return an Agents API error carrying the given HTTP status code."""
-    return AirbyteError(
+    return DataRheoCloudError(
         message="Agents API request failed.",
         context={"status_code": status_code} if status_code is not None else {},
     )
@@ -552,7 +552,7 @@ _ACCESS_FAILURE_CASES = [
 def test_agents_tools_report_access_failures(
     monkeypatch: pytest.MonkeyPatch,
     resolver_name: str,
-    raising_stub: Callable[[AirbyteError], Any],
+    raising_stub: Callable[[DataRheoCloudError], Any],
     call_tool: Callable[[], Any],
     expected_result_fields: dict[str, Any],
     status_code: int,
@@ -579,7 +579,7 @@ def test_agents_tools_report_access_failures(
 def test_agents_tools_reraise_unrelated_errors(
     monkeypatch: pytest.MonkeyPatch,
     resolver_name: str,
-    raising_stub: Callable[[AirbyteError], Any],
+    raising_stub: Callable[[DataRheoCloudError], Any],
     call_tool: Callable[[], Any],
     expected_result_fields: dict[str, Any],  # noqa: ARG001  # Shared case list.
 ) -> None:
@@ -590,7 +590,7 @@ def test_agents_tools_reraise_unrelated_errors(
         lambda *args, **kwargs: raising_stub(_agents_error(500)),  # noqa: ARG005
     )
 
-    with pytest.raises(AirbyteError):
+    with pytest.raises(DataRheoCloudError):
         call_tool()
 
 
@@ -826,7 +826,7 @@ def test_workspace_fallback_ignores_parent_organization_lookup_error(
     client = CloudClient(bearer_token="token")
 
     def raise_parent_organization_error(_workspace_id: str) -> str:
-        raise AirbyteError(message="lookup failed")
+        raise DataRheoCloudError(message="lookup failed")
 
     monkeypatch.setattr(
         client,

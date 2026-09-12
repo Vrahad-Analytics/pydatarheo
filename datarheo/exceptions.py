@@ -1,0 +1,707 @@
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+
+"""All exceptions used in the PyDataRheo.
+
+This design is modeled after structlog's exceptions, in that we bias towards auto-generated
+property prints rather than sentence-like string concatenation.
+
+E.g. Instead of this:
+
+> `Subprocess failed with exit code '1'`
+
+We do this:
+
+> `Subprocess failed. (exit_code=1)`
+
+The benefit of this approach is that we can easily support structured logging, and we can
+easily add new properties to exceptions without having to update all the places where they
+are raised. We can also support any arbitrary number of properties in exceptions, without spending
+time on building sentence-like string constructions with optional inputs.
+
+
+In addition, the following principles are applied for exception class design:
+
+- All exceptions inherit from a common base class.
+- All exceptions have a message attribute.
+- The first line of the docstring is used as the default message.
+- The default message can be overridden by explicitly setting the message attribute.
+- Exceptions may optionally have a guidance attribute.
+- Exceptions may optionally have a help_url attribute.
+- Rendering is automatically handled by the base class.
+- Any helpful context not defined by the exception class can be passed in the `context` dict arg.
+- Within reason, avoid sending PII to the exception constructor.
+- Exceptions are dataclasses, so they can be instantiated with keyword arguments.
+- Use the 'from' syntax to chain exceptions when it is helpful to do so.
+  E.g. `raise DataRheoConnectorNotFoundError(...) from FileNotFoundError(connector_path)`
+- Any exception that adds a new property should also be decorated as `@dataclass`.
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from textwrap import indent
+from typing import TYPE_CHECKING, Any, Protocol
+
+from datarheo.constants import (
+    DATARHEO_PRINT_FULL_ERROR_LOGS,
+    CLOUD_BEARER_TOKEN_ENV_VAR,
+    CLOUD_CLIENT_ID_ENV_VAR,
+    CLOUD_CLIENT_SECRET_ENV_VAR,
+    MCP_BEARER_TOKEN_HEADER,
+    is_hosted_mcp_mode,
+)
+
+
+if TYPE_CHECKING:
+    from datarheo._util.api_duck_types import DataRheoApiResponseDuckType
+
+
+NEW_ISSUE_URL = "https://github.com/airbytehq/airbyte/issues/new/choose"
+DOCS_URL_BASE = "https://vrahad-analytics.github.io/pydatarheo"
+DOCS_URL = f"{DOCS_URL_BASE}/datarheo.html"
+
+VERTICAL_SEPARATOR = "\n" + "-" * 60
+
+
+# Base error class
+
+
+@dataclass
+class DataRheoError(Exception):
+    """Base class for exceptions in PyDataRheo."""
+
+    guidance: str | None = None
+    help_url: str | None = None
+    log_text: str | list[str] | None = None
+    log_file: Path | None = None
+    print_full_log: bool = DATARHEO_PRINT_FULL_ERROR_LOGS
+    context: dict[str, Any] | None = None
+    message: str | None = None
+    original_exception: Exception | None = None
+
+    def get_message(self) -> str:
+        """Return the best description for the exception.
+
+        We resolve the following in order:
+        1. The message sent to the exception constructor (if provided).
+        2. The first line of the class's docstring.
+        """
+        if self.message:
+            return self.message
+
+        return self.__doc__.split("\n")[0] if self.__doc__ else ""
+
+    def __str__(self) -> str:
+        """Return a string representation of the exception."""
+        special_properties = [
+            "message",
+            "guidance",
+            "help_url",
+            "log_text",
+            "context",
+            "log_file",
+            "print_full_log",
+            "original_exception",
+        ]
+        display_properties = {
+            k: v
+            for k, v in self.__dict__.items()
+            if k not in special_properties and not k.startswith("_") and v is not None
+        }
+        display_properties.update(self.context or {})
+        context_str = "\n    ".join(
+            f"{str(k).replace('_', ' ').title()}: {v!r}" for k, v in display_properties.items()
+        )
+        exception_str = (
+            f"{self.get_message()} ({self.__class__.__name__})"
+            + VERTICAL_SEPARATOR
+            + f"\n{self.__class__.__name__}: {self.get_message()}"
+        )
+
+        if self.guidance:
+            exception_str += f"\n    {self.guidance}"
+
+        if self.help_url:
+            exception_str += f"\n    More info: {self.help_url}"
+
+        if context_str:
+            exception_str += "\n    " + context_str
+
+        if self.log_text:
+            if isinstance(self.log_text, list):
+                self.log_text = "\n".join(self.log_text)
+
+            exception_str += f"\n    Log output: \n    {indent(self.log_text, '    ')}"
+
+        if self.original_exception:
+            exception_str += VERTICAL_SEPARATOR + f"\nCaused by: {self.original_exception!s}"
+
+        if self.log_file:
+            if self.print_full_log:
+                if not self.log_file.is_file():
+                    exception_str += f"\n    No log file found at: {self.log_file.absolute()!s}"
+
+                else:
+                    try:
+                        full_log_file_text = self.log_file.read_text()
+                    except Exception as ex:
+                        full_log_file_text = (
+                            f"[ERROR] Log file could not be read from: {self.log_file.absolute()!s}"
+                            f"\nRead error: {ex!s}"
+                        )
+
+                    exception_str += (
+                        f"\n    Full log file text from {self.log_file.absolute()!s}:"
+                        + VERTICAL_SEPARATOR
+                        + full_log_file_text
+                        + VERTICAL_SEPARATOR
+                    )
+            else:
+                exception_str += f"\n    Log file: {self.log_file.absolute()!s}"
+        return exception_str
+
+    def __repr__(self) -> str:
+        """Return a string representation of the exception."""
+        class_name = self.__class__.__name__
+        properties_str = ", ".join(
+            f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
+        return f"{class_name}({properties_str})"
+
+    def safe_logging_dict(self) -> dict[str, Any]:
+        """Return a dictionary of the exception's properties which is safe for logging.
+
+        We avoid any properties which could potentially contain PII.
+        """
+        result = {
+            # The class name is safe to log:
+            "class": self.__class__.__name__,
+            # We discourage interpolated strings in 'message' so that this should never contain PII:
+            "message": self.get_message(),
+        }
+        safe_attrs = ["connector_name", "stream_name", "violation", "exit_code"]
+        for attr in safe_attrs:
+            if hasattr(self, attr):
+                result[attr] = getattr(self, attr)
+
+        return result
+
+
+# PyDataRheo Internal Errors (these are probably bugs)
+
+
+@dataclass
+class DataRheoInternalError(DataRheoError):
+    """An internal error occurred in PyDataRheo."""
+
+    guidance = "Please consider reporting this error to the PyDataRheo maintainers."
+    help_url = NEW_ISSUE_URL
+
+
+# PyDataRheo Input Errors (replaces ValueError for user input)
+
+
+@dataclass
+class DataRheoInputError(DataRheoError, ValueError):
+    """The input provided to PyDataRheo did not match expected validation rules.
+
+    This inherits from ValueError so that it can be used as a drop-in replacement for
+    ValueError in the PyDataRheo API.
+    """
+
+    guidance = "Please check the provided value and try again."
+    help_url = DOCS_URL
+    input_value: str | None = None
+
+
+@dataclass
+class DataRheoNoStreamsSelectedError(DataRheoInputError):
+    """No streams were selected for the source."""
+
+    guidance = (
+        "Please call `select_streams()` to select at least one stream from the list provided. "
+        "You can also call `select_all_streams()` to select all available streams for this source."
+    )
+    connector_name: str | None = None
+    available_streams: list[str] | None = None
+
+
+@dataclass
+class DataRheoNoCloudCredentialsError(DataRheoInputError):
+    """No Airbyte credentials found."""
+
+    guidance: str | None = None
+    _allow_bearer: bool = True
+    _env_vars: bool = True
+
+    def __post_init__(self) -> None:
+        """Set guidance for the current execution mode."""
+        if self.guidance is not None:
+            return
+        if is_hosted_mcp_mode():
+            if self._allow_bearer:
+                self.guidance = (
+                    f"Provide a bearer token via the `{MCP_BEARER_TOKEN_HEADER}` header, "
+                    "or client credentials via the transport `Client-Id` and "
+                    "`Client-Secret` headers."
+                )
+            else:
+                self.guidance = (
+                    "Provide client credentials via the transport `Client-Id` and "
+                    "`Client-Secret` headers."
+                )
+        elif self._allow_bearer and self._env_vars:
+            self.guidance = (
+                f"Provide `bearer_token`, or both `client_id` and `client_secret`, as "
+                f"arguments or via the `{CLOUD_BEARER_TOKEN_ENV_VAR}`, "
+                f"`{CLOUD_CLIENT_ID_ENV_VAR}`, and `{CLOUD_CLIENT_SECRET_ENV_VAR}` "
+                "environment variables."
+            )
+        elif self._allow_bearer:
+            self.guidance = "Provide `bearer_token`, or both `client_id` and `client_secret`."
+        elif self._env_vars:
+            self.guidance = (
+                f"Provide both `client_id` and `client_secret`, as arguments or via the "
+                f"`{CLOUD_CLIENT_ID_ENV_VAR}` and `{CLOUD_CLIENT_SECRET_ENV_VAR}` "
+                "environment variables."
+            )
+        else:
+            self.guidance = "Provide both `client_id` and `client_secret`."
+
+
+@dataclass
+class DataRheoMissingWorkspaceContextError(DataRheoInputError):
+    """Workspace ID is required but not provided."""
+
+    guidance: str | None = None
+
+    def __post_init__(self) -> None:
+        """Set guidance for the current execution mode."""
+        if self.guidance is not None:
+            return
+        if is_hosted_mcp_mode():
+            self.guidance = (
+                "The authenticated user's default workspace was checked and none was "
+                "available. `list_cloud_workspaces` returns direct workspace memberships "
+                "by default; pass `organization_id`/`organization_name` or a broader "
+                "`privilege_scope` for organization-wide discovery, or call "
+                "`list_cloud_organizations` to search organizations by name. If exactly "
+                "one workspace is found, use it; otherwise ask the user to choose. Call "
+                "`get_default_cloud_context` to inspect your memberships."
+            )
+        else:
+            self.guidance = (
+                "The authenticated user's default workspace was checked and none was "
+                "available. `list_workspaces` returns direct workspace memberships "
+                "by default; pass `organization_id`/`organization_name` or a broader "
+                "`privilege_scope` for organization-wide discovery, or call "
+                "`list_organizations` to search organizations by name. If exactly "
+                "one workspace is found, use it; otherwise ask the user to choose. Call "
+                "`get_default_context_for_user` to inspect your memberships."
+            )
+
+
+# MCP Server Errors
+
+
+@dataclass
+class DataRheoMCPError(DataRheoError):
+    """An error occurred in the DataRheo MCP server."""
+
+
+@dataclass
+class DataRheoTrustedExecutionRequiredError(DataRheoMCPError):
+    """A trusted-execution-only capability was invoked while trusted execution is disabled.
+
+    Trusted execution grants the MCP server its trusted-machine capabilities: local
+    filesystem access, local connector installation/execution, and server-side secret
+    resolution. It defaults to *off* on every transport and is permanently unavailable
+    over the HTTP transport, so a backend helper that exposes one of those capabilities
+    hard-fails when the gate is disabled -- independently of whether the corresponding
+    tool was hidden from the tool listing.
+    """
+
+    guidance = (
+        "Set `DATARHEO_MCP_TRUSTED_EXECUTION=1` on the MCP server process and restart it. "
+        "Trusted execution is only available on the stdio transport; it can never be "
+        "enabled for an HTTP/hosted deployment."
+    )
+    feature: str | None = None
+
+
+# Normalization Errors
+
+
+@dataclass
+class DataRheoNameNormalizationError(DataRheoError, ValueError):
+    """Error occurred while normalizing a table or column name."""
+
+    guidance = (
+        "Please consider renaming the source object if possible, or "
+        "raise an issue in GitHub if not."
+    )
+    help_url = NEW_ISSUE_URL
+
+    raw_name: str | None = None
+    normalization_result: str | None = None
+
+
+# PyDataRheo Cache Errors
+
+
+class DataRheoCacheError(DataRheoError):
+    """Error occurred while accessing the cache."""
+
+
+@dataclass
+class DataRheoCacheTableValidationError(DataRheoCacheError):
+    """Cache table validation failed."""
+
+    violation: str | None = None
+
+
+@dataclass
+class DataRheoConnectorConfigurationMissingError(DataRheoCacheError):
+    """Connector is missing configuration."""
+
+    connector_name: str | None = None
+
+
+# Subprocess Errors
+
+
+@dataclass
+class DataRheoSubprocessError(DataRheoError):
+    """Error when running subprocess."""
+
+    run_args: list[str] | None = None
+
+
+@dataclass
+class DataRheoSubprocessFailedError(DataRheoSubprocessError):
+    """Subprocess failed."""
+
+    exit_code: int | None = None
+
+
+# Connector Registry Errors
+
+
+class DataRheoConnectorRegistryError(DataRheoError):
+    """Error when accessing the connector registry."""
+
+
+@dataclass
+class DataRheoConnectorNotRegisteredError(DataRheoConnectorRegistryError):
+    """Connector not found in registry."""
+
+    connector_name: str | None = None
+    guidance = (
+        "Please double check the connector name. "
+        "Alternatively, you can provide an explicit connector install method to `get_source()`: "
+        "`pip_url`, `local_executable`, `docker_image`, or `source_manifest`."
+    )
+    help_url = DOCS_URL_BASE + "/datarheo/sources/util.html#get_source"
+
+
+@dataclass
+class DataRheoConnectorNotPyPiPublishedError(DataRheoConnectorRegistryError):
+    """Connector found, but not published to PyPI."""
+
+    connector_name: str | None = None
+    guidance = "This likely means that the connector is not ready for use with PyDataRheo."
+
+
+# Connector Errors
+
+
+@dataclass
+class DataRheoConnectorError(DataRheoError):
+    """Error when running the connector."""
+
+    connector_name: str | None = None
+
+    def __post_init__(self) -> None:
+        """Set the log file path for the connector."""
+        self.log_file = self._get_log_file()
+        if not self.guidance and self.log_file:
+            self.guidance = "Please review the log file for more information."
+
+    def _get_log_file(self) -> Path | None:
+        """Return the log file path for the connector."""
+        if self.connector_name:
+            logger = logging.getLogger(f"datarheo.{self.connector_name}")
+
+            log_paths: list[Path] = [
+                Path(handler.baseFilename).absolute()
+                for handler in logger.handlers
+                if isinstance(handler, logging.FileHandler)
+            ]
+
+            if log_paths:
+                return log_paths[0]
+
+        return None
+
+
+class DataRheoConnectorExecutableNotFoundError(DataRheoConnectorError):
+    """Connector executable not found."""
+
+
+class DataRheoConnectorInstallationError(DataRheoConnectorError):
+    """Error when installing the connector."""
+
+
+class DataRheoConnectorReadError(DataRheoConnectorError):
+    """Error when reading from the connector."""
+
+
+class DataRheoConnectorWriteError(DataRheoConnectorError):
+    """Error when writing to the connector."""
+
+
+class DataRheoConnectorSpecFailedError(DataRheoConnectorError):
+    """Error when getting spec from the connector."""
+
+
+class DataRheoConnectorDiscoverFailedError(DataRheoConnectorError):
+    """Error when running discovery on the connector."""
+
+
+class DataRheoNoDataFromConnectorError(DataRheoConnectorError):
+    """No data was provided from the connector."""
+
+
+class DataRheoConnectorMissingCatalogError(DataRheoConnectorError):
+    """Connector did not return a catalog."""
+
+
+class DataRheoConnectorMissingSpecError(DataRheoConnectorError):
+    """Connector did not return a spec."""
+
+
+class DataRheoConnectorValidationFailedError(DataRheoConnectorError):
+    """Connector config validation failed."""
+
+    guidance = (
+        "Please double-check your config and review the validation errors for more information."
+    )
+
+
+class DataRheoConnectorCheckFailedError(DataRheoConnectorError):
+    """Connector check failed."""
+
+    guidance = (
+        "Please double-check your config or review the connector's logs for more information."
+    )
+
+
+@dataclass
+class DataRheoConnectorFailedError(DataRheoConnectorError):
+    """Connector failed."""
+
+    exit_code: int | None = None
+
+
+@dataclass
+class DataRheoStreamNotFoundError(DataRheoConnectorError):
+    """Connector stream not found."""
+
+    stream_name: str | None = None
+    available_streams: list[str] | None = None
+
+
+@dataclass
+class DataRheoStateNotFoundError(DataRheoConnectorError, KeyError):
+    """State entry not found."""
+
+    stream_name: str | None = None
+    available_streams: list[str] | None = None
+
+
+@dataclass
+class DataRheoSecretNotFoundError(DataRheoError):
+    """Secret not found."""
+
+    guidance = "Please ensure that the secret is set."
+    help_url = (
+        "https://docs.airbyte.com/using-airbyte/airbyte-lib/getting-started#secrets-management"
+    )
+
+    secret_name: str | None = None
+    sources: list[str] | None = None
+
+
+# Airbyte API Errors
+
+
+class _WorkspaceWithUrl(Protocol):
+    """Structural type for a workspace that exposes a `workspace_url`.
+
+    Declared locally so `exceptions` does not need to import `datarheo.cloud`, which
+    would create an import cycle. Any object with a `workspace_url` attribute (e.g.
+    `CloudWorkspace`) satisfies this via structural (duck) typing.
+    """
+
+    @property
+    def workspace_url(self) -> str | None:
+        """The web URL of the workspace."""
+
+
+@dataclass
+class DataRheoCloudError(DataRheoError):
+    """An error occurred while communicating with the hosted Airbyte instance."""
+
+    response: DataRheoApiResponseDuckType | None = None
+    """The API response from the failed request."""
+
+    workspace: _WorkspaceWithUrl | None = None
+    """The workspace where the error occurred."""
+
+    @property
+    def workspace_url(self) -> str | None:
+        """The URL to the workspace where the error occurred."""
+        if self.workspace:
+            return self.workspace.workspace_url
+
+        return None
+
+
+@dataclass
+class DataRheoConnectionError(DataRheoCloudError):
+    """An connection error occurred while communicating with the hosted Airbyte instance."""
+
+    connection_id: str | None = None
+    """The connection ID where the error occurred."""
+
+    job_id: int | None = None
+    """The job ID where the error occurred (if applicable)."""
+
+    job_status: str | None = None
+    """The latest status of the job where the error occurred (if applicable)."""
+
+    @property
+    def connection_url(self) -> str | None:
+        """The web URL to the connection where the error occurred."""
+        if self.workspace_url and self.connection_id:
+            return f"{self.workspace_url}/connections/{self.connection_id}"
+
+        return None
+
+    @property
+    def job_history_url(self) -> str | None:
+        """The URL to the job history where the error occurred."""
+        if self.connection_url:
+            return f"{self.connection_url}/timeline"
+
+        return None
+
+    @property
+    def job_url(self) -> str | None:
+        """The URL to the job where the error occurred."""
+        if self.job_history_url and self.job_id:
+            return f"{self.job_history_url}#{self.job_id}::0"
+
+        return None
+
+
+@dataclass
+class DataRheoConnectionSyncError(DataRheoConnectionError):
+    """An error occurred while executing the remote Airbyte job."""
+
+
+@dataclass
+class DataRheoConnectionSyncActiveError(DataRheoConnectionError):
+    """State update rejected because a sync is currently running (HTTP 423)."""
+
+
+@dataclass
+class DataRheoWorkspaceMismatchError(DataRheoCloudError):
+    """Resource does not belong to the expected workspace.
+
+    This error is raised when a resource (connection, source, or destination) is fetched
+    from the API and the workspace ID in the response does not match the expected workspace.
+    """
+
+    resource_type: str | None = None
+    """The type of resource (e.g., 'connection', 'source', 'destination')."""
+
+    resource_id: str | None = None
+    """The ID of the resource that was fetched."""
+
+    expected_workspace_id: str | None = None
+    """The workspace ID that was expected."""
+
+    actual_workspace_id: str | None = None
+    """The workspace ID returned by the API."""
+
+
+@dataclass
+class DataRheoWorkspaceNotEmptyError(DataRheoCloudError):
+    """Workspace cannot be deleted because it contains connections."""
+
+    workspace_id: str | None = None
+    """The workspace ID that was expected to be empty."""
+
+    connection_ids: list[str] | None = None
+    """The connection IDs found in the workspace."""
+
+
+@dataclass
+class DataRheoConnectionSyncTimeoutError(DataRheoConnectionSyncError):
+    """An timeout occurred while waiting for the remote Airbyte job to complete."""
+
+    timeout: int | None = None
+    """The timeout in seconds that was reached."""
+
+
+# Airbyte Resource Errors (General)
+
+
+@dataclass
+class DataRheoMissingResourceError(DataRheoCloudError):
+    """Remote Airbyte resources does not exist."""
+
+    resource_type: str | None = None
+    resource_name_or_id: str | None = None
+
+
+@dataclass
+class DataRheoDuplicateResourcesError(DataRheoCloudError):
+    """Process failed because resource name was not unique."""
+
+    resource_type: str | None = None
+    resource_name: str | None = None
+
+
+# Custom Warnings
+@dataclass
+class DataRheoMultipleResourcesError(DataRheoCloudError):
+    """Could not locate the resource because multiple matching resources were found."""
+
+    resource_type: str | None = None
+    resource_name_or_id: str | None = None
+
+
+# Custom Warnings
+
+
+class DataRheoExperimentalFeatureWarning(FutureWarning):
+    """Warning whenever using experimental features in PyDataRheo."""
+
+
+# PyDataRheo Warnings
+
+
+class DataRheoWarning(Warning):
+    """General warnings from PyDataRheo."""
+
+
+class DataRheoDataLossWarning(DataRheoWarning):
+    """Warning for potential data loss.
+
+    Users can ignore this warning by running:
+    > warnings.filterwarnings("ignore", category="datarheo.exceptions.DataRheoDataLossWarning")
+    """

@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Validate generated MCP documentation includes and public module exports."""
 
 from __future__ import annotations
@@ -8,16 +8,16 @@ from pathlib import Path
 
 import pytest
 
-import airbyte.mcp
+import datarheo.mcp
 from docs.generate import _validate_includes
 
 
-# These process entry points have connectivity docs in `airbyte.mcp`'s docstring.
+# These process entry points have connectivity docs in `datarheo.mcp`'s docstring.
 DOCS_EXCLUDED_MODULES = frozenset({"http_main", "server"})
 
 
 def test_validate_includes_raises_for_missing_target(tmp_path: Path) -> None:
-    source = tmp_path / "airbyte" / "mcp" / "module.py"
+    source = tmp_path / "datarheo" / "mcp" / "module.py"
     source.parent.mkdir(parents=True)
     source.write_text(".. include:: ../../docs/mcp-generated/missing.md\n")
 
@@ -26,7 +26,7 @@ def test_validate_includes_raises_for_missing_target(tmp_path: Path) -> None:
 
 
 def test_validate_includes_handles_target_outside_root(tmp_path: Path) -> None:
-    source = tmp_path / "airbyte" / "mcp" / "module.py"
+    source = tmp_path / "datarheo" / "mcp" / "module.py"
     source.parent.mkdir(parents=True)
     source.write_text(".. include:: ../../../../../outside.md\n")
 
@@ -35,7 +35,7 @@ def test_validate_includes_handles_target_outside_root(tmp_path: Path) -> None:
 
 
 def test_validate_includes_passes_for_existing_target(tmp_path: Path) -> None:
-    source = tmp_path / "airbyte" / "mcp" / "module.py"
+    source = tmp_path / "datarheo" / "mcp" / "module.py"
     target = tmp_path / "docs" / "mcp-generated" / "module.md"
     source.parent.mkdir(parents=True)
     target.parent.mkdir(parents=True)
@@ -55,7 +55,7 @@ def test_existing_includes_name_generated_mcp_modules() -> None:
         "registry",
         "prompts",
     }
-    for source in (repo_root / "airbyte").rglob("*.py"):
+    for source in (repo_root / "datarheo").rglob("*.py"):
         for line in source.read_text(encoding="utf-8").splitlines():
             if ".. include::" not in line:
                 continue
@@ -68,9 +68,9 @@ def test_existing_includes_name_generated_mcp_modules() -> None:
 def test_mcp_all_covers_public_submodules() -> None:
     public_modules = {
         module.name
-        for module in pkgutil.iter_modules(airbyte.mcp.__path__)
+        for module in pkgutil.iter_modules(datarheo.mcp.__path__)
         if not module.name.startswith("_")
     }
-    exported_modules = set(airbyte.mcp.__all__)
+    exported_modules = set(datarheo.mcp.__all__)
     assert public_modules - DOCS_EXCLUDED_MODULES <= exported_modules
     assert DOCS_EXCLUDED_MODULES.isdisjoint(exported_modules)

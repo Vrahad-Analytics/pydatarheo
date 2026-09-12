@@ -1,7 +1,7 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
-"""A simple test of PyAirbyte, using the Faker source connector.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""A simple test of PyDataRheo, using the Faker source connector.
 
-Usage (from PyAirbyte root directory):
+Usage (from PyDataRheo root directory):
 > poetry run python ./examples/run_github.py
 
 No setup is needed, but you may need to delete the .venv-source-faker folder
@@ -10,14 +10,14 @@ if your installation gets interrupted or corrupted.
 
 from __future__ import annotations
 
-import airbyte as ab
+import datarheo as dr
 
 
 # Create a token here: https://github.com/settings/tokens
-GITHUB_TOKEN = ab.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
+GITHUB_TOKEN = dr.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
 
 
-source = ab.get_source("source-github")
+source = dr.get_source("source-github")
 source.set_config({
     "repositories": ["airbytehq/airbyte-lib-private-beta"],
     "credentials": {"personal_access_token": GITHUB_TOKEN},
@@ -31,7 +31,7 @@ source.select_streams([
     "deployments",
 ])
 
-result = source.read(cache=ab.new_local_cache("github"))
+result = source.read(cache=dr.new_local_cache("github"))
 print(result.processed_records)
 
 for name, records in result.streams.items():

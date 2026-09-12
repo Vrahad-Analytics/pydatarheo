@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which leverage the source-faker connector to test the framework end-to-end.
 
@@ -13,13 +13,13 @@ import os
 import sys
 from pathlib import Path
 
-import airbyte as ab
+import datarheo as dr
 import pytest
-from airbyte import get_source
-from airbyte._processors.sql.duckdb import DuckDBConfig, DuckDBSqlProcessor
-from airbyte._util.venv_util import get_bin_dir
-from airbyte.results import ReadResult
-from airbyte.shared.catalog_providers import CatalogProvider
+from datarheo import get_source
+from datarheo._processors.sql.duckdb import DuckDBConfig, DuckDBSqlProcessor
+from datarheo._util.venv_util import get_bin_dir
+from datarheo.results import ReadResult
+from datarheo.shared.catalog_providers import CatalogProvider
 from sqlalchemy import text
 from viztracer import VizTracer
 
@@ -65,7 +65,7 @@ def add_venv_bin_to_path(monkeypatch):
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_faker_seed_a(*, use_docker: bool) -> ab.Source:
+def source_faker_seed_a(*, use_docker: bool) -> dr.Source:
     """Fixture to return a source-faker connector instance."""
     source = get_source(
         "source-faker",
@@ -81,7 +81,7 @@ def source_faker_seed_a(*, use_docker: bool) -> ab.Source:
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source-faker instance.
-def source_faker_seed_b(*, use_docker: bool) -> ab.Source:
+def source_faker_seed_b(*, use_docker: bool) -> dr.Source:
     """Fixture to return a source-faker connector instance."""
     source = get_source(
         "source-faker",
@@ -97,7 +97,7 @@ def source_faker_seed_b(*, use_docker: bool) -> ab.Source:
 
 
 @pytest.fixture(scope="function")  # Each test gets a fresh source instance.
-def source_pokeapi() -> ab.Source:
+def source_pokeapi() -> dr.Source:
     """Fixture to return a source-faker connector instance."""
     source = get_source(
         "source-pokeapi",
@@ -116,8 +116,8 @@ def source_pokeapi() -> ab.Source:
     reason="Fails inexplicably when run in CI. https://github.com/airbytehq/PyAirbyte/issues/146",
 )
 def test_pokeapi_read(
-    source_pokeapi: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_pokeapi: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that PokeAPI source can load to all cache types.
 
@@ -134,8 +134,8 @@ def test_pokeapi_read(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_faker_read(
-    source_faker_seed_a: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
     tracer: VizTracer,
 ) -> None:
     """Test that the append strategy works as expected."""
@@ -175,13 +175,13 @@ def test_faker_read(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_append_strategy(
-    source_faker_seed_a: ab.Source,
-    new_duckdb_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    new_duckdb_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that the append strategy works as expected."""
     result: ReadResult
     for _ in range(2):
-        assert isinstance(new_duckdb_cache, ab.caches.CacheBase)
+        assert isinstance(new_duckdb_cache, dr.caches.CacheBase)
         result = source_faker_seed_a.read(
             new_duckdb_cache, write_strategy="append", force_full_refresh=True
         )
@@ -191,8 +191,8 @@ def test_append_strategy(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_replace_strategy(
-    source_faker_seed_a: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that the append strategy works as expected."""
     result: ReadResult
@@ -206,8 +206,8 @@ def test_replace_strategy(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_cache_create_source_tables(
-    source_faker_seed_a: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that the cache creation and source tables work as expected."""
     new_generic_cache.create_source_tables(source_faker_seed_a)
@@ -219,9 +219,9 @@ def test_cache_create_source_tables(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_merge_strategy(
-    source_faker_seed_a: ab.Source,
-    source_faker_seed_b: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    source_faker_seed_b: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that the merge strategy works as expected.
 
@@ -255,8 +255,8 @@ def test_merge_strategy(
 @pytest.mark.requires_creds
 @pytest.mark.slow
 def test_auto_add_columns(
-    source_faker_seed_a: ab.Source,
-    new_generic_cache: ab.caches.CacheBase,
+    source_faker_seed_a: dr.Source,
+    new_generic_cache: dr.caches.CacheBase,
 ) -> None:
     """Test that the auto-add columns works as expected."""
     # Start with a normal read.
@@ -267,24 +267,24 @@ def test_auto_add_columns(
     table_name: str = result["users"].to_sql_table().name
 
     # Ensure that the raw ID column is present. Then delete it and confirm it's gone.
-    assert "_airbyte_raw_id" in result["users"].to_sql_table().columns
+    assert "_datarheo_raw_id" in result["users"].to_sql_table().columns
     with new_generic_cache.processor.get_sql_connection() as conn:
         conn.execute(
             text(
                 f"ALTER TABLE {new_generic_cache.schema_name}.{table_name} "
-                "DROP COLUMN _airbyte_raw_id"
+                "DROP COLUMN _datarheo_raw_id"
             ),
         )
     new_generic_cache.processor._invalidate_table_cache(table_name)
 
-    assert "_airbyte_raw_id" not in result["users"].to_sql_table().columns
+    assert "_datarheo_raw_id" not in result["users"].to_sql_table().columns
 
     new_generic_cache.processor._invalidate_table_cache(table_name)
 
     # Now re-read the stream with the auto strategy and ensure the column is back.
     result = source_faker_seed_a.read(cache=new_generic_cache, write_strategy="auto")
 
-    assert "_airbyte_raw_id" in result["users"].to_sql_table().columns
+    assert "_datarheo_raw_id" in result["users"].to_sql_table().columns
 
 
 @pytest.mark.slow
@@ -296,7 +296,7 @@ def test_cache_columns_for_datetime_types_are_timezone_aware():
     )
 
     config = DuckDBConfig(
-        schema_name="airbyte",
+        schema_name="datarheo",
         db_path=":memory:",
     )
 
@@ -309,7 +309,7 @@ def test_cache_columns_for_datetime_types_are_timezone_aware():
 
     column_definitions = processor._get_sql_column_definitions("products")
 
-    for col_name in ["created_at", "updated_at", "_airbyte_extracted_at"]:
+    for col_name in ["created_at", "updated_at", "_datarheo_extracted_at"]:
         assert col_name in column_definitions, f"{col_name} column should exist"
         col_type = column_definitions[col_name]
         col_type_repr = repr(col_type)

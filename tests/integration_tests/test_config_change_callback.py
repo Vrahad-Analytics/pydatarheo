@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Integration tests which test destination capabilities using the JSONL destination (docker-based)."""
 
@@ -8,7 +8,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-from airbyte import Destination, Source, get_destination, get_source
+from datarheo import Destination, Source, get_destination, get_source
 
 from airbyte_protocol.models import (
     AirbyteControlConnectorConfigMessage,
@@ -64,7 +64,7 @@ def test_source_config_callback(
             "seed": 1234,
             "parallelism": 16,
         }
-        airbyte_source_control_message = AirbyteMessage(
+        datarheo_source_control_message = AirbyteMessage(
             type=Type.CONTROL,
             control=AirbyteControlMessage(
                 type=OrchestratorType.CONNECTOR_CONFIG,
@@ -75,7 +75,7 @@ def test_source_config_callback(
             ),
         )
 
-        new_source_faker._peek_airbyte_message(airbyte_source_control_message)
+        new_source_faker._peek_datarheo_message(datarheo_source_control_message)
         mock_config_change_callback.assert_called_once_with(updated_config)
 
 
@@ -89,7 +89,7 @@ def test_destination_config_callback(
         updated_config = {
             "destination_path": "/local/temp/db.duckdb",
         }
-        airbyte_destination_control_message = AirbyteMessage(
+        datarheo_destination_control_message = AirbyteMessage(
             type=Type.CONTROL,
             control=AirbyteControlMessage(
                 type=OrchestratorType.CONNECTOR_CONFIG,
@@ -100,7 +100,7 @@ def test_destination_config_callback(
             ),
         )
 
-        new_duckdb_destination._peek_airbyte_message(
-            airbyte_destination_control_message
+        new_duckdb_destination._peek_datarheo_message(
+            datarheo_destination_control_message
         )
         mock_config_change_callback.assert_called_once_with(updated_config)

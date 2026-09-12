@@ -1,19 +1,19 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """This examples script demonstrates how to render documents from a source."""
 
 from __future__ import annotations
 
-import airbyte as ab
+import datarheo as dr
 import rich
 
 
 def main() -> None:
-    read_result = ab.get_source(
+    read_result = dr.get_source(
         "source-github",
         config={
             "repositories": ["airbytehq/quickstarts"],
             "credentials": {
-                "personal_access_token": ab.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
+                "personal_access_token": dr.get_secret("GITHUB_PERSONAL_ACCESS_TOKEN")
             },
         },
         streams=["issues"],

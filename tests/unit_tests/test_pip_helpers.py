@@ -1,8 +1,8 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import pytest
-from airbyte._util import github_pip_url, connector_pip_url
+from datarheo._util import github_pip_url, connector_pip_url
 
 
 @pytest.mark.parametrize(
@@ -10,7 +10,7 @@ from airbyte._util import github_pip_url, connector_pip_url
     [
         (
             "airbytehq",
-            "airbyte",
+            "datarheo",
             None,
             None,
             None,
@@ -18,7 +18,7 @@ from airbyte._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "airbyte",
+            "datarheo",
             "master",
             None,
             None,
@@ -26,7 +26,7 @@ from airbyte._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "airbyte",
+            "datarheo",
             "my-branch",
             None,
             None,
@@ -34,7 +34,7 @@ from airbyte._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "airbyte",
+            "datarheo",
             "my-branch",
             "airbyte-lib",
             None,
@@ -42,7 +42,7 @@ from airbyte._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "airbyte",
+            "datarheo",
             "my-branch",
             "airbyte-lib",
             "airbyte-lib",

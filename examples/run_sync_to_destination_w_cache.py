@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 
 """Test a sync to an Airbyte destination.
 
@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import datetime
 
-import airbyte as ab
+import datarheo as dr
 
 SCALE = 200_000
 
 
-def get_my_source() -> ab.Source:
-    return ab.get_source(
+def get_my_source() -> dr.Source:
+    return dr.get_source(
         "source-faker",
         config={
             "count": SCALE,
@@ -29,8 +29,8 @@ def get_my_source() -> ab.Source:
     )
 
 
-def get_my_destination() -> ab.Destination:
-    return ab.get_destination(
+def get_my_destination() -> dr.Destination:
+    return dr.get_destination(
         name="destination-duckdb",
         config={
             # This path is relative to the container:
@@ -48,9 +48,9 @@ def main() -> None:
     source.check()
     destination = get_my_destination()
     destination.check()
-    write_result: ab.WriteResult = destination.write(
+    write_result: dr.WriteResult = destination.write(
         source_data=source,
-        cache=ab.new_local_cache(),
+        cache=dr.new_local_cache(),
     )
     print(
         f"Completed writing {write_result.processed_records:,} records "

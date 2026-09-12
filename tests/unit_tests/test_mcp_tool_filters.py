@@ -1,5 +1,5 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
-"""Unit tests for the Airbyte MCP tool module filters."""
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+"""Unit tests for the DataRheo MCP tool module filters."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any, cast
 import pytest
 from fastmcp_extensions.tool_filters import CONFIG_INCLUDE_MODULES
 
-from airbyte.constants import (
+from datarheo.constants import (
     MCP_CONFIG_EXCLUDE_MODULES,
     MCP_CONFIG_INCLUDE_MODULES,
     MCP_CONFIG_INSIDERS,
@@ -18,7 +18,7 @@ from airbyte.constants import (
     MCP_INSIDERS_MODULES,
     _str_to_bool,
 )
-from airbyte.mcp import _tool_utils
+from datarheo.mcp import _tool_utils
 from fastmcp import FastMCP
 from mcp.types import Tool
 
@@ -49,7 +49,7 @@ def mcp_config(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
 
 def _visible(module: str) -> bool:
     """Return whether a tool in the given module is advertised."""
-    return _tool_utils.airbyte_module_filter(_tool(module), APP)
+    return _tool_utils.datarheo_module_filter(_tool(module), APP)
 
 
 @pytest.mark.parametrize(
@@ -205,7 +205,7 @@ def test_unannotated_tools_are_always_visible(mcp_config: dict[str, str]) -> Non
     """A tool with no module annotation is never filtered by module."""
     tool = cast(Tool, SimpleNamespace(annotations=None))
 
-    assert _tool_utils.airbyte_module_filter(tool, APP)
+    assert _tool_utils.datarheo_module_filter(tool, APP)
 
 
 def test_insiders_gate_is_off_by_default() -> None:

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Unit tests for HTTP MCP host and origin validation."""
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 from starlette.types import Receive, Scope, Send
 
-from airbyte.mcp._transport_security import (
+from datarheo.mcp._transport_security import (
     ALLOWED_HOSTS_ENV,
     HostOriginGuardMiddleware,
     resolve_allowed_hosts,

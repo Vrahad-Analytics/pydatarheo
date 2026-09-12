@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 from __future__ import annotations
 
 import os
@@ -24,18 +24,18 @@ import pytest
     ],
 )
 def test_no_uv_environment_mapping(env_value: str | None, expected_no_uv: bool) -> None:
-    """Verify `AIRBYTE_NO_UV` opts out of uv only for explicit truthy values."""
+    """Verify `DATARHEO_NO_UV` opts out of uv only for explicit truthy values."""
     environment = os.environ.copy()
     if env_value is None:
-        environment.pop("AIRBYTE_NO_UV", None)
+        environment.pop("DATARHEO_NO_UV", None)
     else:
-        environment["AIRBYTE_NO_UV"] = env_value
+        environment["DATARHEO_NO_UV"] = env_value
 
     result = subprocess.run(
         [
             sys.executable,
             "-c",
-            "from airbyte.constants import NO_UV; print(NO_UV)",
+            "from datarheo.constants import NO_UV; print(NO_UV)",
         ],
         check=True,
         capture_output=True,

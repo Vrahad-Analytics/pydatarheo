@@ -1,6 +1,6 @@
-# Contributing to PyAirbyte
+# Contributing to PyDataRheo
 
-Learn how you can become a contributor to PyAirbyte.
+Learn how you can become a contributor to PyDataRheo.
 
 ## Development
 
@@ -36,7 +36,7 @@ Documentation pages will be generated in the `docs/generated` folder. The `test_
 
 Releases are published automatically to PyPi in response to a "published" event on a GitHub Release Tag.
 
-To publish to PyPi, simply [create a GitHub Release](https://github.com/airbytehq/PyAirbyte/releases/new) with the correct version. Once you publish the release on GitHub it will automatically trigger a PyPi publish workflow in GitHub actions.
+To publish to PyPi, simply [create a GitHub Release](https://github.com/Vrahad-Analytics/pydatarheo/releases/new) with the correct version. Once you publish the release on GitHub it will automatically trigger a PyPi publish workflow in GitHub actions.
 
 > **Warning**
 >
@@ -75,9 +75,9 @@ To pin your GitHub actions, you can use the [pinact](https://github.com/suzuki-s
 pinact run [optional_file]
 ```
 
-## Contributing to the Airbyte Replication MCP Server
+## Contributing to the DataRheo MCP Server
 
-The Airbyte MCP server is part of the PyAirbyte project. Contributions are welcome!
+The DataRheo MCP server is part of the PyDataRheo project. Contributions are welcome!
 
 You can contribute to the MCP server by adding new tools, improving existing functionality, or
 fixing bugs. The server is built using the FastMCP framework, which provides a flexible
@@ -97,17 +97,17 @@ In your MCP config, you can test your development updates using `uv` as the entr
 ```json
 {
   "mcpServers": {
-    "airbyte": {
+    "datarheo": {
       "command": "uv",
       "args": [
-        "--directory=/path/to/repos/PyAirbyte",
+        "--directory=/path/to/repos/PyDataRheo",
         "run",
-        "airbyte-mcp"
+        "datarheo-mcp"
       ],
       "env": {
-        "AIRBYTE_MCP_ENV_FILE": "/path/to/my/.mcp/airbyte_mcp.env",
-        "AIRBYTE_CLOUD_MCP_READONLY_MODE": "0",
-        "AIRBYTE_CLOUD_MCP_SAFE_MODE": "0"
+        "DATARHEO_MCP_ENV_FILE": "/path/to/my/.mcp/datarheo_mcp.env",
+        "DATARHEO_CLOUD_MCP_READONLY_MODE": "0",
+        "DATARHEO_CLOUD_MCP_SAFE_MODE": "0"
       }
     }
   }
@@ -118,7 +118,7 @@ In your MCP config, you can test your development updates using `uv` as the entr
 
 ### Testing MCP Tools
 
-The easiest way to test Airbyte Replication MCP tools during development is using the built-in Poe tasks.
+The easiest way to test DataRheo MCP tools during development is using the built-in Poe tasks.
 
 ```bash
 poe mcp-tool-test <tool_name> '<json_args>'
@@ -130,7 +130,7 @@ poe mcp-tool-test validate_config \
 poe mcp-tool-test run_sync \
     '{"connector_name": "source-pokeapi", "config": {"pokemon_name": "pikachu"}}'
 
-poe mcp-tool-test check_airbyte_cloud_workspace '{}'
+poe mcp-tool-test check_datarheo_cloud_workspace '{}'
 poe mcp-tool-test list_deployed_cloud_connections '{}'
 ```
 
@@ -150,7 +150,7 @@ The repo ships a small script (`scripts/generate_mcp_markdown.py`) that
 introspects the MCP server via `fastmcp inspect` and emits a Markdown
 documentation site under `docs/mcp-generated/` (git-ignored). The output is
 plain CommonMark with no MDX-only components, so it is both Docusaurus-hostable
-and consumable by `pdoc` — the four `airbyte.mcp.{cloud,local,registry,prompts}`
+and consumable by `pdoc` — the four `datarheo.mcp.{cloud,local,registry,prompts}`
 modules pull their respective generated file in via pdoc's `.. include::`
 directive, so `poe docs-generate` surfaces the generated tool docs on each
 module's pdoc page alongside the regular `docs/generated/` output.
@@ -161,13 +161,13 @@ poe mcp-docs-md
 ```
 
 One Markdown file is produced per MCP module, plus an `index.md`. For the
-PyAirbyte server that is:
+PyDataRheo server that is:
 
 - `index.md` — server overview (name, version, instructions, totals, module table)
-- `cloud.md` — tools registered by `airbyte.mcp.cloud`
-- `local.md` — tools registered by `airbyte.mcp.local`
-- `registry.md` — tools registered by `airbyte.mcp.registry`
-- `prompts.md` — prompts registered by `airbyte.mcp.prompts`
+- `cloud.md` — tools registered by `datarheo.mcp.cloud`
+- `local.md` — tools registered by `datarheo.mcp.local`
+- `registry.md` — tools registered by `datarheo.mcp.registry`
+- `prompts.md` — prompts registered by `datarheo.mcp.prompts`
 - `misc.md` — anything without an `mcp_module` annotation (currently just the
   `server_info` resource)
 

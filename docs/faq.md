@@ -1,36 +1,47 @@
-# PyAirbyte Frequently asked Questions
+# PyDataRheo Frequently Asked Questions
 
-**1. Does PyAirbyte replace Airbyte?**
+**1. Is PyDataRheo a replacement for a data integration platform?**
 
-No. PyAirbyte is a Python library that allows you to use Airbyte connectors in Python but it does
-not have orchestration or scheduling capabilities, nor does is provide logging, alerting, or other
-features for managing data pipelines in production. Airbyte is a full-fledged data integration
-platform that provides connectors, orchestration, and scheduling capabilities.
+No. PyDataRheo is a Python library. It has no orchestration, scheduling, alerting, or pipeline
+monitoring, and it does not run as a service. Run it inside whatever scheduler you already use,
+such as Airflow, Dagster, Prefect, or cron.
 
-**2. What is the PyAirbyte cache? Is it a destination?**
+**2. What is the PyDataRheo cache? Is it a destination?**
 
-Yes and no. You can think of it as a built-in destination implementation, but we avoid the word
-"destination" in our docs to prevent confusion with our certified destinations list
-[here](https://docs.airbyte.com/integrations/destinations/).
+Effectively yes. It is a built-in destination implementation backed by a SQL engine. We call it a
+cache rather than a destination to keep it distinct from the destination *connectors*, which are
+separate executables that PyDataRheo launches.
 
-**3. Does PyAirbyte work with data orchestration frameworks like Airflow, Dagster, and Snowpark,
-etc.?**
+**3. Does PyDataRheo work with orchestration frameworks like Airflow, Dagster, and Snowpark?**
 
-Yes, it should. Please give it a try and report any problems you see. Also, drop us a note if works
-for you!
+Yes. It is an ordinary Python dependency with no background services, so it runs fine inside a
+task or an operator.
 
-**4. Can I use PyAirbyte to develop or test when developing Airbyte sources?**
+**4. Which connectors can PyDataRheo run?**
 
-Yes, you can. PyAirbyte makes it easy to test connectors in Python, and you can use it to develop
-new local connectors as well as existing already-published ones.
+Any connector that implements the Airbyte protocol, which covers several hundred published
+sources and destinations, plus any connector you write yourself that speaks the same protocol.
 
-**5. Can I develop traditional ETL pipelines with PyAirbyte?**
+**5. Can I use PyDataRheo to develop or test a connector I am building?**
 
-Yes. Just pick the cache type matching the destination - like SnowflakeCache for landing data in
-Snowflake.
+Yes. It makes connectors easy to drive from Python, which is useful both for new local connectors
+and for already-published ones.
 
-**6. Can PyAirbyte import a connector from a local directory that has python project files, or does
-it have to be installed from PyPi?**
+**6. Can I build a traditional ETL pipeline with it?**
 
-Yes, PyAirbyte can use any local install that has a CLI - and will automatically find connectors b
-name if they are on PATH.
+Yes. Choose the cache type that matches where the data should land, such as `SnowflakeCache` for
+Snowflake or `BigQueryCache` for BigQuery.
+
+**7. Can PyDataRheo run a connector from a local directory instead of installing from PyPI?**
+
+Yes. Any connector that exposes a CLI works, and connectors already on `PATH` are found by name.
+
+**8. My environment is configured with `AIRBYTE_*` variables. Do I need to rename them?**
+
+Not immediately. PyDataRheo reads `DATARHEO_`-prefixed variables, and falls back to the matching
+`AIRBYTE_` name when the new one is unset. Setting the `DATARHEO_` name always wins.
+
+**9. Does PyDataRheo phone home?**
+
+Not unless you ask it to. Usage reporting is off by default and has no default endpoint. It sends
+data only when you set `DATARHEO_TRACKING_KEY` to a Segment write key you own.
