@@ -10,7 +10,7 @@ from datarheo._util import github_pip_url, connector_pip_url
     [
         (
             "airbytehq",
-            "datarheo",
+            "airbyte",
             None,
             None,
             None,
@@ -18,7 +18,7 @@ from datarheo._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "datarheo",
+            "airbyte",
             "master",
             None,
             None,
@@ -26,7 +26,7 @@ from datarheo._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "datarheo",
+            "airbyte",
             "my-branch",
             None,
             None,
@@ -34,7 +34,7 @@ from datarheo._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "datarheo",
+            "airbyte",
             "my-branch",
             "airbyte-lib",
             None,
@@ -42,7 +42,7 @@ from datarheo._util import github_pip_url, connector_pip_url
         ),
         (
             "airbytehq",
-            "datarheo",
+            "airbyte",
             "my-branch",
             "airbyte-lib",
             "airbyte-lib",

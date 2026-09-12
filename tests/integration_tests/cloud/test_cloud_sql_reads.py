@@ -78,7 +78,7 @@ def test_read_from_deployed_connection(
     data_as_list = list(dataset)
     assert len(data_as_list) == 100
 
-    # TODO: Fails on BigQuery: https://github.com/airbytehq/PyAirbyte/issues/165
+    # TODO: Fails on BigQuery, which has no full-table read into Pandas or Arrow.
     # pandas_df = dataset.to_pandas()
 
     pandas_df = pd.DataFrame(data_as_list)
@@ -195,7 +195,7 @@ def test_read_from_previous_job(
     data_as_list = list(dataset)
     assert len(data_as_list) == 100
 
-    # TODO: Fails on BigQuery: https://github.com/airbytehq/PyAirbyte/issues/165
+    # TODO: Fails on BigQuery, which has no full-table read into Pandas or Arrow.
     # pandas_df = dataset.to_pandas()
 
     pandas_df = pd.DataFrame(data_as_list)

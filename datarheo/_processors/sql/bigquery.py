@@ -67,8 +67,8 @@ class BigQueryConfig(SqlConfig):
     def get_sql_alchemy_url(self) -> SecretString:
         """Return the SQLAlchemy URL to use.
 
-        We suppress warnings about unrecognized JSON type. More info on that here:
-        - https://github.com/airbytehq/PyAirbyte/issues/254
+        Warnings about an unrecognized `JSON` column type are suppressed. The BigQuery
+        SQLAlchemy dialect does not map that type, and the warning is harmless here.
         """
         warnings.filterwarnings(
             "ignore",

@@ -120,9 +120,8 @@ sample_record1_stream1 = {
         "data": {
             "Column1": "value1",
             "Column2": 1,
-            # TODO: Output this as an object instead of a string
-            # Breaks tests.
-            # https://github.com/airbytehq/PyAirbyte/issues/253
+            # TODO: Emit this as an object rather than a JSON string. Doing so today
+            # breaks the type-translation tests.
             "sometimes_object": '{"nested_column": "nested_value"}',
         },
         "stream": "stream1",

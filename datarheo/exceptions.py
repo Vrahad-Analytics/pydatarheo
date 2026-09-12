@@ -58,7 +58,7 @@ if TYPE_CHECKING:
     from datarheo._util.api_duck_types import DataRheoApiResponseDuckType
 
 
-NEW_ISSUE_URL = "https://github.com/airbytehq/airbyte/issues/new/choose"
+NEW_ISSUE_URL = "https://github.com/Vrahad-Analytics/pydatarheo/issues/new/choose"
 DOCS_URL_BASE = "https://vrahad-analytics.github.io/pydatarheo"
 DOCS_URL = f"{DOCS_URL_BASE}/datarheo.html"
 

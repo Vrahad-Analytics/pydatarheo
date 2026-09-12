@@ -18,9 +18,33 @@ def autouse_source_test_registry(source_test_registry):
 
 
 @responses.activate
+def test_telemetry_is_opt_in(monkeypatch, source_test_registry):
+    """With no tracking key configured, nothing is sent anywhere."""
+    monkeypatch.delenv("DO_NOT_TRACK", raising=False)
+    monkeypatch.setattr(telemetry, "PYDATARHEO_APP_TRACKING_KEY", "")
+
+    source_test = dr.get_source("source-test", install_if_missing=False)
+    cache = dr.new_local_cache()
+    responses.add(responses.POST, "https://api.segment.io/v1/track", status=200)
+
+    telemetry.send_telemetry(
+        source=source_test._get_connector_runtime_info(),
+        destination=None,
+        cache=cache._get_writer_runtime_info(),
+        state=telemetry.EventState.STARTED,
+        number_of_records=0,
+        event_type=telemetry.EventType.SYNC,
+    )
+
+    assert len(responses.calls) == 0
+
+
+@responses.activate
 def test_telemetry_track(monkeypatch, source_test_registry):
     """Check that track is called and the correct data is sent."""
     monkeypatch.delenv("DO_NOT_TRACK", raising=False)
+    # Reporting is opt-in, so a write key has to be configured for anything to be sent.
+    monkeypatch.setattr(telemetry, "PYDATARHEO_APP_TRACKING_KEY", "dummy-write-key")
 
     source_test = dr.get_source("source-test", install_if_missing=False)
     cache = dr.new_local_cache()

@@ -16,15 +16,15 @@ ENV_PREFIX = "DATARHEO_"
 """Prefix for every environment variable PyDataRheo reads."""
 
 _LEGACY_ENV_PREFIX = "AIRBYTE_"
-"""Prefix used by PyAirbyte, the project PyDataRheo was forked from."""
+"""Legacy environment variable prefix, still accepted for backwards compatibility."""
 
 
 def _apply_legacy_env_aliases() -> None:
     """Let `AIRBYTE_*` environment variables stand in for their `DATARHEO_*` equivalents.
 
-    PyDataRheo reads `DATARHEO_`-prefixed variables. An environment that was already
-    configured for PyAirbyte keeps working: each `AIRBYTE_FOO` is copied to
-    `DATARHEO_FOO` unless `DATARHEO_FOO` is already set, so an explicit new-style
+    PyDataRheo reads `DATARHEO_`-prefixed variables. An environment still carrying the
+    older `AIRBYTE_`-prefixed names keeps working: each `AIRBYTE_FOO` is copied to
+    `DATARHEO_FOO` unless `DATARHEO_FOO` is already set, so an explicit `DATARHEO_`
     value always wins. This runs once, at import, before any constant below is read.
     """
     for key, value in list(os.environ.items()):

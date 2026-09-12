@@ -178,9 +178,9 @@ def get_config_api_root(
 def get_web_url_root(api_root: str) -> str:
     """Get the web URL root from the main API root.
 
-    # TODO: This does not return a valid URL for self-managed instances, due to not knowing the
-    # web URL root. Logged here:
-    # - https://github.com/airbytehq/PyAirbyte/issues/563
+    # TODO: This does not return a valid URL for a self-managed instance. The web URL root
+    # cannot be derived from the API root when the deployment is self-hosted, so a caller
+    # that needs one has to supply it.
     """
     if api_root == CLOUD_API_ROOT:
         return "https://cloud.airbyte.com"
@@ -1331,8 +1331,8 @@ def create_destination(
     )
     definition_id_override: str | None = None
     if _get_destination_type_str(config) == "dev-null":
-        # TODO: We have to hard-code the definition ID for dev-null destination.
-        #  https://github.com/airbytehq/PyAirbyte/issues/743
+        # TODO: The dev-null destination's definition ID has to be hard-coded. The API does
+        # not resolve it from the destination type the way it does for the others.
         definition_id_override = "a7bcc9d8-13b3-4e49-b80d-d020b90045e3"
     response: api.CreateDestinationResponse = datarheo_instance.destinations.create_destination(
         models.DestinationCreateRequest(
@@ -1376,9 +1376,8 @@ def get_destination(
         ),
     )
     if status_ok(response.status_code) and response.destination_response:
-        # TODO: This is a temporary workaround to resolve an issue where
-        # the destination API response is of the wrong type.
-        # https://github.com/airbytehq/pyairbyte/issues/320
+        # TODO: Temporary workaround. The destination API returns a response of the wrong
+        # type, so re-parse the raw body to recover the real destination type and config.
         raw_response: dict[str, Any] = json.loads(response.raw_response.text)
         raw_configuration: dict[str, Any] | None = raw_response.get("configuration")
 

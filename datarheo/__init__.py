@@ -90,9 +90,9 @@ For quick reference, top-Level modules are listed in the left sidebar of this pa
 # Configuration
 
 Every environment variable PyDataRheo reads is prefixed `DATARHEO_`, for example
-`DATARHEO_CACHE_ROOT` and `DATARHEO_NO_UV`. An environment already configured with the
-`AIRBYTE_`-prefixed names used by PyAirbyte, the project this one was forked from, keeps
-working: each `AIRBYTE_FOO` is read as `DATARHEO_FOO` unless the `DATARHEO_` name is also set.
+`DATARHEO_CACHE_ROOT` and `DATARHEO_NO_UV`. An environment still carrying the older
+`AIRBYTE_`-prefixed names keeps working: each `AIRBYTE_FOO` is read as `DATARHEO_FOO`
+unless the `DATARHEO_` name is also set.
 
 Usage reporting is off by default and sends nothing unless `DATARHEO_TRACKING_KEY` is set. See
 the `datarheo.constants` module for the full list of settings.

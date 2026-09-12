@@ -123,9 +123,9 @@ Every environment variable PyDataRheo reads is prefixed `DATARHEO_`. The most us
 | `DATARHEO_TEMP_DIR` | Directory for temporary files |
 | `DATARHEO_CLOUD_CLIENT_ID` / `DATARHEO_CLOUD_CLIENT_SECRET` | Credentials for the hosted Cloud API |
 
-If your environment is still set up with the `AIRBYTE_`-prefixed names that PyAirbyte used,
-those keep working: each `AIRBYTE_FOO` is read as `DATARHEO_FOO` unless the `DATARHEO_` name is
-also set, in which case the explicit new name wins.
+An environment still carrying the older `AIRBYTE_`-prefixed names keeps working: each
+`AIRBYTE_FOO` is read as `DATARHEO_FOO` unless the `DATARHEO_` name is also set, in which case
+the explicit `DATARHEO_` value wins.
 
 ## Telemetry
 

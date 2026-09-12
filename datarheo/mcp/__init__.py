@@ -28,7 +28,7 @@ third-party services you wish to connect to via Airbyte.
 Create a file named `~/.mcp/datarheo_mcp.env` with the following content:
 
 ```ini
-# Airbyte Project Artifacts Directory
+# DataRheo Project Artifacts Directory
 DATARHEO_PROJECT_DIR=/path/to/any/writeable/project-dir
 
 # Airbyte Cloud Credentials (Required for Airbyte Cloud Operations)

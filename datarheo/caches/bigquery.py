@@ -56,7 +56,8 @@ class BigQueryCache(BigQueryConfig, CacheBase):
     ) -> NoReturn:
         """Raises NotImplementedError; BigQuery doesn't support `pd.read_sql_table`.
 
-        See: https://github.com/airbytehq/PyAirbyte/issues/165
+        Use a different cache implementation when you need Arrow or Pandas output from a
+        full table read.
         """
         raise NotImplementedError(
             "BigQuery doesn't currently support to_arrow"

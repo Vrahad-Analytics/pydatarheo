@@ -6,7 +6,7 @@ from __future__ import annotations
 
 def github_pip_url(
     owner: str = "airbytehq",
-    repo: str = "datarheo",
+    repo: str = "airbyte",
     *,
     package_name: str,
     branch_or_ref: str | None = None,
@@ -50,7 +50,7 @@ def connector_pip_url(
 
     return github_pip_url(
         owner=owner,
-        repo="datarheo",
+        repo="airbyte",
         branch_or_ref=branch,
         package_name=connector_name,
         subdirectory=f"airbyte-integrations/connectors/{connector_name}",

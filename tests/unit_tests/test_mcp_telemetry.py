@@ -25,14 +25,26 @@ def force_online_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(server, "DATARHEO_OFFLINE_MODE", False)
 
 
-def test_segment_write_key_defaults_to_app_tracking_key(
+def test_segment_write_key_is_none_when_unconfigured(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The telemetry key defaults to PyDataRheo's application key."""
+    """Telemetry is opt-in: with no key configured there is no sink to send to."""
     monkeypatch.delenv(server.SEGMENT_WRITE_KEY_ENV, raising=False)
     monkeypatch.delenv(server.DO_NOT_TRACK, raising=False)
+    monkeypatch.setattr(server, "PYDATARHEO_APP_TRACKING_KEY", "")
 
-    assert server._segment_write_key() == server.PYDATARHEO_APP_TRACKING_KEY
+    assert server._segment_write_key() is None
+
+
+def test_segment_write_key_falls_back_to_app_tracking_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A configured application key is used when no MCP-specific key is set."""
+    monkeypatch.delenv(server.SEGMENT_WRITE_KEY_ENV, raising=False)
+    monkeypatch.delenv(server.DO_NOT_TRACK, raising=False)
+    monkeypatch.setattr(server, "PYDATARHEO_APP_TRACKING_KEY", _DUMMY_SEGMENT_WRITE_KEY)
+
+    assert server._segment_write_key() == _DUMMY_SEGMENT_WRITE_KEY
 
 
 def test_segment_write_key_uses_env_override(

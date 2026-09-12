@@ -42,8 +42,8 @@ class DocumentRenderer(BaseModel):
     metadata_properties: list[str] | None = None
     render_metadata: bool = False
 
-    # TODO: Add primary key and cursor key support:
-    # https://github.com/airbytehq/pyairbyte/issues/319
+    # TODO: Add primary key and cursor key support, so a rendered document can carry the
+    # record's identity and its incremental position alongside the content.
     # primary_key_properties: list[str]
     # cursor_property: str | None
 
