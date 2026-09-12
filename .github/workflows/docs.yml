@@ -40,7 +40,12 @@ jobs:
       - name: Fail if the generated docs are empty
         run: test -s docs/generated/datarheo.html
 
+      # `enablement` turns Pages on via the API if the repository does not have it
+      # enabled yet, so a fresh clone of this repo publishes docs without a manual
+      # visit to Settings > Pages.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/generated
