@@ -1,173 +1,214 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Vrahad-Analytics/pydatarheo/main/docs/brand/pydatarheo-logo.svg" alt="PyDataRheo" width="260">
-</p>
+# pydatarheo
 
-# PyDataRheo
+**Vrahad Analytics' native Python connector framework for local, streaming data pipelines.**
 
-**PyDataRheo moves data between hundreds of systems, from plain Python.**
+[![CI](https://github.com/Vrahad-Analytics/pydatarheo/actions/workflows/ci.yml/badge.svg)](https://github.com/Vrahad-Analytics/pydatarheo/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-pytest-blue)](#testing)
+[![Coverage](https://img.shields.io/badge/coverage-gate%20%E2%89%A590%25-blue)](#testing)
 
-Pick a source, read from it, and land the records in DuckDB, Postgres, Snowflake, BigQuery,
-MotherDuck, or any destination connector. No orchestrator, no cluster, no YAML pipeline
-definition. It is a library, so it runs wherever your Python runs: a script, a notebook, a
-Lambda, an Airflow or Dagster task.
+Configure a source, iterate over ordinary Python dictionaries, transform records,
+and write a local JSONL/CSV file or an in-memory result. No service, database,
+container, connector download, telemetry, or third-party runtime dependency is
+required. Both the distribution and import package are named `pydatarheo`.
 
-PyDataRheo runs [Airbyte-protocol connectors](https://docs.airbyte.com/integrations/), which is
-what gives it several hundred sources and destinations on day one.
+**Release status:** `1.0.0a1` is an independent, breaking alpha release. It ships
+three native source types: `memory`, `jsonl`, and `csv`. It does not preserve the
+previous connector catalog or hosted-service integrations. See
+[Compatibility and limits](#compatibility-and-limits) before upgrading.
 
-[![PyPI version](https://badge.fury.io/py/pydatarheo.svg)](https://badge.fury.io/py/pydatarheo)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/pydatarheo)](https://pypi.org/project/pydatarheo/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pydatarheo)](https://pypi.org/project/pydatarheo/)
-[![Star on GitHub](https://img.shields.io/github/stars/Vrahad-Analytics/pydatarheo.svg?style=social&label=★%20on%20GitHub)](https://github.com/Vrahad-Analytics/pydatarheo)
+## Installation
 
-## Install
+Python **3.10+**, Linux or macOS. From a clone of this repository:
 
 ```bash
-pip install pydatarheo
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install .
+python -c "import pydatarheo; print(pydatarheo.__version__)"
 ```
 
-The import package is `datarheo`; the distribution on PyPI is `pydatarheo`.
+Expected version: `1.0.0a1`. For development, use
+`python -m pip install -e '.[dev]'` instead. Local installation is the verified
+path; publication of this version to a package index is a separate release step.
+See [INSTALL.md](INSTALL.md) for clean-install verification and troubleshooting.
 
-## Quick start
+## Quickstart
 
-```py
-import datarheo as dr
+```python
+import pydatarheo as dr
 
 source = dr.get_source(
-    "source-faker",
-    config={"count": 5_000},
-    install_if_missing=True,
+    "memory",
+    config={"records": [{"id": 1, "name": "Ada"}, {"id": 2, "name": "Lin"}]},
 )
 source.check()
-source.select_all_streams()
-
-result = source.read()  # Lands in a local DuckDB cache by default.
-
-for record in result["users"].records:
+for record in source.read():
     print(record)
 ```
 
-Read into a dataframe:
+Output:
 
-```py
-df = result["users"].to_pandas()
+```text
+{'id': 1, 'name': 'Ada'}
+{'id': 2, 'name': 'Lin'}
 ```
 
-Write to a real warehouse instead of the default local cache:
+For local files:
 
-```py
-from datarheo.caches import SnowflakeCache
+```python
+from pydatarheo import JsonlSink, get_source, transform_records
 
-cache = SnowflakeCache(
-    account="my-account",
-    username="my-user",
-    password=dr.get_secret("SNOWFLAKE_PASSWORD"),
-    database="my-db",
-    warehouse="my-wh",
-    role="my-role",
-)
-source.read(cache=cache)
+source = get_source("csv", config={"path": "examples/data/sales.csv"})
+source.check()
+records = transform_records(source.read(), lambda row: {
+    "id": int(row["id"]),
+    "total_cents": int(row["quantity"]) * int(row["unit_cents"]),
+})
+count = JsonlSink("sales-output.jsonl").write(records)
+print(f"Wrote {count} records")
 ```
 
-## Command line
+Output: `Wrote 3 records`. Run from the repository root with a new output path.
+File sinks refuse existing paths unless the Python caller explicitly passes
+`overwrite=True`. Failures do not publish partial files. Output parent directories
+must already exist.
 
-These console scripts are installed:
+## Sources, streams, and sinks
 
-| Command | What it does |
+| Component | Configuration / behavior |
 | --- | --- |
-| `pydatarheo` / `pydr` | Benchmark, validate, and smoke-test connectors |
-| `datarheo-mcp` | Run the DataRheo MCP server over stdio |
-| `datarheo-mcp-http` | Run the DataRheo MCP server over HTTP |
+| `get_source("memory", config=...)` | Required `records`: list of string-keyed mappings; snapshots all input in memory |
+| `get_source("jsonl", config=...)` | Required `path`: local UTF-8 file; one JSON object per non-blank line |
+| `get_source("csv", config=...)` | Required `path`: local UTF-8 CSV with unique, non-empty column names; values stay strings |
+| All built-in sources | Optional `stream`: non-empty name, default `records`; unknown config keys are errors |
+| `JsonlSink(path)` | Strict JSONL output; rejects non-serializable values and non-finite numbers |
+| `CsvSink(path, columns=[...])` | Explicit columns; rejects missing/extra keys and nested values; `None` becomes an empty cell |
+| `MemorySink()` | Collects a detached snapshot; `.records` returns a copy |
+
+`source.streams()` lists `Stream` objects. `source.read("records")` selects a
+case-sensitive stream; multi-stream custom sources require an explicit selection.
+`source.check()` checks catalog validity and, for files, accessibility. It does
+not scan the dataset: malformed data raises during iteration.
+
+### Streaming versus batching
+
+```python
+for batch in source.read_batches(batch_size=1000):
+    print(len(batch))
+```
+
+File sources are pull-based and hold approximately one record at a time;
+batching holds at most `batch_size` records plus parser buffers. Individual
+records are not size-limited. Memory sources and sinks hold the whole dataset.
+Each new file read starts from the beginning; there is no cursor/checkpoint store.
+
+When stopping early, close the iterator explicitly:
+
+```python
+from contextlib import closing
+
+with closing(source.read()) as records:
+    first = next(records, None)
+```
+
+`transform_records(records, callback)` lazily maps copied records; returning
+`None` drops a record. The callback's own exceptions propagate. Closing the
+transformation closes its upstream iterator; sinks close consumed iterators on
+success or failure. Use explicit conversions when mapping CSV data, rather than
+relying on inferred types.
+
+### Errors, retries, and logging
+
+Catch `DatarheoError` at application boundaries. More specific types are
+`ConfigError`, `SourceError`, `RecordError`, `SinkError`, and `TransientError`.
+Library diagnostics do not include record bodies or configuration values.
+The library does not configure logging; applications may enable the
+`pydatarheo` logger through the standard `logging` module.
+
+`retry(operation, policy=RetryPolicy(...))` retries **only** `TransientError`,
+with bounded attempts and capped exponential backoff. Use it for an idempotent
+operation, such as fetching one complete page before emitting its records.
+Never retry a partially consumed stream or a non-idempotent write automatically.
+See [the retries example](examples/retries_and_logging.py).
+
+## End-to-end examples
+
+All examples run offline after installation:
 
 ```bash
-pydr --help
-pydr validate --connector=source-faker
+python examples/basic.py
+python examples/custom_connector.py
+python examples/retries_and_logging.py
+python examples/pipeline.py --output /tmp/pydatarheo-sales.jsonl
+pydatarheo read --source csv --input examples/data/sales.csv --output /tmp/pydatarheo-cli.jsonl
 ```
 
-## Connector installation
+Choose unused output paths when rerunning. The pipeline prints
+`Wrote 3 sales records`; the CLI prints `Wrote 3 records`.
+See [examples/README.md](examples/README.md) for every example's expected output.
+`pydr` is a CLI alias, and `python -m pydatarheo` exposes the same interface.
 
-### Declarative (YAML) sources
+## Custom connectors
 
-Declarative sources are downloaded as a single YAML manifest and executed directly. These have
-the fastest install times, because there is nothing to build.
+Subclass `Source`, implement `streams()` and `_read_stream(stream)`, and validate
+configuration in the constructor. Register your factory on an application-owned
+`SourceRegistry`; no global registration or automatic plugin execution occurs.
 
-### Python sources
+```python
+from pydatarheo import SourceRegistry
 
-When a connector publishes a Python package, PyDataRheo installs it automatically. Installation
-uses [`uv`](https://docs.astral.sh/uv) rather than `pip`, which is both much faster and able to
-install a connector under a different Python version than the one PyDataRheo itself is running
-on. Set `DATARHEO_NO_UV=true` to fall back to `pip`.
-
-To pin a connector to a specific Python version:
-
-```py
-source = dr.get_source("source-faker", use_python="3.10.17")
+registry = SourceRegistry()
+registry.register("my-source", MySource)
+source = registry.create("my-source", {"path": "input.jsonl"})
 ```
 
-### Docker
+`MySource` above is your implementation, not a built-in class. A complete,
+runnable implementation is in [examples/custom_connector.py](examples/custom_connector.py).
+See [ARCHITECTURE.md](ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
+for contracts, resource lifetime, testing, and extension guidance.
 
-Pass `docker_image=True` to `get_source()` or `get_destination()` to run the connector from its
-published image instead, or `docker_image="my-org/my-image:tag"` to pick an exact image. Docker
-is the most reproducible option, because every dependency is locked inside the image, and it is
-required for Java-based destinations.
+## Testing
 
-## Configuration
+```bash
+python -m pip install -e '.[dev]'
+pytest
+pytest -m "not integration"
+pytest -m "e2e"
+pytest --cov=pydatarheo --cov-report=term-missing --cov-report=xml
+ruff check src tests examples scripts
+ruff format --check src tests examples scripts
+mypy --strict --python-version 3.10 src/pydatarheo
+python scripts/verify_install.py
+```
 
-Every environment variable PyDataRheo reads is prefixed `DATARHEO_`. The most useful ones:
+Unit tests cover contracts and failure cases. Integration tests use real local
+files. E2E tests build an sdist and wheel, install the wheel without dependencies
+or index access into a fresh venv, then run the examples and CLI outside the
+source tree. No tests require secrets or public APIs. The separate verification
+script checks standard editable and regular pip installs with build isolation;
+it needs a package index or configured wheelhouse for build requirements.
 
-| Variable | Effect |
-| --- | --- |
-| `DATARHEO_CACHE_ROOT` | Where cache files are written (default `./.cache`) |
-| `DATARHEO_PROJECT_DIR` | Parent directory for cache and connector installs |
-| `DATARHEO_NO_UV` | Set to `1` to install connectors with `pip` instead of `uv` |
-| `DATARHEO_OFFLINE_MODE` | Tolerate an unreachable connector registry; also disables telemetry |
-| `DATARHEO_TEMP_DIR` | Directory for temporary files |
-| `DATARHEO_CLOUD_CLIENT_ID` / `DATARHEO_CLOUD_CLIENT_SECRET` | Credentials for the hosted Cloud API |
+CI runs Linux Python 3.10–3.14 and macOS Python 3.12, enforces a 90% branch-aware
+coverage gate, and uploads test/coverage reports. The coverage badge describes
+the configured gate, not a live measured result. Index publishing is manual,
+requires passing CI on a matching version tag, and uses protected environments
+and trusted publishing; it is never triggered by a normal push.
 
-An environment still carrying the older `AIRBYTE_`-prefixed names keeps working: each
-`AIRBYTE_FOO` is read as `DATARHEO_FOO` unless the `DATARHEO_` name is also set, in which case
-the explicit `DATARHEO_` value wins.
+## Compatibility and limits
 
-## Telemetry
+This release intentionally replaces the previous `datarheo` API. There is no
+import alias: callers must migrate configuration and connector implementations,
+not merely change an import. External protocol executors, automatic connector
+installation, remote catalogs, SQL caches, hosted cloud/agent APIs, MCP tools,
+and legacy environment-variable namespaces are retired.
 
-**Off by default.** PyDataRheo sends nothing anywhere unless you set `DATARHEO_TRACKING_KEY` to
-a Segment write key that you own. Setting `DO_NOT_TRACK`, or enabling offline mode, disables
-reporting outright.
+Native warehouse/HTTP connectors, async reads, schema evolution, incremental
+state, orchestration, and exactly-once delivery are not implemented. Custom
+connectors can be added explicitly, but third-party packages retain their own
+licenses and ownership. This is not a claim of feature parity with prior releases.
 
-## Documentation
+## License
 
-The full API reference is generated from the source with `poe docs-generate` and published at
-[vrahad-analytics.github.io/pydatarheo](https://vrahad-analytics.github.io/pydatarheo).
-
-## Contributing
-
-See the [Contributors Guide](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/docs/CONTRIBUTING.md).
-
-## Frequently asked questions
-
-**Is PyDataRheo a replacement for a data platform?**
-No. It is a library. It has no orchestration, scheduling, alerting, or pipeline monitoring. Run
-it inside whatever scheduler you already use.
-
-**What is the cache? Is it a destination?**
-Effectively yes: it is a built-in destination implementation backed by a SQL engine. We call it
-a cache to keep it distinct from the destination connectors, which are separate executables.
-
-**Does it work with Airflow, Dagster, Prefect, or Snowpark?**
-Yes. It is an ordinary Python dependency with no background services.
-
-**Can I build a normal ETL pipeline with it?**
-Yes. Choose the cache type that matches where the data should land, such as `SnowflakeCache` for
-Snowflake.
-
-**Can it run a connector from a local directory?**
-Yes. Any connector exposing a CLI works, and connectors already on `PATH` are found by name.
-
-## License and provenance
-
-PyDataRheo is released under the MIT license and is a rebranded derivative of
-[PyAirbyte](https://github.com/airbytehq/PyAirbyte), which is also MIT licensed. See
-[LICENSE](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/LICENSE) and [NOTICE](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/NOTICE).
-
-## Changelog
-
-See the [GitHub Releases](https://github.com/Vrahad-Analytics/pydatarheo/releases) page.
+Maintained by **Vrahad Analytics LLP** under the MIT license. See
+[LICENSE](LICENSE) and [NOTICE](NOTICE) for required legal attribution.
+See [CHANGELOG.md](CHANGELOG.md) for release notes.

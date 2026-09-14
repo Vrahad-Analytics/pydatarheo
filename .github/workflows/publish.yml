@@ -1,55 +1,77 @@
-name: Publish to PyPI
+name: Publish package
 
-# Publishing is triggered by pushing a version tag, so the released version is
-# always the tag itself. `uv-dynamic-versioning` derives the package version
-# from that tag, which is why no version is written in pyproject.toml.
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       target:
-        description: "Where to publish"
+        description: Package index (dispatch on a tested version tag)
         required: true
         default: testpypi
         type: choice
         options: [testpypi, pypi]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 0  # uv-dynamic-versioning needs full history and tags.
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Build sdist and wheel
-        run: uv build
-
-      - name: Verify the wheel imports from a clean environment
+          python-version: "3.12"
+      - name: Require matching version tag
+        env:
+          RELEASE_REF: ${{ github.ref }}
         run: |
-          uv venv -p 3.11 /tmp/verify
-          VIRTUAL_ENV=/tmp/verify uv pip install dist/*.whl
-          /tmp/verify/bin/python -c "import datarheo; print(datarheo.__name__, 'ok')"
-          /tmp/verify/bin/pydr --help > /dev/null
-
+          python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          if os.environ["RELEASE_REF"] != f"refs/tags/v{version}":
+              raise SystemExit("Dispatch this workflow on the matching version tag")
+          PY
+      - name: Require successful CI for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          passed=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&status=success&event=push" --jq 'any(.workflow_runs[]; .conclusion == "success")')
+          test "$passed" = "true"
+      - name: Install verification tools
+        run: python -m pip install -e '.[dev]'
+      - name: Verify and build release
+        run: |
+          pytest --cov=pydatarheo
+          python scripts/verify_install.py
+          python -m build
+          python -m twine check dist/*
+      - name: Verify release wheel in a fresh environment
+        run: |
+          python -m venv /tmp/pydatarheo-release
+          /tmp/pydatarheo-release/bin/python -m pip install --no-index --no-deps dist/*.whl
+          /tmp/pydatarheo-release/bin/python -I -c "import pydatarheo; print(pydatarheo.__version__)"
+          /tmp/pydatarheo-release/bin/python -m pip check
+          /tmp/pydatarheo-release/bin/pydatarheo --help
+          /tmp/pydatarheo-release/bin/python -I examples/pipeline.py --output /tmp/pydatarheo-release-sales.jsonl
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
 
   publish-testpypi:
     needs: build
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    if: inputs.target == 'testpypi'
     runs-on: ubuntu-latest
     environment: testpypi
     permissions:
-      id-token: write  # Required for Trusted Publishing; no API token is stored.
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -61,11 +83,11 @@ jobs:
 
   publish-pypi:
     needs: build
-    if: github.event_name == 'push' || inputs.target == 'pypi'
+    if: inputs.target == 'pypi'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write  # Required for Trusted Publishing; no API token is stored.
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
