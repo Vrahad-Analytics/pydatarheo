@@ -39,12 +39,6 @@ dev = [
     "mypy==1.18.2",
     "pyrefly>=0.30,<1.0",
 ]
-
-[dependency-groups]
-dev = [
-    "pyrefly>=0.30,<1.0",
-    "ruff==0.13.0",
-]
 connectors = [
     "airbyte-api>=0.53.0,<1.0",
     "airbyte-cdk>=7.28.3,<8.0.0",
@@ -94,6 +88,12 @@ test-connectors = [
     "pytest-timeout==2.3.1",
     "responses==0.25.8",
     "viztracer>=1.0,<2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyrefly>=0.30,<1.0",
+    "ruff==0.13.0",
 ]
 
 [project.scripts]
