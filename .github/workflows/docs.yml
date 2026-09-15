@@ -1,0 +1,72 @@
+name: Publish docs
+
+# The API reference is generated from the source by pdoc, so it is rebuilt on
+# every release and on every push to main rather than being checked in.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Allow one docs deployment at a time. A queued run waits rather than cancelling,
+# so a release build is never dropped in favour of a later push to main.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      pages_ready: ${{ steps.configure_pages.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        # docs/generate.py imports datarheo (connectors extra), pdoc
+        # (test-connectors extra), and regenerates the MCP markdown, which
+        # runs `fastmcp inspect` against the server module.
+        run: python -m pip install -e '.[connectors,test-connectors]'
+
+      - name: Generate API reference
+        run: python docs/generate.py
+
+      - name: Fail if the generated docs are empty
+        run: test -s docs/generated/datarheo.html
+
+      # GitHub's workflow token can deploy to an existing Pages site, but it may not
+      # be allowed to create one for the repository. Keep the docs build green and
+      # only deploy when Pages is already enabled.
+      - id: configure_pages
+        continue-on-error: true
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Skip deploy when Pages is unavailable
+        if: steps.configure_pages.outcome != 'success'
+        run: echo "::warning::Skipping GitHub Pages deployment because this workflow cannot enable Pages for the repository."
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.configure_pages.outcome == 'success'
+        with:
+          path: docs/generated
+
+  deploy:
+    if: needs.build.outputs.pages_ready == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
