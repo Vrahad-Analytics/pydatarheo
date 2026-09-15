@@ -10,7 +10,9 @@ from pydatarheo import JsonlSink, get_source, transform_records
 
 def run(output: Path) -> int:
     # Use a checked-in local source so this example works offline without secrets.
-    source = get_source("csv", config={"path": str(Path(__file__).parent / "data" / "sales.csv")})
+    source = get_source(
+        "csv", config={"path": str(Path(__file__).parent / "data" / "sales.csv")}
+    )
     source.check()
     # CSV preserves strings. Convert amounts explicitly and keep integer cents exact.
     records = transform_records(

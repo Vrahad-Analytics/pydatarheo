@@ -20,7 +20,7 @@ python -I -c "import pydatarheo; print(pydatarheo.__version__)"
 python -m pydatarheo --version
 ```
 
-Both version commands print `1.0.0a1`. Do not set `PYTHONPATH=src` to make an
+Both version commands print `1.0.0.dev1`. Do not set `PYTHONPATH=src` to make an
 uninstalled checkout importable: that would hide packaging failures.
 
 ## Editable development installation
@@ -64,7 +64,7 @@ the built wheel with `--no-index --no-deps`, requiring no public network service
 ```bash
 python -m build
 python -m twine check dist/*
-python -m pip install --force-reinstall dist/pydatarheo-1.0.0a1-py3-none-any.whl
+python -m pip install --force-reinstall dist/pydatarheo-1.0.0.dev1-py3-none-any.whl
 python -I -c "import pydatarheo; print(pydatarheo.__version__)"
 ```
 
@@ -75,10 +75,19 @@ offline because there are no runtime dependencies.
 
 ## Reinstalling and migration
 
-Prefer a new venv when moving from an earlier release, so retired dependencies
-cannot conceal missing imports. Otherwise use `python -m pip install --force-reinstall .`.
-Use `import pydatarheo`, not the retired `datarheo` package. Existing connector
-configuration and APIs are not compatible; see README.md and ARCHITECTURE.md.
+Prefer a new venv when moving between installs with and without the connector
+extras, so stale dependencies cannot conceal missing imports. Otherwise use
+`python -m pip install --force-reinstall .`.
+
+Two import packages are available:
+
+- `import pydatarheo` — the native framework; always importable, no third-party
+  runtime dependencies.
+- `import datarheo` — the retained connector runtime; requires
+  `pip install 'pydatarheo[connectors]'` (and `test-connectors` for the retained
+  test suite). Its public API and environment variables are unchanged.
+
+See README.md and ARCHITECTURE.md for how the two layers relate.
 If imports fail, check `python -m pip --version` points at the active venv and
 that Python meets the supported minimum. Pip installation errors fetching build
 tools should be resolved through your index/proxy configuration, not by disabling

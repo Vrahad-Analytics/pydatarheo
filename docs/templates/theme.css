@@ -1,0 +1,46 @@
+/* pdoc color scheme - DataRheo branded version */
+:root {
+    --pdoc-background: #fff;
+}
+
+.pdoc {
+    /* DataRheo flow-teal color scheme */
+    --text: hsl(198, 24%, 16%);
+    --muted: hsl(198, 12%, 45%);
+    --link: #0E7C86;
+    --link-hover: #0B646D;
+    --code: hsl(190, 60%, 97%);
+    --active: #ffe9a8;
+
+    --accent: hsl(192, 30%, 97%);
+    --accent2: hsl(192, 16%, 78%);
+
+    --nav-hover: rgba(14, 124, 134, 0.1);
+    --name: #0E7C86;
+    --def: #0B646D;
+    --annotation: hsl(168, 76%, 24%);
+}
+
+/* Dark mode theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --pdoc-background: #142124;
+    }
+
+    .pdoc {
+        --text: hsl(198, 15%, 90%);
+        --muted: hsl(198, 12%, 70%);
+        --link: #3FC8D2;
+        --link-hover: #9AE6EB;
+        --code: hsl(198, 24%, 16%);
+        --active: hsl(198, 16%, 33%);
+
+        --accent: hsl(198, 20%, 13%);
+        --accent2: hsl(198, 16%, 33%);
+
+        --nav-hover: rgba(63, 200, 210, 0.12);
+        --name: #3FC8D2;
+        --def: #6FD9E1;
+        --annotation: hsl(168, 65%, 55%);
+    }
+}

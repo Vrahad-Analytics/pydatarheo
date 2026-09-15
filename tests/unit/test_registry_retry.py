@@ -29,7 +29,9 @@ def test_registry_duplicate_name_raises_config_error():
     assert builtin_registry().available() == ("csv", "jsonl", "memory")
 
 
-@pytest.mark.parametrize("name,factory", [("", MemorySource), (1, MemorySource), ("bad", None)])
+@pytest.mark.parametrize(
+    "name,factory", [("", MemorySource), (1, MemorySource), ("bad", None)]
+)
 def test_registry_invalid_registration_raises_config_error(name, factory):
     with pytest.raises(ConfigError):
         SourceRegistry().register(name, factory)

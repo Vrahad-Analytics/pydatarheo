@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydatarheo"
-version = "1.0.0a1"
+version = "1.0.0.dev1"
 description = "Vrahad Analytics' native Python connector framework for streaming data pipelines."
 readme = "README.md"
 license = "MIT"
@@ -37,11 +37,71 @@ dev = [
     "ruff==0.13.0",
     "twine==6.2.0",
     "mypy==1.18.2",
+    "pyrefly>=0.30,<1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyrefly>=0.30,<1.0",
+    "ruff==0.13.0",
+]
+connectors = [
+    "airbyte-api>=0.53.0,<1.0",
+    "airbyte-cdk>=7.28.3,<8.0.0",
+    "airbyte-protocol-models-pdv2>=0.13.0,<1.0",
+    "cryptography>=44.0.0,!=45.0.0,!=45.0.1,<47.0.0",
+    "cyclopts>=4.0,<5.0",
+    "duckdb==1.4.3",
+    "duckdb-engine==0.17.0",
+    "fastmcp==3.2.0",
+    "fastmcp-extensions>=0.22.0,<1.0.0",
+    "google-auth>=2.27.0,<3.0",
+    "google-cloud-bigquery>=3.12.0,<4.0",
+    "google-cloud-bigquery-storage>=2.25.0,<3.0",
+    "google-cloud-secret-manager>=2.17.0,<3.0",
+    "jsonschema>=3.2.0,<5.0",
+    "orjson>=3.10,<4.0",
+    "overrides>=7.4.0,<8.0",
+    "pandas>=1.5.3,<3.0",
+    "prefab-ui>=0.20.1,<0.21",
+    "psycopg2-binary>=2.9.9,<3.0",
+    "psycopg[binary,pool]>=3.1.19,<4.0",
+    "pyarrow>=16.1,<22.0",
+    "pydantic>=2.0,<3.0",
+    "pydantic-core>=2.0,<3.0",
+    "python-dotenv>=1.0.1,<2.0",
+    "python-ulid>=3.0.0,<4.0",
+    "pyyaml>=6.0.2,<7.0",
+    "requests>=2.31,<3.0",
+    "rich>=13.7.0,<14.0",
+    "snowflake-connector-python>=3.12.2,<4.0",
+    "snowflake-sqlalchemy>=1.6.1,<2.0",
+    "sqlalchemy==2.0.43",
+    "sqlalchemy-bigquery==1.12.0",
+    "starlette>=0.52.1,<1.0",
+    "structlog>=24.4.0,<25.0",
+    "typing-extensions>=4.12,<5",
+    "uuid7>=0.1.0,<1.0",
+    "uv>=0.5.0,<0.9.0",
+]
+test-connectors = [
+    "docker==7.1.0",
+    "faker==21.0.0",
+    "freezegun==1.5.1",
+    "pdoc==16.0.0",
+    "pytest-docker==3.1.1",
+    "pytest-mock==3.14.0",
+    "pytest-timeout==2.3.1",
+    "responses==0.25.8",
+    "viztracer>=1.0,<2.0",
 ]
 
 [project.scripts]
 pydatarheo = "pydatarheo.cli:main"
 pydr = "pydatarheo.cli:main"
+datarheo-mcp = "datarheo.mcp.server:main"
+datarheo-mcp-http = "datarheo.mcp.http_main:main"
+source-smoke-test = "datarheo.cli.smoke_test_source.run:run"
 
 [project.urls]
 Homepage = "https://github.com/Vrahad-Analytics/pydatarheo"
@@ -50,11 +110,11 @@ Documentation = "https://github.com/Vrahad-Analytics/pydatarheo/blob/main/README
 Issues = "https://github.com/Vrahad-Analytics/pydatarheo/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pydatarheo"]
+packages = ["src/pydatarheo", "datarheo"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/src", "/tests", "/examples", "/scripts", "/pyproject.toml",
+    "/src", "/datarheo", "/tests", "/examples", "/scripts", "/docs", "/pyproject.toml",
     "/README.md", "/ARCHITECTURE.md", "/INSTALL.md", "/CONTRIBUTING.md",
     "/CHANGELOG.md", "/LICENSE", "/NOTICE", "/AGENTS.md",
 ]
@@ -65,8 +125,19 @@ addopts = "-ra --strict-markers --import-mode=importlib"
 markers = [
     "integration: real local connector and sink integration (no secrets)",
     "e2e: complete user workflows, including an isolated wheel installation",
+    "compatibility: retained connector-runtime regression tests",
+    "slow: longer-running tests",
+    "super_slow: expensive externally provisioned tests",
+    "requires_creds: requires explicitly provisioned external credentials",
+    "linting: static API or style checks",
+    "flaky: inherited potentially nondeterministic tests",
 ]
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    'ignore:This class is experimental\. Use at your own risk\.:Warning',
+    'default:The anyio\.abc\.BlockingPortal alias is deprecated.*:DeprecationWarning',
+    'default:Component type.*deprecated.*:DeprecationWarning',
+]
 
 [tool.coverage.run]
 source = ["pydatarheo"]
@@ -83,3 +154,6 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"docs/generate.py" = ["E501"]  # Embedded SVG literals exceed the line limit.

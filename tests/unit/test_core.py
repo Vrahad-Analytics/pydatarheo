@@ -90,7 +90,9 @@ def test_memory_source_invalid_record_raises_record_error(record):
 
 def test_transform_filters_and_maps_without_mutation(records):
     result = list(
-        transform_records(records, lambda row: {"id": row["id"]} if row["id"] == 2 else None)
+        transform_records(
+            records, lambda row: {"id": row["id"]} if row["id"] == 2 else None
+        )
     )
     assert result == [{"id": 2}]
     assert records[1]["name"] == "Lin"

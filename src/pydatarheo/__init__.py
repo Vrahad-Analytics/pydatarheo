@@ -2,6 +2,7 @@
 
 from importlib.metadata import version
 
+from pydatarheo.compat import ConnectorDependencyError, get_destination
 from pydatarheo.config import Config
 from pydatarheo.connectors import CsvSource, JsonlSource, MemorySource
 from pydatarheo.core import Record, Source, Stream, transform_records
@@ -22,6 +23,7 @@ __version__ = version("pydatarheo")
 __all__ = [
     "Config",
     "ConfigError",
+    "ConnectorDependencyError",
     "CsvSink",
     "CsvSource",
     "DatarheoError",
@@ -41,6 +43,7 @@ __all__ = [
     "__version__",
     "builtin_registry",
     "get_source",
+    "get_destination",
     "retry",
     "transform_records",
 ]

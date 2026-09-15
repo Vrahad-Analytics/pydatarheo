@@ -1,0 +1,332 @@
+# Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
+
+r"""***DataRheo MCP Server - Model Context Protocol Integration***
+
+> **NOTE:**
+> This MCP server implementation is experimental and may change without notice between minor
+> versions of PyDataRheo. The API may be modified or entirely refactored in future versions.
+
+The DataRheo MCP (Model Context Protocol) server provides a standardized interface
+for managing Airbyte connectors through MCP-compatible clients. This PyDataRheo-powered
+experimental feature allows you to list connectors, validate configurations, and run sync
+operations using the MCP protocol.
+
+## Getting Started with DataRheo MCP
+
+To get started with the DataRheo MCP server, follow these steps:
+
+1. Create a Dotenv secrets file.
+2. Register the MCP server with your MCP client.
+3. Test the MCP server connection using your MCP client.
+
+### Step 1: Generate a Dotenv Secrets File
+
+To get started with the DataRheo MCP server, you will need to create a dotenv
+file containing your Airbyte Cloud credentials, as well as credentials for any
+third-party services you wish to connect to via Airbyte.
+
+Create a file named `~/.mcp/datarheo_mcp.env` with the following content:
+
+```ini
+# DataRheo Project Artifacts Directory
+DATARHEO_PROJECT_DIR=/path/to/any/writeable/project-dir
+
+# Airbyte Cloud Credentials (Required for Airbyte Cloud Operations)
+DATARHEO_CLOUD_CLIENT_ID=your_api_key
+DATARHEO_CLOUD_CLIENT_SECRET=your_api_secret
+DATARHEO_CLOUD_WORKSPACE_ID=your_workspace_id
+
+# API-Specific Credentials (Optional, depending on your connectors)
+
+# For example, for a PostgreSQL source connector:
+# POSTGRES_HOST=your_postgres_host
+# POSTGRES_PORT=5432
+# POSTGRES_DB=your_database_name
+# POSTGRES_USER=your_database_user
+# POSTGRES_PASSWORD=your_database_password
+
+# For example, for a Stripe source connector:
+# STRIPE_API_KEY=your_stripe_api_key
+# STRIPE_API_SECRET=your_stripe_api_secret
+# STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+```
+
+Note:
+1. You can add more environment variables to this file as needed for different connectors. To start,
+   you only need to create the file and pass it to the MCP server.
+2. Ensure that this file is kept secure, as it contains sensitive information. Your LLM
+   *should never* be given direct access to this file or its contents.
+3. The MCP tools will give your LLM the ability to view *which* variables are available, but it
+   does not give access to their values.
+4. The `DATARHEO_PROJECT_DIR` variable specifies a directory where the MCP server can
+   store temporary project files. Ensure this directory is writable by the user running
+   the MCP server.
+
+### Step 2: Registering the MCP Server
+
+First install `uv` (`brew install uv`).
+
+Then, create a file named `server_config.json` (or the file name required by your MCP client)
+with the following content. This uses `uvx` (from `brew install uv`) to run the MCP
+server. If a matching version Python is not yet installed, a `uv`-managed Python
+version will be installed automatically. This will also auto-update to use the
+"latest" DataRheo MCP release at time of launch. You can alternatively pin to a
+specific version of Python and/or of the Airbyte library if you have special
+requirements.
+
+```json
+{
+  "mcpServers": {
+    "datarheo": {
+      "command": "uvx",
+      "args": [
+        "--python=3.11",
+        "--from=pydatarheo@latest",
+        "datarheo-mcp"
+      ],
+      "env": {
+        "DATARHEO_MCP_ENV_FILE": "/path/to/my/.mcp/datarheo_mcp.env",
+        "DATARHEO_CLOUD_MCP_SAFE_MODE": "1",
+        "DATARHEO_CLOUD_MCP_READONLY_MODE": "0"
+      }
+    }
+  }
+}
+```
+
+Note:
+- Replace `/path/to/my/.mcp/datarheo_mcp.env` with the absolute path to your dotenv file created in
+  Step 1.
+
+### Step 3: Testing the MCP Server Connection
+
+You can test the MCP server connection using your MCP client.
+
+Helpful prompts to try:
+
+1. "Use your MCP tools to list all available Airbyte connectors."
+2. "Use your MCP tools to get information about the Airbyte Stripe connector."
+3. "Use your MCP tools to list all variables you have access to in the dotenv secrets
+   file."
+4. "Use your MCP tools to check your connection to your Airbyte Cloud workspace."
+5. "Use your MCP tools to list all available destinations in my Airbyte Cloud workspace."
+
+## Airbyte Cloud MCP Server Safety
+
+The DataRheo MCP server supports environment variables to control safety and access
+levels for Airbyte Cloud operations.
+
+**Important:** The below settings only affect Cloud operations; local operations are not affected.
+
+### Airbyte Cloud Safe Mode
+
+Safe mode is enabled by default and is controlled by the `DATARHEO_CLOUD_MCP_SAFE_MODE` environment
+variable.
+
+When enabled, write operations are allowed but destructive operations (updates, deletions) are
+only allowed for objects created within the same session. For example, you can create a new
+connector and then delete it, but you cannot delete an existing connector that was not created in
+the current session. Modifications to configurations are likewise treated as potentially destructive
+and are only allowed for objects created in the current session.
+
+Set the environment variable `DATARHEO_CLOUD_MCP_SAFE_MODE=0` to disable safe mode.
+
+### Airbyte Cloud Read-Only Mode
+
+Read-only mode is not enabled by default and is controlled by the
+`DATARHEO_CLOUD_MCP_READONLY_MODE` environment variable.
+
+When enabled, only read-only Cloud tools are available. Write and destructive operations are
+disabled.
+
+This mode does allow running syncs on existing connectors, since sync operations
+are not considered to be modifications of the Airbyte Cloud workspace.
+
+Set the environment variable `DATARHEO_CLOUD_MCP_READONLY_MODE=1` to enable read-only mode.
+
+## Authentication for Remote (HTTP) Servers
+
+The steps above run the MCP server over **stdio** — the client launches the
+server process locally, so there is no transport-layer auth and the only
+credentials that matter are your Airbyte Cloud creds in the dotenv file.
+
+When the server is instead exposed over **HTTP** (`datarheo-mcp-http` /
+`poe mcp-serve-http`), transport auth verifies an `Authorization: Bearer
+<token>` on every request once it is configured. Auth is driven entirely by the
+`DATARHEO_MCP_*` env values a deployment sets — the hosted Airbyte Cloud MCP
+deployment supplies its realm's values, and a self-hosted deployment supplies
+its own. Two client shapes are supported on the same deployment (combined
+automatically when both are configured):
+
+### Humans → interactive OIDC
+
+Set `DATARHEO_MCP_OIDC_CLIENT_ID`, `DATARHEO_MCP_OIDC_CLIENT_SECRET`, and
+`DATARHEO_MCP_OIDC_CONFIG_URL` (the OIDC discovery URL). Interactive clients open
+a browser (Keycloak Authorization Code + PKCE) and the resulting token is
+verified by the server. No bearer token to manage by hand.
+
+### Machines / agents → headless bearer token
+
+There is **no** transport mode that accepts a raw `client_id` + `client_secret`
+in a header. A headless agent **mints its own short-lived bearer token** and
+sends it as `Authorization: Bearer <token>`; the server verifies the signature
+(no browser, no stored/rotating refresh token).
+
+The server verifies tokens against whatever realm the deployment configures via
+the `DATARHEO_MCP_AUTH_*` env values below. Against the hosted Airbyte Cloud MCP
+(configured for Airbyte Cloud's application-client realm), the agent mints an
+Airbyte Cloud access token from its
+`DATARHEO_CLOUD_CLIENT_ID` / `DATARHEO_CLOUD_CLIENT_SECRET` (the
+`https://api.airbyte.com/v1/applications/token` endpoint) and sends it as the
+bearer. That single token both authenticates transport (verified by the server)
+and authorizes downstream Cloud API calls, because an Airbyte-Cloud-issued token
+is itself a valid Cloud API bearer. Tokens are short-lived (~15 min), so
+re-mint on expiry / on a `401` rather than pinning a static token.
+
+Clients that support HTTP transports can pass the token via a `headers` block in
+their MCP config:
+
+```json
+{
+  "mcpServers": {
+    "datarheo": {
+      "url": "https://<host>/mcp",
+      "headers": {
+        "Authorization": "Bearer ${DATARHEO_MCP_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+### Server environment variables (HTTP mode)
+
+The auth vars use this server's branded `DATARHEO_MCP_*` namespace. This server
+declares only the env var *names* and reads them; the concrete *values* (a
+realm's JWKS URI, issuer, audience, discovery URL, etc.) are supplied at deploy
+time by the deployment's own repo — none are baked in here. The headless
+verifier activates once a signing-key source (JWKS URI or static public key) is
+set; the interactive path activates once the OIDC client credentials are set.
+`MCP_SERVER_URL` is a deployment URL (not an auth var) and stays unbranded.
+
+- `MCP_SERVER_URL` — public base URL of the server (also used for OIDC redirect
+  callbacks); defaults to `http://localhost:8080`.
+- `DATARHEO_MCP_ALLOWED_HOSTS` — comma-separated allowed hostnames or `fnmatch`
+  patterns for HTTP `Host` and `Origin` validation. Ports are ignored: an entry
+  may carry one for readability, but matching is on hostname only, so
+  `example.com:8443` also allows `example.com` on any port.
+- `DATARHEO_MCP_HTTP_HOST` — host interface to bind for the HTTP server (defaults
+  to `0.0.0.0`).
+- `DATARHEO_MCP_OIDC_CLIENT_ID`, `DATARHEO_MCP_OIDC_CLIENT_SECRET` — enable
+  interactive OIDC (both required).
+- `DATARHEO_MCP_OIDC_CONFIG_URL` — OIDC discovery URL (required when the client
+  credentials are set).
+- `DATARHEO_MCP_OIDC_CLIENT_STORAGE_FACTORY` — optional `"package.module:callable"`
+  naming a durable OAuth-state store factory for the interactive proxy (defaults
+  to in-memory).
+- `DATARHEO_MCP_AUTH_JWKS_URI` / `DATARHEO_MCP_AUTH_JWT_PUBLIC_KEY` — JWKS URL or
+  static public key for verifying headless tokens (one activates the verifier).
+- `DATARHEO_MCP_AUTH_ISSUER` / `DATARHEO_MCP_AUTH_AUDIENCE` /
+  `DATARHEO_MCP_AUTH_ALGORITHM` — expected `iss` / `aud` claims and signing
+  algorithm.
+
+For stateless HTTP clients that need MCP Apps `interactive-ui` tools, clients
+that declare extensions at initialize receive a self-describing `Mcp-Session-Id`
+which spec-compliant clients echo on subsequent requests. Clients that do not
+echo session IDs can use the explicit fallback
+`X-MCP-Extensions: io.modelcontextprotocol/ui` header on each request instead.
+Multiple extension IDs may be comma-separated (recommended) or
+whitespace-separated.
+The stateless capability-token middleware and extension resolver are provided
+by the installed `fastmcp-extensions` package.
+
+The eventual spec-aligned replacement is per-request `_meta` under
+`io.modelcontextprotocol/clientCapabilities`. That path exists in the modern
+`mcp` 2.x server architecture, while this project currently resolves the
+legacy `fastmcp` 3.x and `mcp` 1.x stack. Using it requires a stack migration
+rather than a version-only change.
+
+With no auth variables set, the HTTP server falls back to unauthenticated local
+behavior. This server maps the `DATARHEO_MCP_*` variables into the typed config
+objects consumed by
+[`fastmcp-extensions`](https://github.com/airbytehq/fastmcp-extensions), which
+assembles the verifier(s) and reads no environment variables itself.
+
+## Troubleshooting
+
+### Troubleshooting Local Connector Installation Issues
+
+The MCP server uses PyDataRheo under the hood to manage Airbyte connectors. PyDataRheo
+supports both Python-native connectors (installed via pip/uv) and Docker-based connectors
+(run in containers).
+
+To ensure docker connectors run correctly, please make sure `which docker` returns a valid
+path and that Docker Desktop (or an alternative container runtime) is running.
+
+To ensure Python connectors run correctly, please make sure the Python version used to run the
+MCP server is compatible with the connector requirements. See the MCP server conifiguration
+section above for details on how to specify the Python version used by the MCP server.
+
+### Using Abolute Paths
+
+**Always use absolute paths in your environment files.** Relative paths, tilde (`~`), or
+environment variables like `$HOME` will not work correctly, due to the way MCP servers
+are loaded and executed.
+
+The `DATARHEO_PROJECT_DIR` environment variable is critical - it specifies where PyDataRheo
+stores connector artifacts, cache files, and temporary data. Ensure this directory:
+
+- Uses an absolute path. (For example: `/Users/username/datarheo-projects`.)
+- Exists on the filesystem. (Use `mkdir -p /path/to/dir` to create it if needed.)
+- Is writable by the user account running the MCP server.
+
+Note:
+- In rare cases, your agent may not be able to find `uv` or `uvx` if they are not in the system
+  `PATH` or if the agent has a stale `PATH` value. In these cases, you can use `which uvx` from
+  your own terminal to discover the full path to the `uvx` binary, and then provide the full path
+  in your MCP configuration file.
+
+### Securing Your Secrets
+
+The MCP server implements a security model that protects your credentials:
+
+- **LLM sees only environment variable names** - The AI assistant can see which variables
+  are available (e.g., `POSTGRES_PASSWORD`) but never their actual values.
+- **MCP server reads actual values** - Only the MCP server process accesses the secret
+  values when executing operations.
+- **Credentials never exposed to LLM** - Your API keys, passwords, and other secrets remain secure.
+
+This design allows AI assistants to help configure connectors without compromising security.
+
+Note: While the MCP server takes steps to secure your credentials, you are responsible for
+ensuring the agent is not given access to your secrets by other means. For example, Claude Code
+may have *full* local disk access when run in certain modes. Consult your agent's documentation
+for details on securing local files.
+
+## Contributing to the DataRheo MCP Server
+
+- [PyDataRheo Contributing Guide](https://github.com/Vrahad-Analytics/pydatarheo/blob/main/docs/CONTRIBUTING.md)
+
+### Additional resources
+
+- [Airbyte AI Agents Documentation Home](https://docs.airbyte.com/ai-agents/)
+- [MCP Documentation Home](https://modelcontextprotocol.io/)
+
+For issues and questions:
+- [PyDataRheo GitHub Issues](https://github.com/Vrahad-Analytics/pydatarheo/issues)
+- [PyDataRheo Discussions](https://github.com/Vrahad-Analytics/pydatarheo/discussions)
+
+"""  # noqa: D415
+
+from datarheo.mcp import agents, cloud, interactive, local, prompts, registry
+
+__all__: list[str] = [
+    "agents",
+    "cloud",
+    "interactive",
+    "local",
+    "prompts",
+    "registry",
+]
+
+__docformat__ = "google"

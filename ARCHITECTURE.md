@@ -104,19 +104,25 @@ raise its own exceptions. The standard `pydatarheo.retry` logger reports attempt
 numbers only. Applications own logging configuration; the library has no network
 logging endpoint or telemetry.
 
-## Conceptual break from the previous runtime
+## Relationship to the retained connector runtime
 
-The former architecture orchestrated separately installed connector executables,
-serialized protocol catalogs/control messages, remote connector registries, SQL
-caches, and hosted APIs. The native architecture directly calls trusted Python
-factories and iterates records. Stream selection and configuration are local
-contracts, not wrappers around an external SDK. There is no compatibility adapter
-or runtime dependency on the former implementation.
+The repository ships two layers:
 
-This deliberately sacrifices prior connector breadth. The old `datarheo` import,
-cloud/agent integrations, MCP server, warehouse caches, subprocess/container
-executors, and implicit installation settings are not part of this release.
-Existing applications require an explicit migration and replacement connectors.
+- **`pydatarheo`** (native): the synchronous, in-process framework described
+  above. It has no third-party runtime dependencies and never performs implicit
+  network access, connector downloads, or secret discovery.
+- **`datarheo`** (retained): the earlier connector runtime — connector registry,
+  Python/Docker executors, SQL caches, hosted cloud/agent APIs, and the MCP
+  server — distributed in the same wheel but only functional with the
+  `connectors` extra's third-party dependencies.
+
+`pydatarheo.get_source()` resolves native registry names first; names matching
+the connector-runtime convention (`source-*`) delegate lazily to
+`pydatarheo.compat`, which imports `datarheo` on first use and raises
+`ConnectorDependencyError` with install guidance when the extra is missing.
+`get_destination()` delegates the same way. This keeps `import pydatarheo`
+dependency-free while preserving the retained runtime's public API.
+
 Required repository provenance is maintained in LICENSE and NOTICE; naming alone
 does not transfer ownership of third-party contributions.
 

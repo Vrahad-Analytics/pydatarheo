@@ -4,7 +4,14 @@ import json
 
 import pytest
 
-from pydatarheo import ConfigError, CsvSink, JsonlSink, MemorySink, RecordError, SinkError
+from pydatarheo import (
+    ConfigError,
+    CsvSink,
+    JsonlSink,
+    MemorySink,
+    RecordError,
+    SinkError,
+)
 
 
 @pytest.mark.parametrize(
@@ -120,7 +127,9 @@ def test_sink_invalid_record_closes_upstream_generator(kind, tmp_path):
 
 
 @pytest.mark.parametrize("kind", ["jsonl", "csv"])
-def test_file_sink_invalid_unicode_raises_record_error_without_partial_output(kind, tmp_path):
+def test_file_sink_invalid_unicode_raises_record_error_without_partial_output(
+    kind, tmp_path
+):
     sink = (
         JsonlSink(tmp_path / "out")
         if kind == "jsonl"

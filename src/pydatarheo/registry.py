@@ -47,6 +47,14 @@ def builtin_registry() -> SourceRegistry:
     return registry
 
 
-def get_source(name: str, *, config: Mapping[str, Any]) -> Source:
-    """Configure a built-in connector by its native name."""
-    return builtin_registry().create(name, config)
+def get_source(name: str, config: Mapping[str, Any] | None = None, **kwargs: Any) -> Any:
+    """Configure a native source or delegate a source-* name to the retained runtime."""
+    if name.startswith("source-"):
+        from pydatarheo.compat import get_source as get_connector_source
+
+        return get_connector_source(
+            name, config=dict(config) if config is not None else None, **kwargs
+        )
+    if kwargs:
+        raise ConfigError("Native sources do not accept external execution options")
+    return builtin_registry().create(name, config if config is not None else {})

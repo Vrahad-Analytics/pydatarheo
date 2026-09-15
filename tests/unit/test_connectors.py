@@ -14,7 +14,9 @@ from pydatarheo import (
 
 
 @pytest.mark.parametrize("factory", [JsonlSource, CsvSource])
-@pytest.mark.parametrize("config", [{}, {"path": 1}, {"path": ""}, {"path": "a", "typo": 1}])
+@pytest.mark.parametrize(
+    "config", [{}, {"path": 1}, {"path": ""}, {"path": "a", "typo": 1}]
+)
 def test_file_source_invalid_config_raises_config_error(factory, config):
     with pytest.raises(ConfigError):
         factory(config)
@@ -43,7 +45,9 @@ def test_file_source_invalid_encoding_raises_source_error(factory, tmp_path):
         list(factory({"path": str(path)}).read())
 
 
-@pytest.mark.parametrize("line", ['{"secret":', "[]", "null", '{"x": NaN}', '{"x": 1e999}'])
+@pytest.mark.parametrize(
+    "line", ['{"secret":', "[]", "null", '{"x": NaN}', '{"x": 1e999}']
+)
 def test_jsonl_source_invalid_record_reports_line_without_data(line, tmp_path):
     path = tmp_path / "invalid.jsonl"
     path.write_text("{}\n" + line + "\n", encoding="utf-8")
@@ -59,7 +63,9 @@ def test_jsonl_source_blank_lines_are_skipped(tmp_path):
     assert list(JsonlSource({"path": str(path)}).read()) == [{}, {"name": "Renée"}]
 
 
-@pytest.mark.parametrize("text", ["", "\n", "a,a\n", "a,\n", "a,b\n1\n", "a\n1,2\n", 'a\n"open'])
+@pytest.mark.parametrize(
+    "text", ["", "\n", "a,a\n", "a,\n", "a,b\n1\n", "a\n1,2\n", 'a\n"open']
+)
 def test_csv_source_malformed_file_raises_record_error(text, tmp_path):
     path = tmp_path / "invalid.csv"
     path.write_text(text, encoding="utf-8")

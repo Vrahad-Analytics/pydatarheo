@@ -11,10 +11,12 @@ and write a local JSONL/CSV file or an in-memory result. No service, database,
 container, connector download, telemetry, or third-party runtime dependency is
 required. Both the distribution and import package are named `pydatarheo`.
 
-**Release status:** `1.0.0a1` is an independent, breaking alpha release. It ships
-three native source types: `memory`, `jsonl`, and `csv`. It does not preserve the
-previous connector catalog or hosted-service integrations. See
-[Compatibility and limits](#compatibility-and-limits) before upgrading.
+**Release status:** `1.0.0.dev1` is a development release. The dependency-free
+native API ships three source types: `memory`, `jsonl`, and `csv`. The retained
+`datarheo` connector runtime — external protocol connectors, SQL caches,
+cloud/agent integrations, and MCP tools — is available by installing the
+`connectors` extra. See [Retained connector runtime](#retained-connector-runtime)
+and [Compatibility and limits](#compatibility-and-limits).
 
 ## Installation
 
@@ -27,10 +29,18 @@ python -m pip install .
 python -c "import pydatarheo; print(pydatarheo.__version__)"
 ```
 
-Expected version: `1.0.0a1`. For development, use
+Expected version: `1.0.0.dev1`. For development, use
 `python -m pip install -e '.[dev]'` instead. Local installation is the verified
 path; publication of this version to a package index is a separate release step.
 See [INSTALL.md](INSTALL.md) for clean-install verification and troubleshooting.
+
+To include the retained connector runtime and its third-party dependencies:
+
+```bash
+python -m pip install -e '.[connectors]'
+# or, for the full retained test suite:
+python -m pip install -e '.[dev,connectors,test-connectors]'
+```
 
 ## Quickstart
 
@@ -167,6 +177,21 @@ runnable implementation is in [examples/custom_connector.py](examples/custom_con
 See [ARCHITECTURE.md](ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
 for contracts, resource lifetime, testing, and extension guidance.
 
+## Retained connector runtime
+
+Installing `pydatarheo[connectors]` restores the `datarheo` import package:
+connector registry, Python/Docker connector executors, DuckDB/Postgres/BigQuery/
+Snowflake caches, hosted cloud and agent APIs, and the `datarheo-mcp` server.
+Those integrations use external protocol packages (`airbyte-cdk`,
+`airbyte-api`, `airbyte-protocol-models-pdv2`) and the public connector registry;
+`import pydatarheo` alone never installs or runs them.
+
+`pydatarheo.get_source("source-...", ...)` and `get_destination(...)` delegate to
+the retained runtime lazily. Without the extra they raise
+`ConnectorDependencyError` with install guidance instead of failing at import.
+Native names (`memory`, `jsonl`, `csv`, and anything registered on a
+`SourceRegistry`) always resolve natively first.
+
 ## Testing
 
 ```bash
@@ -180,6 +205,18 @@ ruff format --check src tests examples scripts
 mypy --strict --python-version 3.10 src/pydatarheo
 python scripts/verify_install.py
 ```
+
+The retained suite is gated and requires the connector extras:
+
+```bash
+python -m pip install -e '.[dev,connectors,test-connectors]'
+pytest --run-compatibility
+pytest --run-compatibility --run-live   # only with provisioned credentials/services
+```
+
+Docker-backed connector tests skip automatically when no Docker daemon is
+reachable; credential-gated tests require `--run-live` plus the documented
+environment secrets.
 
 Unit tests cover contracts and failure cases. Integration tests use real local
 files. E2E tests build an sdist and wheel, install the wheel without dependencies
@@ -196,16 +233,17 @@ and trusted publishing; it is never triggered by a normal push.
 
 ## Compatibility and limits
 
-This release intentionally replaces the previous `datarheo` API. There is no
-import alias: callers must migrate configuration and connector implementations,
-not merely change an import. External protocol executors, automatic connector
-installation, remote catalogs, SQL caches, hosted cloud/agent APIs, MCP tools,
-and legacy environment-variable namespaces are retired.
+The native `pydatarheo` API is new code: memory/JSONL/CSV sources, local sinks,
+and an explicit `SourceRegistry`. The `datarheo` package retains the earlier
+connector runtime, caches, cloud/agent APIs, and MCP tools behind the
+`connectors` extra; its public API is unchanged and its tests run under
+`pytest --run-compatibility`.
 
-Native warehouse/HTTP connectors, async reads, schema evolution, incremental
-state, orchestration, and exactly-once delivery are not implemented. Custom
-connectors can be added explicitly, but third-party packages retain their own
-licenses and ownership. This is not a claim of feature parity with prior releases.
+The native API does not implement warehouse/HTTP connectors, async reads,
+schema evolution, incremental state, orchestration, or exactly-once delivery.
+The retained runtime carries those capabilities and their third-party
+dependencies. Third-party packages and connectors retain their own licenses and
+ownership; retained code derives from an upstream project (see `NOTICE`).
 
 ## License
 

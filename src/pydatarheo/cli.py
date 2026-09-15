@@ -1,14 +1,28 @@
-"""Minimal local-file pipeline CLI; never installs or executes external connectors."""
+"""Native file pipelines plus retained connector validation, sync, and benchmark commands."""
 
 from __future__ import annotations
 
 import argparse
+import sys
 
 from pydatarheo import DatarheoError, JsonlSink, __version__, get_source
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="pydatarheo", description="Vrahad native data pipelines")
+    tokens = list(sys.argv[1:] if argv is None else argv)
+    if tokens and tokens[0] in {"validate", "benchmark", "sync", "destination-smoke-test"}:
+        from pydatarheo.compat import backend
+
+        backend()
+        from importlib import import_module
+
+        import_module("datarheo.cli.pydr").cli(tokens)
+        return 0
+    parser = argparse.ArgumentParser(
+        prog="pydatarheo",
+        description="Vrahad data pipelines",
+        epilog="With [connectors]: validate, sync, benchmark, destination-smoke-test.",
+    )
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
     read = commands.add_parser("read", help="Read local CSV/JSONL into a new JSONL file")

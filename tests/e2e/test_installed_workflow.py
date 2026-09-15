@@ -15,7 +15,9 @@ pytestmark = pytest.mark.e2e
 
 
 def run(command, cwd):
-    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True, timeout=180)
+    result = subprocess.run(
+        command, cwd=cwd, text=True, capture_output=True, timeout=180
+    )
     assert result.returncode == 0, result.stdout + result.stderr
     return result
 
@@ -25,7 +27,15 @@ def installed_environment(tmp_path_factory):
     directory = tmp_path_factory.mktemp("installed")
     artifacts = directory / "dist"
     run(
-        [sys.executable, "-m", "build", "--no-isolation", "--outdir", str(artifacts), str(ROOT)],
+        [
+            sys.executable,
+            "-m",
+            "build",
+            "--no-isolation",
+            "--outdir",
+            str(artifacts),
+            str(ROOT),
+        ],
         directory,
     )
     wheels = list(artifacts.glob("*.whl"))
@@ -33,9 +43,21 @@ def installed_environment(tmp_path_factory):
     assert len(list(artifacts.glob("*.tar.gz"))) == 1
     environment = directory / "venv"
     venv.EnvBuilder(with_pip=True, symlinks=os.name != "nt").create(environment)
-    python = str(environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python"))
+    python = str(
+        environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    )
     run(
-        [python, "-I", "-m", "pip", "install", "--no-index", "--no-deps", str(wheels[0])], directory
+        [
+            python,
+            "-I",
+            "-m",
+            "pip",
+            "install",
+            "--no-index",
+            "--no-deps",
+            str(wheels[0]),
+        ],
+        directory,
     )
     run([python, "-I", "-m", "pip", "check"], directory)
     return python, directory
@@ -82,14 +104,19 @@ def test_installed_example_completes_with_documented_output(
     assert expected in result.stdout
 
 
-def test_installed_pipeline_reads_transforms_and_writes_sales(installed_environment, tmp_path):
+def test_installed_pipeline_reads_transforms_and_writes_sales(
+    installed_environment, tmp_path
+):
     python, _ = installed_environment
     output = tmp_path / "sales.jsonl"
     result = run(
-        [python, "-I", str(ROOT / "examples/pipeline.py"), "--output", str(output)], tmp_path
+        [python, "-I", str(ROOT / "examples/pipeline.py"), "--output", str(output)],
+        tmp_path,
     )
     assert result.stdout.strip() == "Wrote 3 sales records"
-    rows = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()
+    ]
     assert rows == [
         {"id": 1, "customer": "Ada", "total_cents": 2500},
         {"id": 2, "customer": "Lin", "total_cents": 999},
@@ -97,7 +124,9 @@ def test_installed_pipeline_reads_transforms_and_writes_sales(installed_environm
     ]
 
 
-def test_installed_console_scripts_run_without_source_imports(installed_environment, tmp_path):
+def test_installed_console_scripts_run_without_source_imports(
+    installed_environment, tmp_path
+):
     python, _ = installed_environment
     for name in ("pydatarheo", "pydr"):
         executable = Path(python).parent / (name + (".exe" if os.name == "nt" else ""))
