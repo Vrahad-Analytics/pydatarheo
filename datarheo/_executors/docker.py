@@ -16,7 +16,7 @@ logger = logging.getLogger("datarheo")
 DEFAULT_CONTAINER_TEMP_DIR = "/airbyte/tmp"
 """Temp dir mounted into a connector's Docker image.
 
-The path keeps its `/airbyte` root on purpose: connector images published by Airbyte
+The path keeps its `/airbyte` root on purpose: published connector images
 already create that directory with the permissions their entrypoint expects, and a
 connector running as a non-root user may not be able to write to a fresh top-level
 directory that Docker creates for the bind mount.

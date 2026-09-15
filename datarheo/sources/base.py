@@ -532,9 +532,9 @@ class Source(ConnectorBase):  # noqa: PLR0904
                 and terminate the process.
             normalize_field_names: When `True`, field names will be normalized to lower case, with
                 special characters removed. This matches the behavior of PyDataRheo caches and most
-                Airbyte destinations.
+                destinations.
             prune_undeclared_fields: When `True`, undeclared fields will be pruned from the records,
-                which generally matches the behavior of PyDataRheo caches and most Airbyte
+                which generally matches the behavior of PyDataRheo caches and most connector
                 destinations, specifically when you expect the catalog may be stale. You can disable
                 this to keep all fields in the records.
 
@@ -730,7 +730,7 @@ class Source(ConnectorBase):  # noqa: PLR0904
                         *[
                             escape(str(val))
                             for key, val in record.items()
-                            # Exclude internal Airbyte columns.
+                            # Exclude internal columns.
                             if key not in internal_cols
                         ]
                     )
@@ -747,7 +747,7 @@ class Source(ConnectorBase):  # noqa: PLR0904
         progress_tracker: ProgressTracker,
         force_full_refresh: bool = False,
     ) -> AirbyteMessageIterator:
-        """Get an AirbyteMessageIterator for this source."""
+        """Get aMessageIterator for this source."""
         return AirbyteMessageIterator(
             self._read_with_catalog(
                 catalog=self.get_configured_catalog(
@@ -772,7 +772,7 @@ class Source(ConnectorBase):  # noqa: PLR0904
         This involves the following steps:
         * Write the config to a temporary file
         * execute the connector with read --config <config_file> --catalog <catalog_file>
-        * Listen to the messages and return the AirbyteRecordMessages that come along.
+        * Listen to the messages and return theRecordMessages that come along.
         * Send out telemetry on the performed sync (with information about which source was used and
           the type of the cache)
         """
@@ -815,9 +815,9 @@ class Source(ConnectorBase):  # noqa: PLR0904
         *,
         raise_on_error: bool = True,
     ) -> None:
-        """Process an Airbyte message.
+        """Process a protocol message.
 
-        This method handles reading Airbyte messages and taking action, if needed, based on the
+        This method handles reading protocol messages and taking action, if needed, based on the
         message type. For instance, log messages are logged, records are tallied, and errors are
         raised as exceptions if `raise_on_error` is True.
 

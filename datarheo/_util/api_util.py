@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""These internal functions are used to interact with the Airbyte API (module named `airbyte_api`).
+"""These internal functions are used to interact with the cloud API (module named `airbyte_api`).
 
 In order to insulate users from breaking changes and to avoid general confusion around naming
-and design inconsistencies, we do not expose these functions or other Airbyte API classes within
-PyDataRheo. Classes and functions from the Airbyte API external library should always be wrapped in
+and design inconsistencies, we do not expose these functions or other API classes within
+PyDataRheo. Classes and functions from the cloud API external library should always be wrapped in
 PyDataRheo classes - unless there's a very compelling reason to surface these models intentionally.
 
 Similarly, modules outside of this file should try to avoid interfacing with `airbyte_api` library
@@ -197,7 +197,7 @@ def get_datarheo_server_instance(
     client_secret: SecretString | None,
     bearer_token: SecretString | None,
 ) -> airbyte_api.AirbyteAPI:
-    """Get an Airbyte API instance.
+    """Get a cloud API instance.
 
     Supports two authentication methods (mutually exclusive):
     1. OAuth2 client credentials (client_id + client_secret)
@@ -1830,7 +1830,7 @@ def patch_connection(  # noqa: PLR0913  # Too many arguments
     )
 
 
-# Functions for leveraging the Airbyte Config API (may not be supported or stable)
+# Functions for leveraging the Config API (may not be supported or stable)
 
 
 def get_bearer_token(
@@ -2446,7 +2446,7 @@ def list_organizations_for_user_id(
     server-side name filtering and pagination.
 
     Args:
-        user_id: The Airbyte user ID to list organizations for
+        user_id: The cloud user ID to list organizations for
         api_root: The API root URL
         client_id: OAuth client ID
         client_secret: OAuth client secret
@@ -2897,7 +2897,7 @@ def get_user_id_from_bearer_token(bearer_token: SecretString) -> str:
     if not isinstance(user_id, str) or not user_id:
         raise DataRheoInputError(
             message="The bearer token does not contain a user_id or sub claim.",
-            guidance="Provide a bearer token issued for an Airbyte user.",
+            guidance="Provide a bearer token issued for a cloud user.",
         )
     return user_id
 
@@ -2911,7 +2911,7 @@ def get_user_by_auth_id(
     client_secret: SecretString | None,
     bearer_token: SecretString | None,
 ) -> dict[str, Any]:
-    """Get an Airbyte user by the authentication provider user ID."""
+    """Get a cloud user by the authentication provider user ID."""
     result = _make_config_api_request(
         path="/users/get_by_auth_id",
         json={
@@ -2942,7 +2942,7 @@ def list_permissions_for_user(
     client_secret: SecretString | None,
     bearer_token: SecretString | None,
 ) -> list[dict[str, Any]]:
-    """List permissions granted to an Airbyte user."""
+    """List permissions granted to a cloud user."""
     result = _make_config_api_request(
         path="/permissions/list_by_user",
         json={"userId": user_id},

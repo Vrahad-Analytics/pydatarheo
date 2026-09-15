@@ -91,7 +91,7 @@ class CheckResult:
 
 
 class CloudConnector(abc.ABC):
-    """A cloud connector is a deployed source or destination on Airbyte Cloud.
+    """A cloud connector is a deployed source or destination on the cloud.
 
     You can use a connector object to manage the connector.
     """
@@ -194,7 +194,7 @@ class CloudConnector(abc.ABC):
 
 
 class CloudSource(CloudConnector):
-    """A cloud source is a source that is deployed on Airbyte Cloud."""
+    """A cloud source is a source that is deployed on the cloud."""
 
     connector_type: ClassVar[Literal["source", "destination"]] = "source"
     """The type of the connector."""
@@ -282,7 +282,7 @@ class CloudSource(CloudConnector):
 
 
 class CloudDestination(CloudConnector):
-    """A cloud destination is a destination that is deployed on Airbyte Cloud."""
+    """A cloud destination is a destination that is deployed on the cloud."""
 
     connector_type: ClassVar[Literal["source", "destination"]] = "destination"
     """The type of the connector."""
@@ -370,7 +370,7 @@ class CloudDestination(CloudConnector):
 
 
 class CustomCloudSourceDefinition:
-    """A custom source connector definition in Airbyte Cloud.
+    """A custom source connector definition in the cloud.
 
     This represents either a YAML (declarative) or Docker-based custom source definition.
     """

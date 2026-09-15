@@ -9,9 +9,9 @@
 PyDataRheo is a library, not a platform. Pick a source, read from it, and land the records
 somewhere useful. It runs wherever your Python runs, with no orchestrator and no cluster.
 
-The connectors it executes speak the [Airbyte protocol](https://docs.airbyte.com/integrations/),
-which is what gives PyDataRheo several hundred sources and destinations without shipping any
-integration code of its own.
+Connector packages and metadata come from the public open connector registry,
+which is what gives PyDataRheo several hundred sources and destinations without
+shipping any integration code of its own.
 
 Install it with `pip install pydatarheo`. The import package is `datarheo`.
 
@@ -19,7 +19,7 @@ Install it with `pip install pydatarheo`. The import package is `datarheo`.
 
 ## Reading Data
 
-You can connect to any of [hundreds of sources](https://docs.airbyte.com/integrations/sources/)
+You can connect to any of hundreds of sources from the connector registry
 using the `get_source` method. You can then read data from sources using `Source.read` method.
 
 ```python
@@ -49,7 +49,7 @@ For more information, see the `datarheo.caches` module.
 
 Data can be written to destinations using the `Destination.write` method. You can connect to
 destinations using the `get_destination` method. PyDataRheo supports every destination connector
-that speaks the Airbyte protocol, but Docker is required on your machine in order to run
+published in the registry, but Docker is required on your machine in order to run
 Java-based destinations.
 
 **Note:** When loading to a SQL database, we recommend using SQL cache (where available,
@@ -59,7 +59,7 @@ might not have Docker container support. Destinations in PyDataRheo are uniquely
 to non-SQL platforms such as vector stores and other reverse ETL-type use cases.
 
 For more information, see the `datarheo.destinations` module and the full list of destination
-connectors [here](https://docs.airbyte.com/integrations/destinations/).
+connectors in the public registry.
 
 # PyDataRheo API
 
@@ -116,9 +116,9 @@ submodule to navigate to from the left sidebar or from the list below:
 Each module
 has its own documentation and code samples related to effectively using the related capabilities.
 
-- **`datarheo.cloud`** - Working with the hosted Airbyte Cloud API, including running jobs
+- **`datarheo.cloud`** - Working with the hosted cloud API, including running jobs
     remotely.
-- **`datarheo.agents`** - Working with the Airbyte Agents platform, including executing single
+- **`datarheo.agents`** - Working with the agents platform, including executing single
     read and write actions on Agents connectors.
 - **`datarheo.caches`** - Working with caches, including how to inspect a cache and get data from
     it.

@@ -1,8 +1,8 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """Destinations module.
 
-This module contains classes and methods for interacting with Airbyte destinations. You can use this
-module to create custom destinations, or to interact with existing destinations.
+This module contains classes and methods for interacting with registry destinations. You can
+use this module to create custom destinations, or to interact with existing destinations.
 
 ## Getting Started
 

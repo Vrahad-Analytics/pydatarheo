@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""PyDataRheo classes and methods for Airbyte Cloud organizations."""
+"""PyDataRheo classes and methods for the cloud organizations."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class CloudOrganization:
-    """Information about an organization in Airbyte Cloud.
+    """Information about an organization in the cloud.
 
     This class provides lazy loading of organization attributes including billing status.
     It is typically created via `CloudWorkspace.get_organization()`.

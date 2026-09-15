@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte connector registry MCP operations.
+"""connector registry MCP operations.
 
 .. include:: ../../docs/mcp-generated/registry.md
 """
@@ -86,7 +86,7 @@ def list_connectors(
         ),
     ],
 ) -> list[str]:
-    """List available Airbyte connectors with optional filtering.
+    """List available connectors with optional filtering.
 
     Returns:
         List of connector names.

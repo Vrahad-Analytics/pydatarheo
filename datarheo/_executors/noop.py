@@ -27,10 +27,10 @@ class NoOpExecutor(Executor):
 
     This executor is useful for scenarios where you need to validate connector
     configurations but don't need to actually run the connector locally (e.g.,
-    when deploying to Airbyte Cloud).
+    when deploying to the cloud).
 
     The NoOpExecutor:
-    - Fetches connector specs from the Airbyte registry
+    - Fetches connector specs from the registry
     - Supports the 'spec' command for configuration validation
     - Does not support execution commands (check, discover, read, write)
     - Does not require Docker or Python installation

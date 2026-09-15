@@ -45,8 +45,8 @@ DR_META_COLUMN = "_datarheo_meta"
 DR_RAW_ID_COLUMN = "_datarheo_raw_id"
 """A column that stores a unique identifier for each row in the source data.
 
-Note: The interpretation of this column is slightly different from in Airbyte Dv2 destinations.
-In Airbyte Dv2 destinations, this column points to a row in a separate 'raw' table. In PyDataRheo,
+Note: The interpretation of this column is slightly different from in Dv2-style destinations.
+In Dv2 destinations, this column points to a row in a separate 'raw' table. In PyDataRheo,
 this column is simply used as a unique identifier for each record as it is received.
 
 PyDataRheo uses ULIDs for this column, which are identifiers that can be sorted by time
@@ -198,8 +198,8 @@ DATARHEO_OFFLINE_MODE = _str_to_bool(
 """Enable or disable offline mode.
 
 When offline mode is enabled, PyDataRheo will attempt to fetch metadata for connectors from the
-Airbyte registry but will not raise an error if the registry is unavailable. This can be useful in
-environments without internet access or with air-gapped networks.
+public connector registry but will not raise an error if the registry is unavailable. This can be
+useful in environments without internet access or with air-gapped networks.
 
 Offline mode also disables telemetry, similar to a `DO_NOT_TRACK` setting, ensuring no usage data
 is sent from your environment. You may also specify a custom registry URL via the`_REGISTRY_ENV_VAR`
@@ -252,16 +252,16 @@ For more information, see the `datarheo.secrets` module documentation.
 # Cloud Constants
 
 CLOUD_CLIENT_ID_ENV_VAR: str = "DATARHEO_CLOUD_CLIENT_ID"
-"""The environment variable name for the Airbyte Cloud client ID."""
+"""The environment variable name for the cloud client ID."""
 
 CLOUD_CLIENT_SECRET_ENV_VAR: str = "DATARHEO_CLOUD_CLIENT_SECRET"
-"""The environment variable name for the Airbyte Cloud client secret."""
+"""The environment variable name for the cloud client secret."""
 
 CLOUD_API_ROOT_ENV_VAR: str = "DATARHEO_CLOUD_API_URL"
-"""The environment variable name for the Airbyte Cloud API URL."""
+"""The environment variable name for the cloud API URL."""
 
 CLOUD_CONFIG_API_ROOT_ENV_VAR: str = "DATARHEO_CLOUD_CONFIG_API_URL"
-"""The environment variable name for the Airbyte Cloud Config API URL.
+"""The environment variable name for the cloud Config API URL.
 
 The Config API is a separate internal API used for certain operations like
 connector builder projects and custom source definitions. This environment
@@ -271,13 +271,13 @@ from it automatically.
 """
 
 CLOUD_WORKSPACE_ID_ENV_VAR: str = "DATARHEO_CLOUD_WORKSPACE_ID"
-"""The environment variable name for the Airbyte Cloud workspace ID."""
+"""The environment variable name for the cloud workspace ID."""
 
 CLOUD_ORGANIZATION_ID_ENV_VAR: str = "DATARHEO_CLOUD_ORGANIZATION_ID"
-"""The environment variable name for the Airbyte Cloud organization ID."""
+"""The environment variable name for the cloud organization ID."""
 
 CLOUD_BEARER_TOKEN_ENV_VAR: str = "DATARHEO_CLOUD_BEARER_TOKEN"
-"""The environment variable name for the Airbyte Cloud bearer token.
+"""The environment variable name for the cloud bearer token.
 
 When set, this bearer token will be used for authentication instead of
 client credentials (client_id + client_secret). This is useful when you
@@ -285,15 +285,14 @@ already have a valid bearer token and want to skip the OAuth2 token exchange.
 """
 
 CLOUD_API_ROOT: str = "https://api.airbyte.com/v1"
-"""The Airbyte Cloud API root URL.
+"""The default cloud API root URL.
 
-This is the root URL for the Airbyte Cloud API. It is used to interact with the Airbyte Cloud API
-and is the default API root for the `CloudWorkspace` class.
+This is the root URL for the hosted cloud API and the default API root for `CloudWorkspace`.
 - https://reference.airbyte.com/reference/getting-started
 """
 
 CLOUD_CONFIG_API_ROOT: str = "https://cloud.airbyte.com/api/v1"
-"""Internal-Use API Root, aka Airbyte "Config API".
+"""Internal-use API root, also known as the "Config API".
 
 Documentation:
 - https://docs.airbyte.com/api-documentation#configuration-api-deprecated
@@ -382,7 +381,7 @@ MCP_INSIDERS_HEADER: str = "X-MCP-Insiders"
 
 Set to `1`/`true`/`yes` to add the tools in `MCP_INSIDERS_MODULES` to the advertised
 tool surface. This selects which tools are advertised and is not an access-control
-boundary: every insiders tool authorizes each call against the Airbyte API.
+boundary: every insiders tool authorizes each call against the cloud API.
 `MCP_INSIDERS_ENV_VAR` overrides this header when explicitly set.
 """
 

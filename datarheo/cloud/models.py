@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Public response models for Airbyte Cloud APIs."""
+"""Public response models for the cloud APIs."""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ class _DeclarativeSourceDefinitionResponseLike(Protocol):
 
 
 class JobStatusEnum(str, Enum):
-    """Status values for an Airbyte Cloud job."""
+    """Status values for a cloud job."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -68,7 +68,7 @@ class JobStatusEnum(str, Enum):
 
 
 class JobTypeEnum(str, Enum):
-    """Job type values for Airbyte Cloud jobs."""
+    """Job type values for the cloud jobs."""
 
     SYNC = "sync"
     RESET = "reset"
@@ -86,7 +86,7 @@ class WorkspacePrivilegeScope(str, Enum):
 
 
 class CloudWorkspaceInfo(BaseModel):
-    """Information about an Airbyte workspace."""
+    """Information about a workspace."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -129,7 +129,7 @@ class CloudWorkspaceInfo(BaseModel):
 
 
 class CloudOrganizationInfo(BaseModel):
-    """Information about an Airbyte organization."""
+    """Information about a organization."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -144,7 +144,7 @@ class CloudDefaultContextInfo(BaseModel):
     """Explicit organization and workspace affinities for the authenticated user."""
 
     user_id: str | None
-    """The Airbyte user ID, if available."""
+    """The cloud user ID, if available."""
 
     user_name: str | None
     """The authenticated user's name, if available."""
@@ -178,7 +178,7 @@ class CloudDefaultContextInfo(BaseModel):
 
 
 class CloudConnectionInfo(BaseModel):
-    """Information about an Airbyte Cloud connection."""
+    """Information about a cloud connection."""
 
     connection_id: str
     """The connection ID."""
@@ -220,7 +220,7 @@ class CloudConnectionInfo(BaseModel):
 
 
 class CloudJobInfo(BaseModel):
-    """Information about an Airbyte Cloud job."""
+    """Information about a cloud job."""
 
     job_id: int
     """The job ID."""
@@ -250,7 +250,7 @@ class CloudJobInfo(BaseModel):
 
 
 class CloudSourceInfo(BaseModel):
-    """Information about an Airbyte Cloud source."""
+    """Information about a cloud source."""
 
     source_id: str
     """The source ID."""
@@ -272,7 +272,7 @@ class CloudSourceInfo(BaseModel):
 
 
 class CloudDestinationInfo(BaseModel):
-    """Information about an Airbyte Cloud destination."""
+    """Information about a cloud destination."""
 
     destination_id: str
     """The destination ID."""
@@ -297,7 +297,7 @@ class CloudDestinationInfo(BaseModel):
 
 
 class CloudCustomSourceDefinitionInfo(BaseModel):
-    """Information about a custom Airbyte Cloud source definition."""
+    """Information about a custom the cloud source definition."""
 
     definition_id: str
     """The source definition ID."""

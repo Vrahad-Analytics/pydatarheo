@@ -1,8 +1,8 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Cloud client configuration for Airbyte Cloud API authentication.
+"""Cloud client configuration for the cloud API authentication.
 
 This module provides the CloudClientConfig class for managing authentication
-credentials and API configuration when connecting to Airbyte Cloud, OSS, or
+credentials and API configuration when connecting to the cloud, OSS, or
 Enterprise instances.
 
 Two authentication methods are supported (mutually exclusive):
@@ -57,10 +57,10 @@ from datarheo.secrets.base import SecretString
 
 @dataclass
 class CloudClientConfig:
-    """Client configuration for Airbyte Cloud API.
+    """Client configuration for the cloud API.
 
     This class encapsulates the authentication and API configuration needed to connect
-    to Airbyte Cloud, OSS, or Enterprise instances. It supports two mutually
+    to the cloud, OSS, or Enterprise instances. It supports two mutually
     exclusive authentication methods:
 
     1. OAuth2 client credentials flow (client_id + client_secret)
@@ -73,7 +73,7 @@ class CloudClientConfig:
         client_id: OAuth2 client ID for client credentials flow.
         client_secret: OAuth2 client secret for client credentials flow.
         bearer_token: Pre-generated bearer token for direct authentication.
-        api_root: The API root URL. Defaults to Airbyte Cloud API.
+        api_root: The API root URL. Defaults to the cloud API.
         config_api_root: The Config API root URL.
     """
 
@@ -87,7 +87,7 @@ class CloudClientConfig:
     """Bearer token for direct authentication (alternative to client credentials)."""
 
     api_root: str = api_util.CLOUD_API_ROOT
-    """The API root URL. Defaults to Airbyte Cloud API."""
+    """The API root URL. Defaults to the cloud API."""
 
     config_api_root: str | None = None
     """The Config API root URL."""
@@ -161,7 +161,7 @@ class CloudClientConfig:
             - `DATARHEO_CLOUD_CLIENT_ID`: OAuth client ID (for client credentials flow).
             - `DATARHEO_CLOUD_CLIENT_SECRET`: OAuth client secret (for client credentials flow).
             - `DATARHEO_CLOUD_BEARER_TOKEN`: Bearer token (alternative to client credentials).
-            - `DATARHEO_CLOUD_API_URL`: Optional. The API root URL (defaults to Airbyte Cloud).
+            - `DATARHEO_CLOUD_API_URL`: Optional. The API root URL (defaults to the cloud).
             - `DATARHEO_CLOUD_CONFIG_API_URL`: Optional. The Config API root URL.
 
         The method will first check for a bearer token. If not found, it will
@@ -170,7 +170,7 @@ class CloudClientConfig:
         Args:
             api_root: The API root URL. If not provided, will be resolved from
                 the `DATARHEO_CLOUD_API_URL` environment variable, or default to
-                the Airbyte Cloud API.
+                the cloud API.
             config_api_root: The Config API root URL. If not provided, will be resolved
                 from the `DATARHEO_CLOUD_CONFIG_API_URL` environment variable.
 

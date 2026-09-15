@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from datarheo.strategies import WriteStrategy
 
 
-class AirbyteWriterInterface(abc.ABC):
-    """An interface for writing Airbyte messages."""
+class DatarheoWriterInterface(abc.ABC):
+    """An interface for writing protocol messages."""
 
     @property
     def name(self) -> str:

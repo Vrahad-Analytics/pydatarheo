@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Methods for converting Airbyte records into documents."""
+"""Methods for converting records into documents."""
 
 from __future__ import annotations
 

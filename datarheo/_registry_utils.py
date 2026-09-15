@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""@private Utility functions for working with the Airbyte connector registry."""
+"""@private Utility functions for working with the public connector registry."""
 
 import logging
 import re

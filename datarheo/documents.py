@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""This module contains the `Documents` class for converting Airbyte records into documents.
+"""This module contains the `Documents` class for converting records into documents.
 
 Generally you will not create `Documents` objects directly. Instead, you can use one of the
 following methods to generate documents from records:

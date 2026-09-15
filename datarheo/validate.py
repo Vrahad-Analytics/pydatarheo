@@ -107,7 +107,7 @@ def run() -> None:
     It performs a basic smoke test to make sure the connector in question is PyDataRheo compliant:
     * Can be installed into a venv
     * Can be called via cli entrypoint
-    * Answers according to the Airbyte protocol when called with spec, check, discover and read.
+    * Answers according to the connector protocol when called with spec, check, discover and read.
     """
     # parse args
     args = _parse_args()

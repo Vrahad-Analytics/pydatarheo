@@ -96,7 +96,7 @@ def test_cloud_credentials_error_guidance(
             _env_vars=env_vars,
         )
 
-    assert error.get_message() == "No Airbyte credentials found."
+    assert error.get_message() == "No cloud credentials found."
     assert error.guidance == expected_guidance
     assert "Allow Bearer" not in str(error)
     assert "Env Vars" not in str(error)

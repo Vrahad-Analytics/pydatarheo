@@ -1,17 +1,17 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""PyDataRheo classes and methods for interacting with the Airbyte Cloud API.
+"""PyDataRheo classes and methods for interacting with the hosted cloud API.
 
-You can use this module to interact with Airbyte Cloud, OSS, and Enterprise.
+You can use this module to interact with managed Cloud, OSS, and Enterprise deployments.
 
-## Self-managed Airbyte instances
+## Self-managed instances
 
-For self-managed Airbyte instances, set `api_root` to the Public API root for your
+For self-managed instances, set `api_root` to the Public API root for your
 deployment. For the default self-managed route, that usually ends in `/api/public/v1`.
 PyDataRheo uses the Public API for workspace and organization discovery.
 
 Some Cloud module methods also call the Config API, including methods such as
 `CloudConnection.dump_raw_catalog()`, which reads the configured catalog directly
-from Airbyte. For documented self-managed deployments where the Public API root ends in
+from the deployment. For documented self-managed deployments where the Public API root ends in
 `/api/public/v1`, PyDataRheo infers the Config API root by replacing that suffix with
 `/api/v1`.
 
@@ -42,13 +42,13 @@ raw_catalog = connection.dump_raw_catalog()
 import datarheo as dr
 from datarheo import cloud
 
-# Initialize an Airbyte Cloud workspace object
+# Initialize a cloud workspace object
 workspace = cloud.CloudWorkspace(
     workspace_id="123",
     api_key=dr.get_secret("DATARHEO_CLOUD_API_KEY"),
 )
 
-# Run a sync job on Airbyte Cloud
+# Run a sync job on the cloud
 connection = workspace.get_connection(connection_id="456")
 sync_result = connection.run_sync()
 print(sync_result.get_job_status())

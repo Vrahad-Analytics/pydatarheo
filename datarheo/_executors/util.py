@@ -250,7 +250,7 @@ def get_connector_executor(  # noqa: PLR0912, PLR0913, PLR0914, PLR0915, C901 # 
                 message="Failed to connect to the connector registry.",
                 context={"connector_name": name},
                 guidance=(
-                    "\nThere was a problem connecting to the Airbyte connector registry. "
+                    "\nThere was a problem connecting to the connector registry. "
                     "Please check your internet connection and try again.\nTo operate "
                     "offline, set the `DATARHEO_OFFLINE_MODE` environment variable to `1`."
                     "This will prevent errors related to registry connectivity and disable "

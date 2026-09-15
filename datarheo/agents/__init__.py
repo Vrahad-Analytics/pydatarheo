@@ -1,17 +1,17 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""PyDataRheo classes and methods for the Airbyte Agents platform.
+"""PyDataRheo classes and methods for the agents platform.
 
 > ## ⚠️ Experimental Interface
 >
-> **The Airbyte Agents Python interfaces are experimental.** Class names, method signatures,
+> **The agents Python interfaces are experimental.** Class names, method signatures,
 > and result models may change or be removed without notice between minor versions of
 > PyDataRheo. Pin an exact PyDataRheo version if you depend on them.
 
-Airbyte Agents connectors expose read and write actions on individual entities, executed
+Agents connectors expose read and write actions on individual entities, executed
 one action at a time, rather than the batch record replication that `datarheo.cloud`
 provides. This module is that interface.
 
-Airbyte Cloud credentials authenticate against the Agents API, so no Agents-specific
+Cloud credentials authenticate against the Agents API, so no Agents-specific
 credentials or environment variables exist: the `DATARHEO_CLOUD_*` variables are reused.
 
 ## Usage Examples

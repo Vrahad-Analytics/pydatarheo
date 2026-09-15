@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Sync results for Airbyte Cloud workspaces.
+"""Sync results for the cloud workspaces.
 
 ## Examples
 
@@ -11,7 +11,7 @@ To get started, we'll need a `.CloudConnection` object. You can obtain this obje
 ```python
 from datarheo import cloud
 
-# Initialize an Airbyte Cloud workspace object
+# Initialize a cloud workspace object
 workspace = cloud.CloudWorkspace(
     workspace_id="123",
     api_key=ab.get_secret("DATARHEO_CLOUD_API_KEY"),
@@ -67,7 +67,7 @@ print(
 )
 ```
 
-### Reading data from Airbyte Cloud sync result
+### Reading data from the cloud sync result
 
 **This feature is currently only available for specific SQL-based destinations.** This includes
 SQL-based destinations such as Snowflake and BigQuery. The list of supported destinations may be
@@ -235,7 +235,7 @@ class SyncResult:
         """Return the URL of the sync job.
 
         Note: This currently returns the connection's job history URL, as there is no direct URL
-        to a specific job in the Airbyte Cloud web app.
+        to a specific job in the cloud web app.
 
         TODO: Implement a direct job logs URL on top of the event-id of the specific attempt number.
               E.g. {self.connection.job_history_url}?eventId={event-guid}&openLogs=true

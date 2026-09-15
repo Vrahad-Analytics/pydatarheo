@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte Agents connectors, and the single-action `execute` interface.
+"""Agents connectors, and the single-action `execute` interface.
 
 > ## ⚠️ Experimental Interface
 >
-> **The Airbyte Agents Python interfaces are experimental.** Class names, method signatures,
+> **The Agents Python interfaces are experimental.** Class names, method signatures,
 > and result models may change or be removed without notice between minor versions of
 > PyDataRheo. Pin an exact PyDataRheo version if you depend on them.
 """
@@ -115,7 +115,7 @@ def _resolve_connector_lookup(
 
 
 class AgentConnector:
-    """A connector in an Airbyte Agents workspace.
+    """A connector in an Agents workspace.
 
     Get one from `AgentWorkspace.get_connector()` rather than constructing it directly.
 

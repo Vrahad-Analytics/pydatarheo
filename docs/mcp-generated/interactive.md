@@ -12,7 +12,7 @@ MCP primitives registered by the `interactive` module of the `datarheo-mcp` serv
 
 **Availability:** requires an MCP Apps UI-capable client (declares the `io.modelcontextprotocol/ui` extension).
 
-Show interactive sync history dashboard for an Airbyte Cloud connection.
+Show interactive sync history dashboard for a cloud connection.
 
     Renders a rich UI with metrics (success rate, total records, total bytes),
     charts (success/fail by date, records over time, bytes over time), and
@@ -25,7 +25,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection to show sync history for. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection to show sync history for. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 | `max_jobs` | `integer` | no | `30` | Maximum number of recent sync jobs to display. Defaults to 30. Maximum allowed value is 100. |
 | `agent_context` | `enum("verbose", "summary", "min")` | no | `"min"` | Controls how much context is returned to the agent in the text response. 'verbose': full job-level data for detailed follow-up analysis. 'summary': aggregates and key observations only. 'min': one-liner confirmation that the dashboard rendered. |
@@ -39,7 +39,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection to show sync history for.",
+      "description": "The ID of the cloud connection to show sync history for.",
       "type": "string"
     },
     "workspace_id": {
@@ -160,7 +160,7 @@ Show an interactive public connector catalog from the OSS registry.
 
 **Availability:** requires an MCP Apps UI-capable client (declares the `io.modelcontextprotocol/ui` extension).
 
-Show an interactive sync status dashboard for an Airbyte Cloud workspace.
+Show an interactive sync status dashboard for a cloud workspace.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 

@@ -48,7 +48,7 @@ when configuring the GitHub source.
 The naming convention for secrets is as `{CONNECTOR_NAME}_{PROPERTY_NAME}`, for instance
 `SNOWFLAKE_PASSWORD` and `BIGQUERY_CREDENTIALS_PATH`.
 
-PyDataRheo will also auto-discover secrets for interop with hosted Airbyte:
+PyDataRheo will also auto-discover secrets for interop with the hosted cloud:
 `DATARHEO_CLOUD_API_URL`, `DATARHEO_CLOUD_API_KEY`, etc.
 
 ## Custom Secret Managers

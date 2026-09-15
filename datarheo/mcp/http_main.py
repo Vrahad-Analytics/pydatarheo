@@ -70,7 +70,7 @@ Opt-in static client credentials:
   or `DATARHEO_MCP_AUTH_JWT_PUBLIC_KEY` as well. Without a verifier, minted token
   claims and requests with no credentials are not checked.
 - `DATARHEO_MCP_AUTH_CLIENT_CREDENTIALS_TOKEN_URL`: OAuth token endpoint for the
-  exchange; defaults to the Airbyte Cloud application-token endpoint
+  exchange; defaults to the cloud application-token endpoint
 """
 
 from __future__ import annotations

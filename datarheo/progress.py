@@ -325,7 +325,7 @@ class ProgressTracker:  # noqa: PLR0904  # Too many public methods
         ):
             yield message  # pyrefly: ignore[invalid-yield]
             if isinstance(message, str):
-                # This is a string message, not an AirbyteMessage.
+                # This is a string message, not aMessage.
                 # For now at least, we don't need to pay the cost of parsing it.
                 continue
 

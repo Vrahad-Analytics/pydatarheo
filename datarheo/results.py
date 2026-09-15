@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.engine import Engine
 
-    from datarheo._writers.base import AirbyteWriterInterface
+    from datarheo._writers.base import DatarheoWriterInterface
     from datarheo.caches import CacheBase
     from datarheo.destinations.base import Destination
     from datarheo.progress import ProgressTracker
@@ -110,7 +110,7 @@ class WriteResult:
     def __init__(
         self,
         *,
-        destination: AirbyteWriterInterface | Destination,
+        destination: DatarheoWriterInterface | Destination,
         source_data: Source | ReadResult,
         catalog_provider: CatalogProvider,
         state_writer: StateWriterBase,
@@ -121,7 +121,7 @@ class WriteResult:
         This class should not be created directly. Instead, it should be returned by the `write`
         method of the `Destination` class.
         """
-        self._destination: AirbyteWriterInterface | Destination = destination
+        self._destination: DatarheoWriterInterface | Destination = destination
         self._source_data: Source | ReadResult = source_data
         self._catalog_provider: CatalogProvider = catalog_provider
         self._state_writer: StateWriterBase = state_writer
