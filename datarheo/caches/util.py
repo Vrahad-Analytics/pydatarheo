@@ -82,7 +82,7 @@ def new_local_cache(
 
 def get_colab_cache(
     cache_name: str = "default_cache",
-    sub_dir: str = "Airbyte/cache",
+    sub_dir: str = "PyDataRheo/cache",
     schema_name: str = "main",
     table_prefix: str | None = "",
     drive_name: str = _MY_DRIVE,
@@ -104,8 +104,8 @@ def get_colab_cache(
     Args:
         cache_name: The name to use for the cache. Defaults to "colab_cache". Override this if you
             want to use a different database for different projects.
-        sub_dir: The subdirectory to store the cache in. Defaults to "Airbyte/cache". Override this
-            if you want to store the cache in a different subdirectory than the default.
+        sub_dir: The subdirectory to store the cache in. Defaults to "PyDataRheo/cache". Override
+            this if you want to store the cache in a different subdirectory than the default.
         schema_name: The name of the schema to write to. Defaults to "main". Override this if you
             want to write to a different schema.
         table_prefix: The prefix to use for all tables in the cache. Defaults to "". Override this
@@ -130,7 +130,7 @@ def get_colab_cache(
     ```python
     custom_cache = get_colab_cache(
         cache_name="my_custom_cache",
-        sub_dir="Airbyte/custom_cache",
+        sub_dir="PyDataRheo/custom_cache",
         drive_name="My Company Drive",
     )
     ```

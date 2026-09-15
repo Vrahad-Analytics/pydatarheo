@@ -14,7 +14,7 @@ from datarheo import exceptions as exc
 from datarheo import progress
 from datarheo._batch_handles import BatchHandle
 from datarheo._util.name_normalizers import LowerCaseNormalizer
-from datarheo._writers.base import AirbyteWriterInterface
+from datarheo._writers.base import DatarheoWriterInterface
 from datarheo.records import StreamRecord, StreamRecordHandler
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 DEFAULT_BATCH_SIZE = 100_000
 
 
-class FileWriterBase(AirbyteWriterInterface):
+class FileWriterBase(DatarheoWriterInterface):
     """A generic abstract implementation for a file-based writer."""
 
     default_cache_file_suffix: str = ".batch"
@@ -214,7 +214,7 @@ class FileWriterBase(AirbyteWriterInterface):
         """
         _ = stdin, catalog_provider, write_strategy, state_writer, progress_tracker
         raise exc.DataRheoInternalError from NotImplementedError(
-            "File writers should be wrapped by another AirbyteWriterInterface."
+            "File writers should be wrapped by another DatarheoWriterInterface."
         )
 
     def flush_active_batches(

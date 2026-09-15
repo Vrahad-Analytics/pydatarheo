@@ -392,9 +392,9 @@ class ConnectorBase(abc.ABC):
         *,
         raise_on_error: bool = True,
     ) -> None:
-        """Process an Airbyte message.
+        """Process a protocol message.
 
-        This method handles reading Airbyte messages and taking action, if needed, based on the
+        This method handles reading protocol messages and taking action, if needed, based on the
         message type. For instance, log messages are logged, records are tallied, and errors are
         raised as exceptions if `raise_on_error` is True. If a config change message is received,
         the config change callback is called.

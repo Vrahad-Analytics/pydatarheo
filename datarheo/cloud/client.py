@@ -19,7 +19,7 @@ A workspace ID reaches the client from one of four places, in order:
 2. The `X-DataRheo-Workspace-Id` header, when running as an MCP server over HTTP.
 3. The `DATARHEO_CLOUD_WORKSPACE_ID` (or `DATARHEO_WORKSPACE_ID`) environment variable,
    read when the client is built with `CloudClient.from_auth(env_vars=True)`.
-4. The authenticated user's default workspace from their Airbyte user record.
+4. The authenticated user's default workspace from their cloud user record.
 
 The configured workspace becomes `CloudClient.default_workspace_id`, the ambient
 workspace context for the client. Workspace-scoped operations use it, then the
@@ -109,7 +109,7 @@ MAX_MEMBER_WORKSPACES = 25
 
 @dataclass(init=False, kw_only=True)
 class CloudClient:
-    """Authenticated client for Airbyte Cloud and self-managed Airbyte APIs."""
+    """Authenticated client for the cloud and self-managed cloud APIs."""
 
     _credentials: _AirbyteCredentials
     _membership_organization_ids: tuple[str, ...] | None
@@ -165,12 +165,12 @@ class CloudClient:
 
     @property
     def public_api_root(self) -> str:
-        """Airbyte Public API root."""
+        """the public API root."""
         return self._credentials.public_api_root
 
     @property
     def config_api_root(self) -> str | None:
-        """Airbyte Config API root."""
+        """the Config API root."""
         return self._credentials.config_api_root
 
     @property
@@ -257,7 +257,7 @@ class CloudClient:
         organization_id: str | None = None,
         region_id: str | None = None,
     ) -> CloudWorkspaceInfo:
-        """Create an Airbyte workspace."""
+        """Create a workspace."""
         resolved_organization_id = organization_id or self.organization_id
         workspace = api_util.create_workspace(
             name=name,
@@ -276,7 +276,7 @@ class CloudClient:
         *,
         name: str,
     ) -> CloudWorkspaceInfo:
-        """Rename an Airbyte workspace."""
+        """Rename a workspace."""
         workspace = api_util.rename_workspace(
             workspace_id=workspace_id,
             name=name,
@@ -294,7 +294,7 @@ class CloudClient:
         workspace_name: str | None = None,
         safe_mode: bool = True,
     ) -> None:
-        """Permanently delete an Airbyte workspace if it has no connections.
+        """Permanently delete a workspace if it has no connections.
 
         When `safe_mode` is enabled, the workspace name must contain `delete-me`
         or `deleteme`. This also checks for existing connections before deleting
@@ -632,7 +632,7 @@ class CloudClient:
             return None
 
     def _get_authenticated_user_info(self) -> dict[str, Any]:
-        """Get and cache the Airbyte user record for the current credentials."""
+        """Get and cache the user record for the current credentials."""
         if self._authenticated_user_info is not None:
             return self._authenticated_user_info
 
@@ -654,7 +654,7 @@ class CloudClient:
         return self._authenticated_user_info
 
     def _get_authenticated_user_id(self) -> str:
-        """Get and cache the Airbyte user ID for the current credentials."""
+        """Get and cache the user ID for the current credentials."""
         if self._authenticated_user_id is not None:
             return self._authenticated_user_id
 
@@ -662,7 +662,7 @@ class CloudClient:
         user_id = user.get("userId")
         if not isinstance(user_id, str) or not user_id:
             raise exc.DataRheoInputError(
-                message="The Airbyte user response did not include a user ID.",
+                message="The cloud user response did not include a user ID.",
                 context={"response": user},
             )
         self._authenticated_user_id = user_id

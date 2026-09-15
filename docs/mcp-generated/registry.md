@@ -576,7 +576,7 @@ Returns:
 
 **Hints:** `read-only` · `idempotent`
 
-List available Airbyte connectors with optional filtering.
+List available connectors with optional filtering.
 
 Returns:
     List of connector names.

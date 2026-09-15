@@ -13,7 +13,7 @@ from datarheo import exceptions as exc
 from datarheo._connector_base import ConnectorBase
 from datarheo._message_iterators import AirbyteMessageIterator
 from datarheo._util.temp_files import as_temp_files
-from datarheo._writers.base import AirbyteWriterInterface
+from datarheo._writers.base import DatarheoWriterInterface
 from datarheo.caches._utils._dest_to_cache import (
     destination_to_cache,
     get_supported_destination_types,
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 _CANONICAL_PREFIX = "destination-"
 
 
-class Destination(ConnectorBase, AirbyteWriterInterface):
+class Destination(ConnectorBase, DatarheoWriterInterface):
     """A class representing a destination that can be called."""
 
     connector_type = "destination"

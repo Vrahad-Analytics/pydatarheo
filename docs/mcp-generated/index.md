@@ -9,18 +9,18 @@ description: "PyDataRheo connector management and data integration server for di
 **Version:** `3.2.0`  
 
 PyDataRheo connector management and data integration server for discovering,
-deploying, and running Airbyte connectors.
+deploying, and running registry connectors.
 
 Use this server for:
-- Discovering connectors from the Airbyte registry (sources and destinations)
-- Deploying sources, destinations, and connections to Airbyte Cloud
+- Discovering connectors from the public connector registry (sources and destinations)
+- Deploying sources, destinations, and connections to the managed cloud
 - Running cloud syncs and monitoring sync status
-- Managing custom connector definitions in Airbyte Cloud
+- Managing custom connector definitions in the managed cloud
 - Local connector execution for data extraction without cloud deployment
 - Listing and describing environment variables for connector configuration
 
 Operational modes:
-- Cloud operations: Deploy and manage connectors on Airbyte Cloud (use request
+- Cloud operations: Deploy and manage connectors on the managed cloud (use request
   headers when connecting to a hosted MCP server, or DATARHEO_CLOUD_CLIENT_ID +
   DATARHEO_CLOUD_CLIENT_SECRET (or DATARHEO_CLOUD_BEARER_TOKEN), and optionally
   DATARHEO_CLOUD_WORKSPACE_ID, for local or stdio connections). When no workspace

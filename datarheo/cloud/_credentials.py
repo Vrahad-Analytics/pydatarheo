@@ -51,7 +51,7 @@ class _AirbyteCredentials:
         config_api_root: str | None = None,
         env_vars: bool = True,
     ) -> _AirbyteCredentials:
-        """Resolve Airbyte Cloud credentials from inputs and optionally env vars.
+        """Resolve cloud credentials from inputs and optionally env vars.
 
         When `env_vars` is True (default), environment variables are checked as a
         fallback after explicit inputs.

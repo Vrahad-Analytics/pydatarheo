@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte Cloud MCP operations.
+"""the cloud MCP operations.
 
 .. include:: ../../docs/mcp-generated/cloud.md
 """
@@ -115,36 +115,36 @@ def _get_connector_check_message(check_result: CheckResult) -> str | None:
 
 
 class CloudSourceResult(BaseModel):
-    """Information about a deployed source connector in Airbyte Cloud."""
+    """Information about a deployed source connector in the cloud."""
 
     id: str
     """The source ID."""
     name: str
     """Display name of the source."""
     url: str
-    """Web URL for managing this source in Airbyte Cloud."""
+    """Web URL for managing this source in the cloud."""
 
 
 class CloudDestinationResult(BaseModel):
-    """Information about a deployed destination connector in Airbyte Cloud."""
+    """Information about a deployed destination connector in the cloud."""
 
     id: str
     """The destination ID."""
     name: str
     """Display name of the destination."""
     url: str
-    """Web URL for managing this destination in Airbyte Cloud."""
+    """Web URL for managing this destination in the cloud."""
 
 
 class CloudConnectionResult(BaseModel):
-    """Information about a deployed connection in Airbyte Cloud."""
+    """Information about a deployed connection in the cloud."""
 
     id: str
     """The connection ID."""
     name: str
     """Display name of the connection."""
     url: str
-    """Web URL for managing this connection in Airbyte Cloud."""
+    """Web URL for managing this connection in the cloud."""
     source_id: str
     """ID of the source used by this connection."""
     destination_id: str
@@ -166,40 +166,40 @@ class CloudConnectionResult(BaseModel):
 
 
 class CloudSourceDetails(BaseModel):
-    """Detailed information about a deployed source connector in Airbyte Cloud."""
+    """Detailed information about a deployed source connector in the cloud."""
 
     source_id: str
     """The source ID."""
     source_name: str
     """Display name of the source."""
     source_url: str
-    """Web URL for managing this source in Airbyte Cloud."""
+    """Web URL for managing this source in the cloud."""
     connector_definition_id: str
     """The connector definition ID (e.g., the ID for 'source-postgres')."""
 
 
 class CloudDestinationDetails(BaseModel):
-    """Detailed information about a deployed destination connector in Airbyte Cloud."""
+    """Detailed information about a deployed destination connector in the cloud."""
 
     destination_id: str
     """The destination ID."""
     destination_name: str
     """Display name of the destination."""
     destination_url: str
-    """Web URL for managing this destination in Airbyte Cloud."""
+    """Web URL for managing this destination in the cloud."""
     connector_definition_id: str
     """The connector definition ID (e.g., the ID for 'destination-snowflake')."""
 
 
 class CloudConnectionDetails(BaseModel):
-    """Detailed information about a deployed connection in Airbyte Cloud."""
+    """Detailed information about a deployed connection in the cloud."""
 
     connection_id: str
     """The connection ID."""
     connection_name: str
     """Display name of the connection."""
     connection_url: str
-    """Web URL for managing this connection in Airbyte Cloud."""
+    """Web URL for managing this connection in the cloud."""
     source_id: str
     """ID of the source used by this connection."""
     source_name: str
@@ -215,7 +215,7 @@ class CloudConnectionDetails(BaseModel):
 
 
 class CloudOrganizationResult(BaseModel):
-    """Information about an organization in Airbyte Cloud."""
+    """Information about an organization in the cloud."""
 
     id: str
     """The organization ID."""
@@ -236,7 +236,7 @@ class CloudOrganizationResult(BaseModel):
 
 
 class CloudOrganizationListResult(BaseModel):
-    """Result of discovering organizations in Airbyte Cloud."""
+    """Result of discovering organizations in the cloud."""
 
     organizations: list[CloudOrganizationResult]
     """Organizations visible to the authenticated credentials."""
@@ -246,14 +246,14 @@ class CloudOrganizationListResult(BaseModel):
 
 
 class CloudWorkspaceResult(BaseModel):
-    """Information about a workspace in Airbyte Cloud."""
+    """Information about a workspace in the cloud."""
 
     workspace_id: str
     """The workspace ID."""
     workspace_name: str
     """Display name of the workspace."""
     workspace_url: str | None = None
-    """URL to access the workspace in Airbyte Cloud."""
+    """URL to access the workspace in the cloud."""
     organization_id: str | None
     """ID of the organization, if known and available."""
     organization_name: str | None = None
@@ -273,7 +273,7 @@ class CloudWorkspaceResult(BaseModel):
 
 
 class CloudWorkspaceListResult(BaseModel):
-    """Result of discovering workspaces in Airbyte Cloud."""
+    """Result of discovering workspaces in the cloud."""
 
     workspaces: list[CloudWorkspaceResult]
     """Workspaces visible to the authenticated credentials."""
@@ -289,7 +289,7 @@ class CloudDefaultContextResult(BaseModel):
     """Explicit authenticated Cloud affinities and discovery guidance."""
 
     user_id: str | None
-    """The Airbyte user ID, if available."""
+    """The cloud user ID, if available."""
 
     user_name: str | None
     """The authenticated user's name, if available."""
@@ -356,7 +356,7 @@ class SyncJobResult(BaseModel):
     start_time: str
     """ISO 8601 timestamp of when the job started."""
     job_url: str
-    """URL to view the job in Airbyte Cloud."""
+    """URL to view the job in the cloud."""
 
 
 class ConnectorCheckResult(BaseModel):
@@ -473,7 +473,7 @@ def deploy_source_to_cloud(
         ),
     ],
 ) -> str:
-    """Deploy a source connector to Airbyte Cloud."""
+    """Deploy a source connector to the cloud."""
     source = get_source(
         source_connector_name,
         no_executor=True,
@@ -543,7 +543,7 @@ def deploy_destination_to_cloud(
         ),
     ],
 ) -> str:
-    """Deploy a destination connector to Airbyte Cloud."""
+    """Deploy a destination connector to the cloud."""
     destination = get_destination(
         destination_connector_name,
         no_executor=True,
@@ -613,7 +613,7 @@ def create_connection_on_cloud(
         ),
     ],
 ) -> str:
-    """Create a connection between a deployed source and destination on Airbyte Cloud."""
+    """Create a connection between a deployed source and destination on the cloud."""
     resolved_streams_list: list[str] = resolve_list_of_strings(selected_streams)
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     deployed_connection = workspace.deploy_connection(
@@ -640,7 +640,7 @@ def run_cloud_sync(
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection."),
+        Field(description="The ID of the cloud connection."),
     ],
     *,
     workspace_id: Annotated[
@@ -669,7 +669,7 @@ def run_cloud_sync(
         ),
     ],
 ) -> str:
-    """Run a sync job on Airbyte Cloud."""
+    """Run a sync job on the cloud."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     connection = workspace.get_connection(connection_id=connection_id)
     sync_result = connection.run_sync(wait=wait, wait_timeout=wait_timeout)
@@ -701,7 +701,7 @@ def check_datarheo_cloud_workspace(
         ),
     ],
 ) -> CloudWorkspaceResult:
-    """Check if we have a valid Airbyte Cloud connection and return workspace info.
+    """Check if we have a valid the cloud connection and return workspace info.
 
     Returns workspace details including workspace ID, name, organization info, and billing status.
     """
@@ -754,7 +754,7 @@ def deploy_noop_destination_to_cloud(
     ],
     unique: bool = True,
 ) -> str:
-    """Deploy the No-op destination to Airbyte Cloud for testing purposes."""
+    """Deploy the No-op destination to the cloud for testing purposes."""
     destination = get_noop_destination()
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     deployed_destination = workspace.deploy_destination(
@@ -781,7 +781,7 @@ def get_cloud_sync_status(
     connection_id: Annotated[
         str,
         Field(
-            description="The ID of the Airbyte Cloud connection.",
+            description="The ID of the cloud connection.",
         ),
     ],
     job_id: Annotated[
@@ -807,7 +807,7 @@ def get_cloud_sync_status(
         ),
     ],
 ) -> dict[str, Any]:
-    """Get the status of a sync job from the Airbyte Cloud."""
+    """Get the status of a sync job from the cloud."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     connection = workspace.get_connection(connection_id=connection_id)
 
@@ -854,7 +854,7 @@ def list_cloud_sync_jobs(
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection."),
+        Field(description="The ID of the cloud connection."),
     ],
     *,
     workspace_id: Annotated[
@@ -947,7 +947,7 @@ def cancel_cloud_sync(
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection."),
+        Field(description="The ID of the cloud connection."),
     ],
     job_id: Annotated[
         int | None,
@@ -968,7 +968,7 @@ def cancel_cloud_sync(
         ),
     ],
 ) -> SyncJobResult:
-    """Cancel a running sync job on an Airbyte Cloud connection."""
+    """Cancel a running sync job on a cloud connection."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     connection = workspace.get_connection(connection_id=connection_id)
     # Deliberately omit check_guid_created_in_session: cancelling a sync is reversible.
@@ -1014,7 +1014,7 @@ def list_deployed_cloud_source_connectors(
         ),
     ],
 ) -> list[CloudSourceResult]:
-    """List all deployed source connectors in the Airbyte Cloud workspace."""
+    """List all deployed source connectors in the cloud workspace."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     sources = workspace.list_sources(limit=None if name_contains else limit)
 
@@ -1067,7 +1067,7 @@ def list_deployed_cloud_destination_connectors(
         ),
     ],
 ) -> list[CloudDestinationResult]:
-    """List all deployed destination connectors in the Airbyte Cloud workspace."""
+    """List all deployed destination connectors in the cloud workspace."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     destinations = workspace.list_destinations(limit=None if name_contains else limit)
 
@@ -1273,7 +1273,7 @@ def get_cloud_sync_logs(
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection."),
+        Field(description="The ID of the cloud connection."),
     ],
     job_id: Annotated[
         int | None,
@@ -1326,7 +1326,7 @@ def get_cloud_sync_logs(
         ),
     ],
 ) -> LogReadResult:
-    """Get the logs from a sync job attempt on Airbyte Cloud."""
+    """Get the logs from a sync job attempt on the cloud."""
     # Validate that line_offset and from_tail are not both set
     if line_offset is not None and from_tail:
         raise DataRheoInputError(
@@ -1456,7 +1456,7 @@ def list_deployed_cloud_connections(
         ),
     ],
 ) -> list[CloudConnectionResult]:
-    """List all deployed connections in the Airbyte Cloud workspace.
+    """List all deployed connections in the cloud workspace.
 
     When with_connection_status is True, each connection result will include
     information about the most recent sync job status, skipping over any
@@ -1704,7 +1704,7 @@ def list_cloud_organizations(
         ),
     ] = None,
 ) -> CloudOrganizationListResult:
-    """List organizations visible to the authenticated Airbyte Cloud credentials."""
+    """List organizations visible to the authenticated the cloud credentials."""
     effective_limit = 100 if limit is None else limit
     try:
         organizations = _get_cloud_client(ctx).list_organizations(
@@ -1885,7 +1885,7 @@ def publish_custom_source_definition(
         ),
     ],
 ) -> str:
-    """Publish a custom YAML source connector definition to Airbyte Cloud.
+    """Publish a custom YAML source connector definition to the cloud.
 
     Note: Only YAML (declarative) connectors are currently supported.
     Docker-based custom sources are not yet available.
@@ -1939,7 +1939,7 @@ def list_custom_source_definitions(
         ),
     ],
 ) -> list[dict[str, Any]]:
-    """List custom YAML source definitions in the Airbyte Cloud workspace.
+    """List custom YAML source definitions in the cloud workspace.
 
     Note: Only YAML (declarative) connectors are currently supported.
     Docker-based custom sources are not yet available.
@@ -1991,7 +1991,7 @@ def get_custom_source_definition(
         ),
     ] = False,
 ) -> dict[str, Any]:
-    """Get a custom YAML source definition from Airbyte Cloud, including its manifest.
+    """Get a custom YAML source definition from the cloud, including its manifest.
 
     Returns the full definition details including the published manifest YAML content.
     Optionally includes the Connector Builder draft manifest (unpublished changes)
@@ -2131,7 +2131,7 @@ def update_custom_source_definition(
         ),
     ],
 ) -> str:
-    """Update a custom YAML source definition in Airbyte Cloud.
+    """Update a custom YAML source definition in the cloud.
 
     Updates the manifest and/or testing values for an existing custom source definition.
     At least one of manifest_yaml, testing_values, or testing_values_secret_name must be provided.
@@ -2213,7 +2213,7 @@ def permanently_delete_custom_source_definition(
         ),
     ],
 ) -> str:
-    """Permanently delete a custom YAML source definition from Airbyte Cloud.
+    """Permanently delete a custom YAML source definition from the cloud.
 
     IMPORTANT: This operation requires the connector name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -2273,7 +2273,7 @@ def permanently_delete_cloud_source(
         Field(description="The expected name of the source (for verification)."),
     ],
 ) -> str:
-    """Permanently delete a deployed source connector from Airbyte Cloud.
+    """Permanently delete a deployed source connector from the cloud.
 
     IMPORTANT: This operation requires the source name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -2329,7 +2329,7 @@ def permanently_delete_cloud_destination(
         Field(description="The expected name of the destination (for verification)."),
     ],
 ) -> str:
-    """Permanently delete a deployed destination connector from Airbyte Cloud.
+    """Permanently delete a deployed destination connector from the cloud.
 
     IMPORTANT: This operation requires the destination name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -2404,7 +2404,7 @@ def permanently_delete_cloud_connection(
         ),
     ] = False,
 ) -> str:
-    """Permanently delete a connection from Airbyte Cloud.
+    """Permanently delete a connection from the cloud.
 
     IMPORTANT: This operation requires the connection name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -2469,7 +2469,7 @@ def rename_cloud_source(
         ),
     ],
 ) -> str:
-    """Rename a deployed source connector on Airbyte Cloud."""
+    """Rename a deployed source connector on the cloud."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     source = workspace.get_source(source_id=source_id)
     source.rename(name=name)
@@ -2509,7 +2509,7 @@ def update_cloud_source_config(
         ),
     ],
 ) -> str:
-    """Update a deployed source connector's configuration on Airbyte Cloud.
+    """Update a deployed source connector's configuration on the cloud.
 
     This is a destructive operation that can break existing connections if the
     configuration is changed incorrectly. Use with caution.
@@ -2551,7 +2551,7 @@ def rename_cloud_destination(
         ),
     ],
 ) -> str:
-    """Rename a deployed destination connector on Airbyte Cloud."""
+    """Rename a deployed destination connector on the cloud."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     destination = workspace.get_destination(destination_id=destination_id)
     destination.rename(name=name)
@@ -2594,7 +2594,7 @@ def update_cloud_destination_config(
         ),
     ],
 ) -> str:
-    """Update a deployed destination connector's configuration on Airbyte Cloud.
+    """Update a deployed destination connector's configuration on the cloud.
 
     This is a destructive operation that can break existing connections if the
     configuration is changed incorrectly. Use with caution.
@@ -2636,7 +2636,7 @@ def rename_cloud_connection(
         ),
     ],
 ) -> str:
-    """Rename a connection on Airbyte Cloud."""
+    """Rename a connection on the cloud."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     connection = workspace.get_connection(connection_id=connection_id)
     connection.rename(name=name)
@@ -2670,7 +2670,7 @@ def set_cloud_connection_table_prefix(
         ),
     ],
 ) -> str:
-    """Set the table prefix for a connection on Airbyte Cloud.
+    """Set the table prefix for a connection on the cloud.
 
     This is a destructive operation that can break downstream dependencies if the
     table prefix is changed incorrectly. Use with caution.
@@ -2714,7 +2714,7 @@ def set_cloud_connection_selected_streams(
         ),
     ],
 ) -> str:
-    """Set the selected streams for a connection on Airbyte Cloud.
+    """Set the selected streams for a connection on the cloud.
 
     This is a destructive operation that can break existing connections if the
     stream selection is changed incorrectly. Use with caution.
@@ -2789,7 +2789,7 @@ def update_cloud_connection(
         ),
     ],
 ) -> str:
-    """Update a connection's settings on Airbyte Cloud.
+    """Update a connection's settings on the cloud.
 
     This tool allows updating multiple connection settings in a single call:
     - Enable or disable the connection
@@ -2852,7 +2852,7 @@ def get_connection_artifact(
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection."),
+        Field(description="The ID of the cloud connection."),
     ],
     artifact_type: Annotated[
         Literal["state", "catalog"],
@@ -2867,9 +2867,9 @@ def get_connection_artifact(
         ),
     ],
 ) -> dict[str, Any] | list[dict[str, Any]]:
-    """Get a connection artifact (state or catalog) from Airbyte Cloud.
+    """Get a connection artifact (state or catalog) from the cloud.
 
-    By default, returns artifacts in Airbyte protocol format (snake_case,
+    By default, returns artifacts in connector protocol format (snake_case,
     suitable for passing to connector CLI flags like `--state` or `--catalog`).
 
     Retrieves the specified artifact for a connection:

@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte Agents workspaces.
+"""Agents workspaces.
 
 > ## ⚠️ Experimental Interface
 >
-> **The Airbyte Agents Python interfaces are experimental.** Class names, method signatures,
+> **The Agents Python interfaces are experimental.** Class names, method signatures,
 > and result models may change or be removed without notice between minor versions of
 > PyDataRheo. Pin an exact PyDataRheo version if you depend on them.
 """
@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 
 
 class AgentWorkspace:
-    """A workspace on the Airbyte Agents platform.
+    """A workspace on the Agents platform.
 
-    Airbyte Cloud credentials authenticate against the Agents API, so this class reads the
+    the cloud credentials authenticate against the Agents API, so this class reads the
     same `DATARHEO_CLOUD_*` environment variables as `datarheo.cloud.CloudWorkspace`.
 
     ```python
@@ -224,7 +224,7 @@ class AgentWorkspace:
         """Return a Cloud workspace as an `AgentWorkspace`.
 
         Cloud workspace IDs are also Agents workspace IDs, but not every Cloud workspace is
-        reachable through the Agents API: the organization needs an Airbyte Agents
+        reachable through the Agents API: the organization needs an Agents
         subscription. By default this is verified by fetching the workspace from the Agents
         API, which raises `DataRheoCloudError` when it is not eligible. Pass `verify=False` to
         skip that call.

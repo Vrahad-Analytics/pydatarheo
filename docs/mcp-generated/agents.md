@@ -12,20 +12,20 @@ MCP primitives registered by the `agents` module of the `datarheo-mcp` server: *
 
 **Availability:** experimental, insiders only (`DATARHEO_MCP_INSIDERS=1` for stdio, `X-MCP-Insiders: 1` for hosted servers, or name the module in the include-modules setting; `DATARHEO_MCP_INSIDERS=0` disables it regardless).
 
-Execute a single action against an Airbyte Agents connector, including writes.
+Execute a single action against an Agents connector, including writes.
 
     Prefer `execute_agent_connector_ro` when only reading, since it is available in
     read-only mode. Entity types and actions are connector-specific, so call
     `inspect_agent_connector` first. The connector must belong to the given workspace.
     
 
-The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
+The Agents API authenticates with cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
 
 #### Parameters
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connector_id` | `string` | yes | — | The ID of the Airbyte Agents connector. |
+| `connector_id` | `string` | yes | — | The ID of the Agents connector. |
 | `entity_type` | `string` | yes | — | The type of entity to act on, for example 'issues'. Call `inspect_agent_connector` to see the entity types a connector supports. |
 | `action` | `enum("list", "get", "search", "api_search", "sql_select", "create", "update", "delete")` | yes | — | The action to run against the entity type. For `sql_select`, pass `sql` and `sql_dialect` (snowflake, bigquery, athena, trino) in `api_args` and any value for `entity_type`. |
 | `api_args` | `object \| string \| null` | no | `null` | Connector-specific arguments for the action, as an object or a JSON object string. For example {'repository': 'Vrahad-Analytics/pydatarheo'}. |
@@ -46,7 +46,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
   "additionalProperties": false,
   "properties": {
     "connector_id": {
-      "description": "The ID of the Airbyte Agents connector.",
+      "description": "The ID of the Agents connector.",
       "type": "string"
     },
     "entity_type": {
@@ -208,7 +208,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 ```json
 {
-  "description": "Result of executing a single action against an Airbyte Agents connector.",
+  "description": "Result of executing a single action against an Agents connector.",
   "properties": {
     "status": {
       "type": "string"
@@ -284,7 +284,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 **Availability:** experimental, insiders only (`DATARHEO_MCP_INSIDERS=1` for stdio, `X-MCP-Insiders: 1` for hosted servers, or name the module in the include-modules setting; `DATARHEO_MCP_INSIDERS=0` disables it regardless).
 
-Read data from an Airbyte Agents connector, without modifying anything.
+Read data from an Agents connector, without modifying anything.
 
     This tool only accepts read actions, so it stays available in read-only mode. Use
     `execute_agent_connector` for actions that create, update, or delete data. Entity types
@@ -292,13 +292,13 @@ Read data from an Airbyte Agents connector, without modifying anything.
     belong to the given workspace.
     
 
-The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
+The Agents API authenticates with cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
 
 #### Parameters
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connector_id` | `string` | yes | — | The ID of the Airbyte Agents connector. |
+| `connector_id` | `string` | yes | — | The ID of the Agents connector. |
 | `entity_type` | `string` | yes | — | The type of entity to act on, for example 'issues'. Call `inspect_agent_connector` to see the entity types a connector supports. |
 | `action` | `enum("list", "get", "search", "api_search", "sql_select")` | yes | — | The read action to run against the entity type. For `sql_select`, pass `sql` and `sql_dialect` (snowflake, bigquery, athena, trino) in `api_args` and any value for `entity_type`. |
 | `api_args` | `object \| string \| null` | no | `null` | Connector-specific arguments for the action, as an object or a JSON object string. For example {'repository': 'Vrahad-Analytics/pydatarheo'}. |
@@ -318,7 +318,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
   "additionalProperties": false,
   "properties": {
     "connector_id": {
-      "description": "The ID of the Airbyte Agents connector.",
+      "description": "The ID of the Agents connector.",
       "type": "string"
     },
     "entity_type": {
@@ -465,7 +465,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 ```json
 {
-  "description": "Result of executing a single action against an Airbyte Agents connector.",
+  "description": "Result of executing a single action against an Agents connector.",
   "properties": {
     "status": {
       "type": "string"
@@ -541,19 +541,19 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 **Availability:** experimental, insiders only (`DATARHEO_MCP_INSIDERS=1` for stdio, `X-MCP-Insiders: 1` for hosted servers, or name the module in the include-modules setting; `DATARHEO_MCP_INSIDERS=0` disables it regardless).
 
-Inspect an Airbyte Agents connector: metadata, readiness, warnings, and `docs_skill_id`.
+Inspect an Agents connector: metadata, readiness, warnings, and `docs_skill_id`.
 
     Call this before `execute_agent_connector` to learn what the connector exposes. The
     connector must belong to the given workspace.
     
 
-The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
+The Agents API authenticates with cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
 
 #### Parameters
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connector_id` | `string` | yes | — | The ID of the Airbyte Agents connector. |
+| `connector_id` | `string` | yes | — | The ID of the Agents connector. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 | `organization_id` | `string \| null` | no | `null` | Organization ID. Omit it when the credentials belong to exactly one organization, or when it is already configured via the `X-DataRheo-Organization-Id` header or the `DATARHEO_CLOUD_ORGANIZATION_ID` environment variable. To discover organization IDs, call `list_agent_workspaces`, which reports the owning organization of each workspace, or `list_cloud_organizations` to search organizations by name. |
 
@@ -565,7 +565,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
   "additionalProperties": false,
   "properties": {
     "connector_id": {
-      "description": "The ID of the Airbyte Agents connector.",
+      "description": "The ID of the Agents connector.",
       "type": "string"
     },
     "workspace_id": {
@@ -607,7 +607,7 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 ```json
 {
-  "description": "Details about a single Airbyte Agents connector.",
+  "description": "Details about a single Agents connector.",
   "properties": {
     "connector_id": {
       "type": "string"
@@ -699,9 +699,9 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 **Availability:** experimental, insiders only (`DATARHEO_MCP_INSIDERS=1` for stdio, `X-MCP-Insiders: 1` for hosted servers, or name the module in the include-modules setting; `DATARHEO_MCP_INSIDERS=0` disables it regardless).
 
-List the connectors configured in an Airbyte Agents workspace.
+List the connectors configured in an Agents workspace.
 
-The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
+The Agents API authenticates with cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
 
 #### Parameters
 
@@ -753,11 +753,11 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 ```json
 {
-  "description": "Result of listing connectors in an Airbyte Agents workspace.",
+  "description": "Result of listing connectors in an Agents workspace.",
   "properties": {
     "connectors": {
       "items": {
-        "description": "Information about a connector configured on the Airbyte Agents platform.",
+        "description": "Information about a connector configured on the Agents platform.",
         "properties": {
           "connector_id": {
             "type": "string"
@@ -810,9 +810,9 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 **Availability:** experimental, insiders only (`DATARHEO_MCP_INSIDERS=1` for stdio, `X-MCP-Insiders: 1` for hosted servers, or name the module in the include-modules setting; `DATARHEO_MCP_INSIDERS=0` disables it regardless).
 
-List the workspaces reachable through the Airbyte Agents API.
+List the workspaces reachable through the Agents API.
 
-The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
+The Agents API authenticates with cloud credentials. When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. Call `list_agent_connectors` to discover connector IDs, then `inspect_agent_connector` to learn which entities a connector supports, before calling `execute_agent_connector`.
 
 #### Parameters
 
@@ -851,11 +851,11 @@ The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connec
 
 ```json
 {
-  "description": "Result of listing workspaces on the Airbyte Agents platform.",
+  "description": "Result of listing workspaces on the Agents platform.",
   "properties": {
     "workspaces": {
       "items": {
-        "description": "Information about a workspace on the Airbyte Agents platform.",
+        "description": "Information about a workspace on the Agents platform.",
         "properties": {
           "workspace_id": {
             "type": "string"

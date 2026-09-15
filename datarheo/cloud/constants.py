@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Useful constants for working with Airbyte Cloud features in PyDataRheo."""
+"""Useful constants for working with the cloud features in PyDataRheo."""
 
 from __future__ import annotations
 
@@ -22,4 +22,4 @@ READABLE_DESTINATION_TYPES: set[str] = {
     "bigquery",
     "snowflake",
 }
-"""List of Airbyte Cloud destinations that PyDataRheo is able to read from."""
+"""List of the cloud destinations that PyDataRheo is able to read from."""

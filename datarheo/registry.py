@@ -470,7 +470,7 @@ def _extract_docs_from_registry(connector_name: str) -> list[ApiDocsUrl]:
     if connector_entry and "documentationUrl" in connector_entry:
         docs_urls.append(
             ApiDocsUrl(
-                title="Airbyte Documentation",
+                title="Connector Documentation",
                 url=connector_entry["documentationUrl"],
                 source="registry",
             )

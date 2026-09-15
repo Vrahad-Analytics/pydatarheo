@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte Agents organizations.
+"""Agents organizations.
 
 > ## ⚠️ Experimental Interface
 >
-> **The Airbyte Agents Python interfaces are experimental.** Class names, method signatures,
+> **The Agents Python interfaces are experimental.** Class names, method signatures,
 > and result models may change or be removed without notice between minor versions of
 > PyDataRheo. Pin an exact PyDataRheo version if you depend on them.
 """
@@ -73,7 +73,7 @@ def _resolve_workspace_lookup(
 
 
 class AgentOrganization:
-    """An organization on the Airbyte Agents platform.
+    """An organization on the Agents platform.
 
     ```python
     from datarheo import agents
@@ -217,7 +217,7 @@ class AgentOrganization:
         """Return a Cloud organization as an `AgentOrganization`.
 
         Whether the organization can actually execute connector actions depends on its
-        Airbyte Agents subscription, which is only knowable per workspace. Use
+        Agents subscription, which is only knowable per workspace. Use
         `AgentWorkspace.from_cloud_workspace()` for an authoritative eligibility check.
 
         Raises `DataRheoInputError` when the Cloud organization uses non-public Cloud API

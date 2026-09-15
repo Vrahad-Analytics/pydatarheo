@@ -342,7 +342,7 @@ class SourceSmokeTest(Source):
         status: AirbyteStreamStatus,
         namespace: str | None = None,
     ) -> AirbyteMessage:
-        """Build an AirbyteMessage containing a stream status trace."""
+        """Build aMessage containing a stream status trace."""
         return AirbyteMessage(
             type=Type.TRACE,
             trace=AirbyteTraceMessage(

@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Secret hydration for Airbyte connectors."""
+"""Secret hydration for connectors."""
 
 from collections.abc import Iterator
 from copy import deepcopy

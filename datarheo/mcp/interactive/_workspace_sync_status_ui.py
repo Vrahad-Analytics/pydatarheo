@@ -76,7 +76,7 @@ _STATUS_PIE_STYLE_BY_STATUS = {
 
 @dataclass
 class WorkspaceConnectionSyncStatus:
-    """Workspace-level sync status summary for one Airbyte Cloud connection."""
+    """Workspace-level sync status summary for one cloud connection."""
 
     connection_id: str
     connection_name: str
@@ -189,7 +189,7 @@ def show_workspace_sync_status(
         ),
     ] = False,
 ) -> ToolResult:
-    """Show an interactive sync status dashboard for an Airbyte Cloud workspace."""
+    """Show an interactive sync status dashboard for a cloud workspace."""
     workspace: CloudWorkspace = _get_cloud_workspace(ctx, workspace_id)
     connections = workspace.list_connections(limit=max_connections)
     now = datetime.now(tz=timezone.utc)
@@ -454,7 +454,7 @@ def _build_workspace_sync_status_app(
     ):
         Heading("Workspace sync status")
         Text(
-            "Overview of recent Airbyte Cloud sync health across workspace connections. "
+            "Overview of recent cloud sync health across workspace connections. "
             "Click a row for drill-down options.",
             css_class="text-sm text-muted-foreground",
         )

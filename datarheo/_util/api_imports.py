@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Imported classes from the Airbyte API.
+"""Imported classes from the cloud API.
 
-Any classes that are imported from the Airbyte API should be imported here.
+Any classes that are imported from the cloud API should be imported here.
 This allows for easy access to these classes in other modules, especially
 for type hinting purposes.
 

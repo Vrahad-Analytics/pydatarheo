@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Response models for the Airbyte Agents API.
+"""Response models for the Agents API.
 
 > ## ⚠️ Experimental Interface
 >
-> **The Airbyte Agents Python interfaces are experimental.** Class names, method signatures,
+> **The Agents Python interfaces are experimental.** Class names, method signatures,
 > and result models may change or be removed without notice between minor versions of
 > PyDataRheo. Pin an exact PyDataRheo version if you depend on them.
 
@@ -51,7 +51,7 @@ class AgentConnectorInfo(BaseModel):
 
 
 class AgentContextStoreEntity(BaseModel):
-    """An entity that a connector supports caching in the Airbyte Context Store."""
+    """An entity that a connector supports caching in the Context Store."""
 
     model_config = ConfigDict(extra="allow")
 
@@ -59,7 +59,7 @@ class AgentContextStoreEntity(BaseModel):
     """The entity name, for example `issues`."""
 
     suggested: bool | None = None
-    """Whether Airbyte suggests caching this entity."""
+    """Whether the platform suggests caching this entity."""
 
 
 class AgentContextStoreReadiness(BaseModel):
@@ -92,10 +92,10 @@ class AgentConnectorDetails(BaseModel):
     """The ID of the organization the connector belongs to."""
 
     source_definition_id: str | None = None
-    """The ID of the underlying Airbyte source definition."""
+    """The ID of the underlying source definition."""
 
     source_definition_name: str | None = None
-    """The name of the underlying Airbyte source definition, for example `GitHub`."""
+    """The name of the underlying source definition, for example `GitHub`."""
 
     docs_skill_id: str | None = None
     """Skill ID to pass to `read_skill_docs` for this connector's usage docs."""
@@ -147,7 +147,7 @@ class AgentConnectorMetadata(BaseModel):
 
 
 class AgentExecuteResult(BaseModel):
-    """The result of executing a single action against an Airbyte Agents connector."""
+    """The result of executing a single action against an Agents connector."""
 
     model_config = ConfigDict(extra="allow")
 

@@ -7,7 +7,7 @@ r"""***DataRheo MCP Server - Model Context Protocol Integration***
 > versions of PyDataRheo. The API may be modified or entirely refactored in future versions.
 
 The DataRheo MCP (Model Context Protocol) server provides a standardized interface
-for managing Airbyte connectors through MCP-compatible clients. This PyDataRheo-powered
+for managing registry connectors through MCP-compatible clients. This PyDataRheo-powered
 experimental feature allows you to list connectors, validate configurations, and run sync
 operations using the MCP protocol.
 
@@ -22,8 +22,8 @@ To get started with the DataRheo MCP server, follow these steps:
 ### Step 1: Generate a Dotenv Secrets File
 
 To get started with the DataRheo MCP server, you will need to create a dotenv
-file containing your Airbyte Cloud credentials, as well as credentials for any
-third-party services you wish to connect to via Airbyte.
+file containing your cloud credentials, as well as credentials for any
+third-party services you wish to connect to.
 
 Create a file named `~/.mcp/datarheo_mcp.env` with the following content:
 
@@ -31,7 +31,7 @@ Create a file named `~/.mcp/datarheo_mcp.env` with the following content:
 # DataRheo Project Artifacts Directory
 DATARHEO_PROJECT_DIR=/path/to/any/writeable/project-dir
 
-# Airbyte Cloud Credentials (Required for Airbyte Cloud Operations)
+# the cloud Credentials (Required for the cloud Operations)
 DATARHEO_CLOUD_CLIENT_ID=your_api_key
 DATARHEO_CLOUD_CLIENT_SECRET=your_api_secret
 DATARHEO_CLOUD_WORKSPACE_ID=your_workspace_id
@@ -71,7 +71,7 @@ with the following content. This uses `uvx` (from `brew install uv`) to run the 
 server. If a matching version Python is not yet installed, a `uv`-managed Python
 version will be installed automatically. This will also auto-update to use the
 "latest" DataRheo MCP release at time of launch. You can alternatively pin to a
-specific version of Python and/or of the Airbyte library if you have special
+specific version of Python and/or of the library if you have special
 requirements.
 
 ```json
@@ -104,21 +104,21 @@ You can test the MCP server connection using your MCP client.
 
 Helpful prompts to try:
 
-1. "Use your MCP tools to list all available Airbyte connectors."
-2. "Use your MCP tools to get information about the Airbyte Stripe connector."
+1. "Use your MCP tools to list all available connectors."
+2. "Use your MCP tools to get information about the Stripe connector."
 3. "Use your MCP tools to list all variables you have access to in the dotenv secrets
    file."
-4. "Use your MCP tools to check your connection to your Airbyte Cloud workspace."
-5. "Use your MCP tools to list all available destinations in my Airbyte Cloud workspace."
+4. "Use your MCP tools to check your connection to your the cloud workspace."
+5. "Use your MCP tools to list all available destinations in my the cloud workspace."
 
-## Airbyte Cloud MCP Server Safety
+## the cloud MCP Server Safety
 
 The DataRheo MCP server supports environment variables to control safety and access
-levels for Airbyte Cloud operations.
+levels for the cloud operations.
 
 **Important:** The below settings only affect Cloud operations; local operations are not affected.
 
-### Airbyte Cloud Safe Mode
+### the cloud Safe Mode
 
 Safe mode is enabled by default and is controlled by the `DATARHEO_CLOUD_MCP_SAFE_MODE` environment
 variable.
@@ -131,7 +131,7 @@ and are only allowed for objects created in the current session.
 
 Set the environment variable `DATARHEO_CLOUD_MCP_SAFE_MODE=0` to disable safe mode.
 
-### Airbyte Cloud Read-Only Mode
+### the cloud Read-Only Mode
 
 Read-only mode is not enabled by default and is controlled by the
 `DATARHEO_CLOUD_MCP_READONLY_MODE` environment variable.
@@ -140,7 +140,7 @@ When enabled, only read-only Cloud tools are available. Write and destructive op
 disabled.
 
 This mode does allow running syncs on existing connectors, since sync operations
-are not considered to be modifications of the Airbyte Cloud workspace.
+are not considered to be modifications of the cloud workspace.
 
 Set the environment variable `DATARHEO_CLOUD_MCP_READONLY_MODE=1` to enable read-only mode.
 
@@ -148,12 +148,12 @@ Set the environment variable `DATARHEO_CLOUD_MCP_READONLY_MODE=1` to enable read
 
 The steps above run the MCP server over **stdio** — the client launches the
 server process locally, so there is no transport-layer auth and the only
-credentials that matter are your Airbyte Cloud creds in the dotenv file.
+credentials that matter are your the cloud creds in the dotenv file.
 
 When the server is instead exposed over **HTTP** (`datarheo-mcp-http` /
 `poe mcp-serve-http`), transport auth verifies an `Authorization: Bearer
 <token>` on every request once it is configured. Auth is driven entirely by the
-`DATARHEO_MCP_*` env values a deployment sets — the hosted Airbyte Cloud MCP
+`DATARHEO_MCP_*` env values a deployment sets — the hosted the cloud MCP
 deployment supplies its realm's values, and a self-hosted deployment supplies
 its own. Two client shapes are supported on the same deployment (combined
 automatically when both are configured):
@@ -173,13 +173,13 @@ sends it as `Authorization: Bearer <token>`; the server verifies the signature
 (no browser, no stored/rotating refresh token).
 
 The server verifies tokens against whatever realm the deployment configures via
-the `DATARHEO_MCP_AUTH_*` env values below. Against the hosted Airbyte Cloud MCP
-(configured for Airbyte Cloud's application-client realm), the agent mints an
-Airbyte Cloud access token from its
+the `DATARHEO_MCP_AUTH_*` env values below. Against the hosted the cloud MCP
+(configured for the cloud's application-client realm), the agent mints an
+the cloud access token from its
 `DATARHEO_CLOUD_CLIENT_ID` / `DATARHEO_CLOUD_CLIENT_SECRET` (the
 `https://api.airbyte.com/v1/applications/token` endpoint) and sends it as the
 bearer. That single token both authenticates transport (verified by the server)
-and authorizes downstream Cloud API calls, because an Airbyte-Cloud-issued token
+and authorizes downstream Cloud API calls, because a-Cloud-issued token
 is itself a valid Cloud API bearer. Tokens are short-lived (~15 min), so
 re-mint on expiry / on a `401` rather than pinning a static token.
 
@@ -256,7 +256,7 @@ assembles the verifier(s) and reads no environment variables itself.
 
 ### Troubleshooting Local Connector Installation Issues
 
-The MCP server uses PyDataRheo under the hood to manage Airbyte connectors. PyDataRheo
+The MCP server uses PyDataRheo under the hood to manage connectors. PyDataRheo
 supports both Python-native connectors (installed via pip/uv) and Docker-based connectors
 (run in containers).
 

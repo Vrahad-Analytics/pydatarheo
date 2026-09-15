@@ -229,7 +229,7 @@ class DataRheoNoStreamsSelectedError(DataRheoInputError):
 
 @dataclass
 class DataRheoNoCloudCredentialsError(DataRheoInputError):
-    """No Airbyte credentials found."""
+    """No cloud credentials found."""
 
     guidance: str | None = None
     _allow_bearer: bool = True
@@ -533,7 +533,7 @@ class DataRheoSecretNotFoundError(DataRheoError):
     sources: list[str] | None = None
 
 
-# Airbyte API Errors
+# cloud API Errors
 
 
 class _WorkspaceWithUrl(Protocol):
@@ -551,7 +551,7 @@ class _WorkspaceWithUrl(Protocol):
 
 @dataclass
 class DataRheoCloudError(DataRheoError):
-    """An error occurred while communicating with the hosted Airbyte instance."""
+    """An error occurred while communicating with the hosted deployment."""
 
     response: DataRheoApiResponseDuckType | None = None
     """The API response from the failed request."""
@@ -570,7 +570,7 @@ class DataRheoCloudError(DataRheoError):
 
 @dataclass
 class DataRheoConnectionError(DataRheoCloudError):
-    """An connection error occurred while communicating with the hosted Airbyte instance."""
+    """An connection error occurred while communicating with the hosted deployment."""
 
     connection_id: str | None = None
     """The connection ID where the error occurred."""
@@ -608,7 +608,7 @@ class DataRheoConnectionError(DataRheoCloudError):
 
 @dataclass
 class DataRheoConnectionSyncError(DataRheoConnectionError):
-    """An error occurred while executing the remote Airbyte job."""
+    """An error occurred while executing the remote job."""
 
 
 @dataclass
@@ -650,7 +650,7 @@ class DataRheoWorkspaceNotEmptyError(DataRheoCloudError):
 
 @dataclass
 class DataRheoConnectionSyncTimeoutError(DataRheoConnectionSyncError):
-    """An timeout occurred while waiting for the remote Airbyte job to complete."""
+    """An timeout occurred while waiting for the remote job to complete."""
 
     timeout: int | None = None
     """The timeout in seconds that was reached."""

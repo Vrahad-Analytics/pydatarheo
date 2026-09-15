@@ -308,7 +308,7 @@ class SqlProcessorBase(abc.ABC):
         write_strategy: WriteStrategy = WriteStrategy.AUTO,
         progress_tracker: ProgressTracker,
     ) -> None:
-        """Process a stream of Airbyte messages.
+        """Process a stream of protocol messages.
 
         This method assumes that the catalog is already registered with the processor.
         """
@@ -515,7 +515,7 @@ class SqlProcessorBase(abc.ABC):
         self,
         table_name: str,
     ) -> None:
-        """Invalidate the the named table cache.
+        """Invalidate the named table cache.
 
         This should be called whenever the table schema is known to have changed.
         """

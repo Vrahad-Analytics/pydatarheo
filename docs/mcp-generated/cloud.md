@@ -10,7 +10,7 @@ MCP primitives registered by the `cloud` module of the `datarheo-mcp` server: **
 
 **Hints:** `destructive` · `open-world`
 
-Cancel a running sync job on an Airbyte Cloud connection.
+Cancel a running sync job on a cloud connection.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -18,7 +18,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `job_id` | `integer \| null` | no | `null` | Optional job ID to cancel. If not provided, the connection's most recent sync job will be cancelled. Other job types require an explicit job ID. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 
@@ -30,7 +30,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "job_id": {
@@ -299,7 +299,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-Check if we have a valid Airbyte Cloud connection and return workspace info.
+Check if we have a valid the cloud connection and return workspace info.
 
     Returns workspace details including workspace ID, name, organization info, and billing status.
     
@@ -343,7 +343,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Information about a workspace in Airbyte Cloud.",
+  "description": "Information about a workspace in the cloud.",
   "properties": {
     "workspace_id": {
       "type": "string"
@@ -427,7 +427,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Create a connection between a deployed source and destination on Airbyte Cloud.
+Create a connection between a deployed source and destination on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -539,7 +539,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Deploy a destination connector to Airbyte Cloud.
+Deploy a destination connector to the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -652,7 +652,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Deploy the No-op destination to Airbyte Cloud for testing purposes.
+Deploy the No-op destination to the cloud for testing purposes.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -725,7 +725,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Deploy a source connector to Airbyte Cloud.
+Deploy a source connector to the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -887,7 +887,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Detailed information about a deployed connection in Airbyte Cloud.",
+  "description": "Detailed information about a deployed connection in the cloud.",
   "properties": {
     "connection_id": {
       "type": "string"
@@ -999,7 +999,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Detailed information about a deployed destination connector in Airbyte Cloud.",
+  "description": "Detailed information about a deployed destination connector in the cloud.",
   "properties": {
     "destination_id": {
       "type": "string"
@@ -1092,7 +1092,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Information about an organization in Airbyte Cloud.",
+  "description": "Information about an organization in the cloud.",
   "properties": {
     "id": {
       "type": "string"
@@ -1210,7 +1210,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Detailed information about a deployed source connector in Airbyte Cloud.",
+  "description": "Detailed information about a deployed source connector in the cloud.",
   "properties": {
     "source_id": {
       "type": "string"
@@ -1243,7 +1243,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-Get the logs from a sync job attempt on Airbyte Cloud.
+Get the logs from a sync job attempt on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -1251,7 +1251,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `job_id` | `integer \| null` | no | `null` | Optional job ID. If not provided, the latest job will be used. |
 | `attempt_number` | `integer \| null` | no | `null` | Optional attempt number. If not provided, the latest attempt will be used. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
@@ -1267,7 +1267,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "job_id": {
@@ -1391,7 +1391,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-Get the status of a sync job from the Airbyte Cloud.
+Get the status of a sync job from the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -1399,7 +1399,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `job_id` | `integer \| null` | no | `null` | Optional job ID. If not provided, the latest job will be used. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 | `include_attempts` | `boolean` | no | `false` | Whether to include detailed attempts information. |
@@ -1412,7 +1412,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "job_id": {
@@ -1472,9 +1472,9 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-Get a connection artifact (state or catalog) from Airbyte Cloud.
+Get a connection artifact (state or catalog) from the cloud.
 
-    By default, returns artifacts in Airbyte protocol format (snake_case,
+    By default, returns artifacts in connector protocol format (snake_case,
     suitable for passing to connector CLI flags like `--state` or `--catalog`).
 
     Retrieves the specified artifact for a connection:
@@ -1490,7 +1490,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `artifact_type` | `enum("state", "catalog")` | yes | — | The type of artifact to retrieve: 'state' or 'catalog'. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 
@@ -1502,7 +1502,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "artifact_type": {
@@ -1642,7 +1642,7 @@ The published manifest is always included for comparison.
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-Get a custom YAML source definition from Airbyte Cloud, including its manifest.
+Get a custom YAML source definition from the cloud, including its manifest.
 
 Returns the full definition details including the published manifest YAML content.
 Optionally includes the Connector Builder draft manifest (unpublished changes)
@@ -1805,7 +1805,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
     },
     "member_organizations": {
       "items": {
-        "description": "Information about an Airbyte organization.",
+        "description": "Information about a organization.",
         "properties": {
           "organizationId": {
             "type": "string"
@@ -1831,7 +1831,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
     },
     "member_workspaces": {
       "items": {
-        "description": "Information about an Airbyte workspace.",
+        "description": "Information about a workspace.",
         "properties": {
           "workspaceId": {
             "type": "string"
@@ -1941,7 +1941,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-List organizations visible to the authenticated Airbyte Cloud credentials.
+List organizations visible to the authenticated the cloud credentials.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -1995,11 +1995,11 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Result of discovering organizations in Airbyte Cloud.",
+  "description": "Result of discovering organizations in the cloud.",
   "properties": {
     "organizations": {
       "items": {
-        "description": "Information about an organization in Airbyte Cloud.",
+        "description": "Information about an organization in the cloud.",
         "properties": {
           "id": {
             "type": "string"
@@ -2100,7 +2100,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 | `max_jobs` | `integer` | no | `20` | Maximum number of jobs to return. Defaults to 20 if not specified. Maximum allowed value is 500. |
 | `from_tail` | `boolean \| null` | no | `null` | When True, jobs are ordered newest-first (createdAt DESC). When False, jobs are ordered oldest-first (createdAt ASC). Defaults to True. |
@@ -2114,7 +2114,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "workspace_id": {
@@ -2149,7 +2149,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
     "job_type": {
       "anyOf": [
         {
-          "description": "Job type values for Airbyte Cloud jobs.",
+          "description": "Job type values for the cloud jobs.",
           "enum": [
             "sync",
             "reset",
@@ -2337,11 +2337,11 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
-  "description": "Result of discovering workspaces in Airbyte Cloud.",
+  "description": "Result of discovering workspaces in the cloud.",
   "properties": {
     "workspaces": {
       "items": {
-        "description": "Information about a workspace in Airbyte Cloud.",
+        "description": "Information about a workspace in the cloud.",
         "properties": {
           "workspace_id": {
             "type": "string"
@@ -2432,7 +2432,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
       "anyOf": [
         {
           "items": {
-            "description": "Information about an organization in Airbyte Cloud.",
+            "description": "Information about an organization in the cloud.",
             "properties": {
               "id": {
                 "type": "string"
@@ -2515,7 +2515,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-List custom YAML source definitions in the Airbyte Cloud workspace.
+List custom YAML source definitions in the cloud workspace.
 
 Note: Only YAML (declarative) connectors are currently supported.
 Docker-based custom sources are not yet available.
@@ -2583,7 +2583,7 @@ Docker-based custom sources are not yet available.
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-List all deployed connections in the Airbyte Cloud workspace.
+List all deployed connections in the cloud workspace.
 
     When with_connection_status is True, each connection result will include
     information about the most recent sync job status, skipping over any
@@ -2689,7 +2689,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "properties": {
     "result": {
       "items": {
-        "description": "Information about a deployed connection in Airbyte Cloud.",
+        "description": "Information about a deployed connection in the cloud.",
         "properties": {
           "id": {
             "type": "string"
@@ -2790,7 +2790,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-List all deployed destination connectors in the Airbyte Cloud workspace.
+List all deployed destination connectors in the cloud workspace.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -2861,7 +2861,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "properties": {
     "result": {
       "items": {
-        "description": "Information about a deployed destination connector in Airbyte Cloud.",
+        "description": "Information about a deployed destination connector in the cloud.",
         "properties": {
           "id": {
             "type": "string"
@@ -2899,7 +2899,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `read-only` · `idempotent` · `open-world`
 
-List all deployed source connectors in the Airbyte Cloud workspace.
+List all deployed source connectors in the cloud workspace.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -2970,7 +2970,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "properties": {
     "result": {
       "items": {
-        "description": "Information about a deployed source connector in Airbyte Cloud.",
+        "description": "Information about a deployed source connector in the cloud.",
         "properties": {
           "id": {
             "type": "string"
@@ -3008,7 +3008,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Permanently delete a connection from Airbyte Cloud.
+Permanently delete a connection from the cloud.
 
     IMPORTANT: This operation requires the connection name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -3095,7 +3095,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Permanently delete a deployed destination connector from Airbyte Cloud.
+Permanently delete a deployed destination connector from the cloud.
 
     IMPORTANT: This operation requires the destination name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -3170,7 +3170,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Permanently delete a deployed source connector from Airbyte Cloud.
+Permanently delete a deployed source connector from the cloud.
 
     IMPORTANT: This operation requires the source name to contain "delete-me" or "deleteme"
     (case insensitive).
@@ -3245,7 +3245,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Permanently delete a custom YAML source definition from Airbyte Cloud.
+Permanently delete a custom YAML source definition from the cloud.
 
 IMPORTANT: This operation requires the connector name to contain "delete-me" or "deleteme"
 (case insensitive).
@@ -3333,7 +3333,7 @@ Docker-based custom sources are not yet available.
 
 **Hints:** `open-world`
 
-Publish a custom YAML source connector definition to Airbyte Cloud.
+Publish a custom YAML source connector definition to the cloud.
 
     Note: Only YAML (declarative) connectors are currently supported.
     Docker-based custom sources are not yet available.
@@ -3467,7 +3467,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Rename a connection on Airbyte Cloud.
+Rename a connection on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -3544,7 +3544,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Rename a deployed destination connector on Airbyte Cloud.
+Rename a deployed destination connector on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -3621,7 +3621,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Rename a deployed source connector on Airbyte Cloud.
+Rename a deployed source connector on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -3698,7 +3698,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `open-world`
 
-Run a sync job on Airbyte Cloud.
+Run a sync job on the cloud.
 
 When connecting to a hosted MCP server, provide a bearer token via the `Authorization` header, or client credentials via the transport `Client-Id` and `Client-Secret` headers. When no workspace ID is provided, the authenticated user's default workspace (and its organization) is used automatically. Call `get_default_cloud_context` to inspect the resolved context. To discover other workspaces, call `list_cloud_workspaces` with an organization ID or broader privilege scope. Only call `list_cloud_organizations` when you need to search organizations by name, passing `name_contains`. For local or stdio connections, set the `DATARHEO_CLOUD_BEARER_TOKEN` environment variable, or both `DATARHEO_CLOUD_CLIENT_ID` and `DATARHEO_CLOUD_CLIENT_SECRET`. If discovery returns multiple candidates, ask the user to choose one; do not select automatically.
 
@@ -3706,7 +3706,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `connection_id` | `string` | yes | — | The ID of the Airbyte Cloud connection. |
+| `connection_id` | `string` | yes | — | The ID of the cloud connection. |
 | `workspace_id` | `string \| null` | no | `null` | Workspace ID. Hosted MCP connections pass it via the `X-DataRheo-Workspace-Id` header; local or stdio connections use the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable. |
 | `wait` | `boolean` | no | `false` | Whether to wait for the sync to complete. Since a sync can take between several minutes and several hours, this option is not recommended for most scenarios. |
 | `wait_timeout` | `integer` | no | `300` | Maximum time to wait for sync completion (seconds). |
@@ -3719,7 +3719,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
   "additionalProperties": false,
   "properties": {
     "connection_id": {
-      "description": "The ID of the Airbyte Cloud connection.",
+      "description": "The ID of the cloud connection.",
       "type": "string"
     },
     "workspace_id": {
@@ -3781,7 +3781,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Set the selected streams for a connection on Airbyte Cloud.
+Set the selected streams for a connection on the cloud.
 
     This is a destructive operation that can break existing connections if the
     stream selection is changed incorrectly. Use with caution.
@@ -3872,7 +3872,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Set the table prefix for a connection on Airbyte Cloud.
+Set the table prefix for a connection on the cloud.
 
     This is a destructive operation that can break downstream dependencies if the
     table prefix is changed incorrectly. Use with caution.
@@ -3953,7 +3953,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Update a connection's settings on Airbyte Cloud.
+Update a connection's settings on the cloud.
 
     This tool allows updating multiple connection settings in a single call:
     - Enable or disable the connection
@@ -4072,7 +4072,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Update a deployed destination connector's configuration on Airbyte Cloud.
+Update a deployed destination connector's configuration on the cloud.
 
     This is a destructive operation that can break existing connections if the
     configuration is changed incorrectly. Use with caution.
@@ -4174,7 +4174,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Update a deployed source connector's configuration on Airbyte Cloud.
+Update a deployed source connector's configuration on the cloud.
 
     This is a destructive operation that can break existing connections if the
     configuration is changed incorrectly. Use with caution.
@@ -4276,7 +4276,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 **Hints:** `destructive` · `open-world`
 
-Update a custom YAML source definition in Airbyte Cloud.
+Update a custom YAML source definition in the cloud.
 
 Updates the manifest and/or testing values for an existing custom source definition.
 At least one of manifest_yaml, testing_values, or testing_values_secret_name must be provided.

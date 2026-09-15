@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Message generator for Airbyte messages."""
+"""Message generator for protocol messages."""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def _new_stream_success_message(stream_name: str) -> AirbyteMessage:
 
 
 class AirbyteMessageIterator:
-    """Abstract base class for Airbyte message iterables.
+    """Abstract base class for protocol message iterables.
 
     This class behaves like Iterator[AirbyteMessage] but it can also be used
     as IO[str]. In the latter case, it will return the JSON string representation of

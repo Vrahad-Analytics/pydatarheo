@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""A set of duck-typed classes for working with the Airbyte API."""
+"""A set of duck-typed classes for working with the cloud API."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class DataRheoApiResponseDuckType(Protocol):
-    """Used for duck-typing various Airbyte API responses."""
+    """Used for duck-typing various API responses."""
 
     content_type: str
     r"""HTTP response content type for this operation"""

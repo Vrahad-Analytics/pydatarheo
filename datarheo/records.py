@@ -3,8 +3,8 @@
 
 ## Understanding record handling in PyDataRheo
 
-PyDataRheo models record handling after Airbyte's "Destination V2" ("Dv2") record handling. This
-includes the below implementation details.
+PyDataRheo models record handling after the open "Destination V2" ("Dv2") record-handling
+convention. This includes the below implementation details.
 
 ### Field Name Normalization
 
@@ -180,7 +180,7 @@ class StreamRecord(dict[str, Any]):
       retrieved when needed.
     - Because it is subclassed from `dict`, the `StreamRecord` class can be passed as a normal
       Python dictionary.
-    - In addition to the properties of the stream's records, the dictionary also stores the Airbyte
+    - In addition to the properties of the stream's records, the dictionary also stores the
       metadata columns: `_datarheo_raw_id`, `_datarheo_extracted_at`, and `_datarheo_meta`.
 
     This behavior mirrors how a case-aware, case-insensitive SQL database would handle column

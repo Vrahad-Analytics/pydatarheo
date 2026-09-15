@@ -85,7 +85,7 @@ def show_connection_sync_history(  # noqa: PLR0914
     ctx: Context,
     connection_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Cloud connection to show sync history for."),
+        Field(description="The ID of the cloud connection to show sync history for."),
     ],
     *,
     workspace_id: Annotated[
@@ -131,7 +131,7 @@ def show_connection_sync_history(  # noqa: PLR0914
         ),
     ] = False,
 ) -> ToolResult:
-    """Show interactive sync history dashboard for an Airbyte Cloud connection.
+    """Show interactive sync history dashboard for a cloud connection.
 
     Renders a rich UI with metrics (success rate, total records, total bytes),
     charts (success/fail by date, records over time, bytes over time), and

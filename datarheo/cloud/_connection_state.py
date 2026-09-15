@@ -111,7 +111,7 @@ class ConnectionStateResponse(BaseModel):
 def _normalize_state_to_protocol(
     raw_state: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """Convert a raw Config API state blob to Airbyte protocol state messages.
+    """Convert a raw Config API state blob to protocol state messages.
 
     Transforms the camelCase API format into a list of `AirbyteStateMessage` dicts
     with snake_case keys, suitable for passing to a connector's `--state` flag.
@@ -170,7 +170,7 @@ def _denormalize_protocol_state_to_api(
     protocol_messages: list[dict[str, Any]],
     connection_id: str,
 ) -> dict[str, Any]:
-    """Convert Airbyte protocol state messages back to Config API format.
+    """Convert protocol state messages back to Config API format.
 
     Reverses `_normalize_state_to_protocol`, producing a dict suitable for
     `import_raw_state()` / the Config API `create_or_update_safe` endpoint.

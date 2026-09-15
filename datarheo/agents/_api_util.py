@@ -1,10 +1,10 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Internal HTTP plumbing for the Airbyte Agents API.
+"""Internal HTTP plumbing for the Agents API.
 
 The Agents API is a distinct API surface from both the Public API and the Config API, and
 it is not covered by the `airbyte-api` SDK, so this module holds its raw HTTP calls.
 
-Airbyte Cloud credentials authenticate against the Agents API, so the public classes in
+cloud credentials authenticate against the Agents API, so the public classes in
 this package reuse the same credentials (and the same `DATARHEO_CLOUD_*` environment
 variables) used elsewhere in `datarheo.cloud`.
 """
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 _AGENTS_API_ROOT = "https://api.airbyte.ai/api/v1"
-"""The Airbyte Agents API root URL.
+"""The Agents API root URL.
 
 This is deliberately private and not configurable: the Agents API is a hosted Airbyte
 service with a single root, so there is nothing for callers to override.
@@ -97,7 +97,7 @@ def make_agents_api_request(
     params: dict[str, Any] | None = None,
     json: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Send a request to the Airbyte Agents API and return the parsed JSON response.
+    """Send a request to the Agents API and return the parsed JSON response.
 
     The `organization_id` is sent as the `X-Organization-Id` header, which the Agents API
     requires when the caller's credentials map to more than one organization.
@@ -176,7 +176,7 @@ def _error_guidance(*, response: requests.Response) -> str | None:
     if response.status_code == HTTPStatus.FORBIDDEN:
         return (
             "Authentication succeeded but access was denied. The organization may not have "
-            "an Airbyte Agents subscription."
+            "an Agents subscription."
         )
     if (
         response.status_code == HTTPStatus.BAD_REQUEST
@@ -195,7 +195,7 @@ def list_agent_workspaces(
     credentials: _AirbyteCredentials,
     organization_id: str | None = None,
 ) -> list[dict[str, Any]]:
-    """List the workspaces visible to the caller in the Airbyte Agents API."""
+    """List the workspaces visible to the caller in the Agents API."""
     response = make_agents_api_request(
         method="GET",
         path="/workspaces",
@@ -211,7 +211,7 @@ def get_agent_workspace(
     credentials: _AirbyteCredentials,
     organization_id: str | None = None,
 ) -> dict[str, Any]:
-    """Fetch a single workspace from the Airbyte Agents API.
+    """Fetch a single workspace from the Agents API.
 
     A successful response is authoritative proof that the workspace is reachable through
     the Agents API with these credentials.
@@ -230,7 +230,7 @@ def list_agent_connectors(
     credentials: _AirbyteCredentials,
     organization_id: str | None = None,
 ) -> list[dict[str, Any]]:
-    """List the connectors configured in an Airbyte Agents workspace."""
+    """List the connectors configured in an Agents workspace."""
     response = make_agents_api_request(
         method="GET",
         path="/integrations/connectors",
@@ -247,7 +247,7 @@ def inspect_agent_connector(
     credentials: _AirbyteCredentials,
     organization_id: str | None = None,
 ) -> dict[str, Any]:
-    """Return metadata for an Airbyte Agents connector."""
+    """Return metadata for an Agents connector."""
     return make_agents_api_request(
         method="GET",
         path=f"/integrations/connectors/{connector_id}/inspect",

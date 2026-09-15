@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Airbyte Agents MCP operations.
+"""Agents MCP operations.
 
 > ## ⚠️ Experimental Tools — Insiders Only
 >
-> **The Airbyte Agents MCP tools are experimental and hidden by default.** They are advertised
+> **The Agents MCP tools are experimental and hidden by default.** They are advertised
 > only when insiders mode is enabled (`DATARHEO_MCP_INSIDERS` for stdio servers, `X-MCP-Insiders`
 > for hosted servers) or when the include-modules setting explicitly names `agents`. Tool names,
 > arguments, and result shapes may change or be removed without notice between minor versions of
@@ -70,7 +70,7 @@ AgentAction = Literal[
 """Every connector action callable through the MCP layer, including writes."""
 
 AGENTS_AUTH_TIP_TEXT = (
-    f"The Airbyte Agents API authenticates with Airbyte Cloud credentials. When connecting "
+    f"The Agents API authenticates with cloud credentials. When connecting "
     f"to a hosted MCP server, provide a bearer token via the `{MCP_BEARER_TOKEN_HEADER}` "
     f"header, or client credentials via the transport `Client-Id` and `Client-Secret` "
     f"headers. For local or stdio connections, set the `{CLOUD_BEARER_TOKEN_ENV_VAR}` "
@@ -97,18 +97,18 @@ AGENTS_ACCESS_DENIED_STATUS = "access_denied"
 """The `status` reported when the Agents API refused the request."""
 
 AGENTS_UNAUTHORIZED_MESSAGE = (
-    "The Airbyte Agents API rejected these credentials. Verify the Airbyte Cloud "
+    "The Agents API rejected these credentials. Verify the cloud "
     "credentials, or ask the user for valid ones."
 )
 AGENTS_FORBIDDEN_MESSAGE = (
-    "The Airbyte Agents API authenticated these credentials but denied access. Either the "
-    "organization does not have an Airbyte Agents subscription, or these credentials lack "
+    "The Agents API authenticated these credentials but denied access. Either the "
+    "organization does not have an Agents subscription, or these credentials lack "
     "access to this workspace. Ask the user to confirm which applies rather than retrying."
 )
 
 
 class AgentWorkspaceResult(BaseModel):
-    """Information about a workspace on the Airbyte Agents platform."""
+    """Information about a workspace on the Agents platform."""
 
     workspace_id: str
     """The workspace ID."""
@@ -121,7 +121,7 @@ class AgentWorkspaceResult(BaseModel):
 
 
 class AgentWorkspaceListResult(BaseModel):
-    """Result of listing workspaces on the Airbyte Agents platform."""
+    """Result of listing workspaces on the Agents platform."""
 
     workspaces: list[AgentWorkspaceResult]
     """Workspaces reachable through the Agents API with these credentials."""
@@ -131,7 +131,7 @@ class AgentWorkspaceListResult(BaseModel):
 
 
 class AgentConnectorResult(BaseModel):
-    """Information about a connector configured on the Airbyte Agents platform."""
+    """Information about a connector configured on the Agents platform."""
 
     connector_id: str
     """The connector ID, used as `connector_id` in the other Agents tools."""
@@ -141,7 +141,7 @@ class AgentConnectorResult(BaseModel):
 
 
 class AgentConnectorListResult(BaseModel):
-    """Result of listing connectors in an Airbyte Agents workspace."""
+    """Result of listing connectors in an Agents workspace."""
 
     connectors: list[AgentConnectorResult]
     """Connectors configured in the workspace."""
@@ -151,7 +151,7 @@ class AgentConnectorListResult(BaseModel):
 
 
 class AgentConnectorDetailsResult(BaseModel):
-    """Details about a single Airbyte Agents connector."""
+    """Details about a single Agents connector."""
 
     connector_id: str
     """The connector ID."""
@@ -183,7 +183,7 @@ class AgentConnectorDetailsResult(BaseModel):
 
 
 class AgentExecuteToolResult(BaseModel):
-    """Result of executing a single action against an Airbyte Agents connector."""
+    """Result of executing a single action against an Agents connector."""
 
     status: str
     """The execution status reported by the Agents API, for example `success`."""
@@ -387,7 +387,7 @@ def list_agent_workspaces(
         ),
     ],
 ) -> AgentWorkspaceListResult:
-    """List the workspaces reachable through the Airbyte Agents API."""
+    """List the workspaces reachable through the Agents API."""
     organization = _get_agent_organization(ctx, organization_id)
     try:
         workspaces = organization.list_workspaces()
@@ -433,7 +433,7 @@ def list_agent_connectors(
         ),
     ],
 ) -> AgentConnectorListResult:
-    """List the connectors configured in an Airbyte Agents workspace."""
+    """List the connectors configured in an Agents workspace."""
     workspace = _get_agent_workspace(ctx, workspace_id, organization_id)
     try:
         connectors = workspace.list_connectors()
@@ -464,7 +464,7 @@ def inspect_agent_connector(
     ctx: Context,
     connector_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Agents connector."),
+        Field(description="The ID of the Agents connector."),
     ],
     *,
     workspace_id: Annotated[
@@ -482,7 +482,7 @@ def inspect_agent_connector(
         ),
     ],
 ) -> AgentConnectorDetailsResult:
-    """Inspect an Airbyte Agents connector: metadata, readiness, warnings, and `docs_skill_id`.
+    """Inspect an Agents connector: metadata, readiness, warnings, and `docs_skill_id`.
 
     Call this before `execute_agent_connector` to learn what the connector exposes. The
     connector must belong to the given workspace.
@@ -521,7 +521,7 @@ def execute_agent_connector_ro(  # noqa: PLR0913  # Explicit args are the point 
     ctx: Context,
     connector_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Agents connector."),
+        Field(description="The ID of the Agents connector."),
     ],
     entity_type: Annotated[
         str,
@@ -601,7 +601,7 @@ def execute_agent_connector_ro(  # noqa: PLR0913  # Explicit args are the point 
         ),
     ],
 ) -> AgentExecuteToolResult:
-    """Read data from an Airbyte Agents connector, without modifying anything.
+    """Read data from an Agents connector, without modifying anything.
 
     This tool only accepts read actions, so it stays available in read-only mode. Use
     `execute_agent_connector` for actions that create, update, or delete data. Entity types
@@ -633,7 +633,7 @@ def execute_agent_connector(  # noqa: PLR0913  # Explicit args are the point of 
     ctx: Context,
     connector_id: Annotated[
         str,
-        Field(description="The ID of the Airbyte Agents connector."),
+        Field(description="The ID of the Agents connector."),
     ],
     entity_type: Annotated[
         str,
@@ -723,7 +723,7 @@ def execute_agent_connector(  # noqa: PLR0913  # Explicit args are the point of 
         ),
     ],
 ) -> AgentExecuteToolResult:
-    """Execute a single action against an Airbyte Agents connector, including writes.
+    """Execute a single action against an Agents connector, including writes.
 
     Prefer `execute_agent_connector_ro` when only reading, since it is available in
     read-only mode. Entity types and actions are connector-specific, so call
@@ -747,7 +747,7 @@ def execute_agent_connector(  # noqa: PLR0913  # Explicit args are the point of 
 
 
 def register_agents_tools(app: FastMCP) -> None:
-    """Register the Airbyte Agents tools with the FastMCP app."""
+    """Register the Agents tools with the FastMCP app."""
     exclude_args = ["workspace_id"] if DATARHEO_CLOUD_WORKSPACE_ID_IS_SET else None
     if exclude_args:
         _add_defaults_for_exclude_args(exclude_args)

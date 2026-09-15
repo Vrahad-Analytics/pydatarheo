@@ -17,7 +17,7 @@ from sqlalchemy import text
 from typing_extensions import Self
 
 from datarheo import constants
-from datarheo._writers.base import AirbyteWriterInterface
+from datarheo._writers.base import DatarheoWriterInterface
 from datarheo.caches._catalog_backend import CatalogBackendBase, SqlCatalogBackend
 from datarheo.caches._state_backend import SqlStateBackend
 from datarheo.constants import DEFAULT_ARROW_MAX_CHUNK_SIZE, TEMP_FILE_CLEANUP
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from datarheo.strategies import WriteStrategy
 
 
-class CacheBase(SqlConfig, AirbyteWriterInterface):  # noqa: PLR0904
+class CacheBase(SqlConfig, DatarheoWriterInterface):  # noqa: PLR0904
     """Base configuration for a cache.
 
     Caches inherit from the matching `SqlConfig` class, which provides the SQL config settings

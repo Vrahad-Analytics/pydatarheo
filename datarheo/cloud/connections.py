@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 
 
 class CloudConnection:  # noqa: PLR0904  # Too many public methods
-    """A connection is an extract-load (EL) pairing of a source and destination in Airbyte Cloud.
+    """A connection is an extract-load (EL) pairing of a source and destination in the cloud.
 
     You can use a connection object to run sync jobs, retrieve logs, and manage the connection.
     """
@@ -489,7 +489,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """Dump the state for this connection.
 
-        By default, returns a list of Airbyte protocol `AirbyteStateMessage` dicts
+        By default, returns a list of connector protocol `AirbyteStateMessage` dicts
         with snake_case keys, suitable for passing to a connector's `--state` flag.
 
         When `normalize` is `False`, returns the raw Config API dict (camelCase keys,
@@ -497,7 +497,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
         directly to `import_raw_state()` for backup/restore workflows.
 
         Args:
-            normalize: If `True` (default), convert to Airbyte protocol format.
+            normalize: If `True` (default), convert to connector protocol format.
                 If `False`, return the raw Config API response.
 
         Returns:
@@ -535,11 +535,11 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
         Accepts either format:
 
         - **Config API format** (dict with `stateType`): passed through directly.
-        - **Airbyte protocol format** (list of `AirbyteStateMessage` dicts): automatically
+        - **connector protocol format** (list of `AirbyteStateMessage` dicts): automatically
           converted to Config API format before sending.
 
         Args:
-            connection_state: Connection state in either Config API or Airbyte protocol format.
+            connection_state: Connection state in either Config API or connector protocol format.
 
         Returns:
             The updated connection state as a dictionary.
@@ -552,7 +552,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
         if isinstance(connection_state, list):
             if not _is_protocol_state_format(connection_state):
                 msg = (
-                    "Expected connection_state list to contain Airbyte protocol state "
+                    "Expected connection_state list to contain protocol state "
                     "message dicts (each with a top-level `type` of STREAM, GLOBAL, "
                     "or LEGACY). Got a list that does not match protocol format."
                 )
@@ -744,7 +744,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
     ) -> dict[str, Any] | None:
         """Dump the configured catalog for this connection.
 
-        By default, returns the catalog in Airbyte protocol format
+        By default, returns the catalog in connector protocol format
         (`ConfiguredAirbyteCatalog` with snake_case keys), suitable for passing
         to a connector's `--catalog` flag.
 
@@ -753,7 +753,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
         passed directly to `import_raw_catalog()` for backup/restore workflows.
 
         Args:
-            normalize: If `True` (default), convert to Airbyte protocol format.
+            normalize: If `True` (default), convert to connector protocol format.
                 If `False`, return the raw Config API catalog.
 
         Returns:
@@ -787,7 +787,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
 
         - **Config API format** (`syncCatalog` with camelCase keys and nested `config`):
           passed through directly.
-        - **Airbyte protocol format** (`ConfiguredAirbyteCatalog` with snake_case keys):
+        - **connector protocol format** (`ConfiguredAirbyteCatalog` with snake_case keys):
           automatically converted to Config API format before sending.
 
         Args:

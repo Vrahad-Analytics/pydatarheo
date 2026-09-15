@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""Authentication-related constants and utilities for the Airbyte Cloud."""
+"""Authentication-related constants and utilities for the cloud."""
 
 from datarheo import constants
 from datarheo.secrets import SecretString
@@ -10,7 +10,7 @@ def resolve_cloud_bearer_token(
     input_value: str | SecretString | None = None,
     /,
 ) -> SecretString | None:
-    """Get the Airbyte Cloud bearer token from the environment.
+    """Get the cloud bearer token from the environment.
 
     Unlike other resolve functions, this returns None if no bearer token is found,
     since bearer token authentication is optional (client credentials can be used instead).
@@ -35,7 +35,7 @@ def resolve_cloud_client_secret(
     input_value: str | SecretString | None = None,
     /,
 ) -> SecretString:
-    """Get the Airbyte Cloud client secret from the environment."""
+    """Get the cloud client secret from the environment."""
     return get_secret(constants.CLOUD_CLIENT_SECRET_ENV_VAR, default=input_value)
 
 
@@ -43,7 +43,7 @@ def resolve_cloud_client_id(
     input_value: str | SecretString | None = None,
     /,
 ) -> SecretString:
-    """Get the Airbyte Cloud client ID from the environment."""
+    """Get the cloud client ID from the environment."""
     return get_secret(constants.CLOUD_CLIENT_ID_ENV_VAR, default=input_value)
 
 
@@ -51,7 +51,7 @@ def resolve_cloud_api_url(
     input_value: str | None = None,
     /,
 ) -> str:
-    """Get the Airbyte Cloud API URL from the environment, or return the default."""
+    """Get the cloud API URL from the environment, or return the default."""
     return str(
         try_get_secret(constants.CLOUD_API_ROOT_ENV_VAR, default=input_value)
         or constants.CLOUD_API_ROOT
@@ -62,7 +62,7 @@ def resolve_cloud_workspace_id(
     input_value: str | None = None,
     /,
 ) -> str:
-    """Get the Airbyte Cloud workspace ID from the environment, or return None if not set."""
+    """Get the cloud workspace ID from the environment, or return None if not set."""
     return str(get_secret(constants.CLOUD_WORKSPACE_ID_ENV_VAR, default=input_value))
 
 
@@ -70,7 +70,7 @@ def resolve_cloud_config_api_url(
     input_value: str | None = None,
     /,
 ) -> str | None:
-    """Get the Airbyte Cloud Config API URL from the environment, or return None if not set.
+    """Get the cloud Config API URL from the environment, or return None if not set.
 
     The Config API is a separate internal API used for certain operations like
     connector builder projects and custom source definitions.

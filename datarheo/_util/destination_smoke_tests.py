@@ -297,7 +297,7 @@ def _extract_trace_error_from_log(ex: Exception) -> str | None:
         return None
 
     for line in reversed(lines):
-        # TRACE messages are logged as JSON-serialised Airbyte messages.
+        # TRACE messages are logged as JSON-serialised protocol messages.
         # They may be prefixed by a timestamp; look for the JSON payload.
         json_start = line.find('{"type":"TRACE"')
         if json_start == -1:

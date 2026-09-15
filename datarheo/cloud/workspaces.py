@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
-"""PyDataRheo classes and methods for interacting with the Airbyte Cloud API.
+"""PyDataRheo classes and methods for interacting with the cloud API.
 
-By overriding `api_root`, you can use this module to interact with self-managed Airbyte instances,
+By overriding `api_root`, you can use this module to interact with self-managed deployments,
 both OSS and Enterprise.
 
 ## Usage Examples
@@ -67,7 +67,7 @@ if TYPE_CHECKING:
 
 @dataclass(init=False, kw_only=True)  # noqa: PLR0904  # Core cloud API facade.
 class CloudWorkspace:
-    """A remote workspace on the Airbyte Cloud.
+    """A remote workspace on the cloud.
 
     By overriding `api_root`, you can use this class to interact with self-managed Airbyte
     instances, both OSS and Enterprise.
@@ -176,7 +176,7 @@ class CloudWorkspace:
             - `DATARHEO_CLOUD_CLIENT_ID`: OAuth client ID (for client credentials flow).
             - `DATARHEO_CLOUD_CLIENT_SECRET`: OAuth client secret (for client credentials flow).
             - `DATARHEO_CLOUD_WORKSPACE_ID`: The workspace ID (if not passed as argument).
-            - `DATARHEO_CLOUD_API_URL`: Optional. The API root URL (defaults to Airbyte Cloud).
+            - `DATARHEO_CLOUD_API_URL`: Optional. The API root URL (defaults to the cloud).
             - `DATARHEO_CLOUD_CONFIG_API_URL`: Optional. The Config API root URL.
 
         Args:
@@ -184,7 +184,7 @@ class CloudWorkspace:
                 the `DATARHEO_CLOUD_WORKSPACE_ID` environment variable.
             api_root: The API root URL. If not provided, will be resolved from
                 the `DATARHEO_CLOUD_API_URL` environment variable, or default to
-                the Airbyte Cloud API.
+                the cloud API.
             config_api_root: The Config API root URL. If not provided, will be resolved
                 from the `DATARHEO_CLOUD_CONFIG_API_URL` environment variable.
 
@@ -428,7 +428,7 @@ class CloudWorkspace:
 
         Args:
             name: The name to use when deploying.
-            destination: The destination to deploy. Can be a local Airbyte `Destination` object or a
+            destination: The destination to deploy. Can be a local `Destination` object or a
                 dictionary of configuration values.
             unique: Whether to require a unique name. If `True`, duplicate names
                 are not allowed. Defaults to `True`.
