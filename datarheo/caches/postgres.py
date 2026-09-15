@@ -29,7 +29,6 @@ from datarheo.caches._utils._cache_to_dest import (
 )
 from datarheo.caches.base import CacheBase
 
-
 if TYPE_CHECKING:
     from datarheo.shared.sql_processor import SqlProcessorBase
 

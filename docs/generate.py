@@ -98,6 +98,7 @@ def _data_uri(svg: str) -> str:
     """
     return "data:image/svg+xml;charset=utf-8," + quote(" ".join(svg.split()), safe="")
 
+
 _INCLUDE_DIRECTIVE = re.compile(r"^\s*\.\.\s+include::\s+(\S+)\s*$", re.MULTILINE)
 
 

@@ -107,7 +107,6 @@ from datarheo.mcp.server import (
 )
 from datarheo.version import get_version
 
-
 if TYPE_CHECKING:
     from fastmcp.server.auth import AuthProvider
     from starlette.types import ASGIApp

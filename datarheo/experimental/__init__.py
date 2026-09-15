@@ -21,7 +21,6 @@ from __future__ import annotations
 
 from datarheo.sources.util import get_source
 
-
 __all__ = [
     "get_source",
 ]

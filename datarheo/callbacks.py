@@ -6,7 +6,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-
 ConfigChangeCallback = Callable[[dict[str, Any]], None]
 """Callback for when the configuration changes while the connector is running.
 

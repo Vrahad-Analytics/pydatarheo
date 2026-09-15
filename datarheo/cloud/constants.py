@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from datarheo.cloud.models import JobStatusEnum
 
-
 FINAL_STATUSES: set[JobStatusEnum] = {
     JobStatusEnum.SUCCEEDED,
     JobStatusEnum.FAILED,

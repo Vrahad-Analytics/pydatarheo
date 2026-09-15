@@ -24,7 +24,10 @@ DATARHEO_INTERNAL_GCP_PROJECT = "dataline-integration-testing"
 
 @pytest.fixture(scope="session")
 def ci_secret_manager() -> GoogleGSMSecretManager:
-    secret = dr.get_secret("GCP_GSM_CREDENTIALS")
+    try:
+        secret = dr.get_secret("GCP_GSM_CREDENTIALS")
+    except Exception:
+        secret = None
     if not secret or secret.is_empty():
         pytest.skip("GCP_GSM_CREDENTIALS secret not found.")
 

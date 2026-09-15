@@ -18,6 +18,8 @@ coverage.xml
 
 # Tooling caches
 .pytest_cache/
+.cache/
+.venv-*/
 .ruff_cache/
 .mypy_cache/
 .pyre/

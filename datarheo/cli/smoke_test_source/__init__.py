@@ -12,7 +12,6 @@ null handling, naming edge cases, schema variations, and batch sizes.
 
 from datarheo.cli.smoke_test_source.source import SourceSmokeTest
 
-
 __all__ = [
     "SourceSmokeTest",
 ]

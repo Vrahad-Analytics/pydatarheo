@@ -10,12 +10,11 @@ from typing import IO, TYPE_CHECKING, Any, ClassVar, Literal, final
 import pandas as pd
 import pyarrow as pa
 import pyarrow.dataset as ds
+from airbyte_protocol.models import ConfiguredAirbyteCatalog
 from pydantic import Field, PrivateAttr
 from sqlalchemy import exc as sqlalchemy_exc
 from sqlalchemy import text
 from typing_extensions import Self
-
-from airbyte_protocol.models import ConfiguredAirbyteCatalog
 
 from datarheo import constants
 from datarheo._writers.base import AirbyteWriterInterface
@@ -26,7 +25,6 @@ from datarheo.datasets._sql import CachedDataset
 from datarheo.shared.catalog_providers import CatalogProvider
 from datarheo.shared.sql_processor import SqlConfig, TableStatistics
 from datarheo.shared.state_writers import StdOutStateWriter
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -53,7 +51,7 @@ class CacheBase(SqlConfig, AirbyteWriterInterface):  # noqa: PLR0904
     to the SQL backend specified in the `SqlConfig` class.
     """
 
-    cache_dir: Path = Field(default=Path(constants.DEFAULT_CACHE_ROOT))
+    cache_dir: Path = Field(default_factory=lambda: Path(constants.DEFAULT_CACHE_ROOT))
     """The directory to store the cache in."""
 
     cleanup: bool = TEMP_FILE_CLEANUP

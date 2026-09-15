@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, NoReturn
 from datarheo import exceptions as exc
 from datarheo._executors.base import Executor
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

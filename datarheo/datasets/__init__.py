@@ -8,7 +8,6 @@ from datarheo.datasets._lazy import LazyDataset
 from datarheo.datasets._map import DatasetMap
 from datarheo.datasets._sql import CachedDataset, SQLDataset
 
-
 __all__ = [
     "CachedDataset",
     "DatasetBase",

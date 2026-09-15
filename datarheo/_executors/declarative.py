@@ -11,14 +11,12 @@ from typing import IO, TYPE_CHECKING, Any, cast
 
 import pydantic
 import yaml
-
 from airbyte_cdk.entrypoint import AirbyteEntrypoint
 from airbyte_cdk.sources.declarative.concurrent_declarative_source import (
     ConcurrentDeclarativeSource,
 )
 
 from datarheo._executors.base import Executor
-
 
 if TYPE_CHECKING:
     from argparse import Namespace

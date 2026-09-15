@@ -14,7 +14,6 @@ from datarheo._writers.file_writers import (
     FileWriterBase,
 )
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

@@ -30,7 +30,6 @@ from pydantic import Field
 from datarheo.mcp._tool_utils import INTERACTIVE_UI_ANNOTATION, mcp_tool
 from datarheo.mcp.cloud import CLOUD_AUTH_TIP_TEXT, WORKSPACE_ID_TIP_TEXT, _get_cloud_workspace
 
-
 if TYPE_CHECKING:
     from datetime import datetime
 

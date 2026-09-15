@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 from datarheo._util.meta import is_windows
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

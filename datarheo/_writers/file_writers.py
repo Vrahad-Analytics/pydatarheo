@@ -17,7 +17,6 @@ from datarheo._util.name_normalizers import LowerCaseNormalizer
 from datarheo._writers.base import AirbyteWriterInterface
 from datarheo.records import StreamRecord, StreamRecordHandler
 
-
 if TYPE_CHECKING:
     from airbyte_protocol.models import (
         AirbyteRecordMessage,

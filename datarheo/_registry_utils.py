@@ -6,7 +6,6 @@ import re
 
 import requests
 
-
 logger = logging.getLogger("datarheo.registry")
 
 

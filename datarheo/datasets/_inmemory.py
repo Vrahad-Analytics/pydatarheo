@@ -9,7 +9,6 @@ from overrides import overrides
 
 from datarheo.datasets import DatasetBase
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
 

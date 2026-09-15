@@ -19,7 +19,6 @@ from datarheo.cloud._credentials import _AirbyteCredentials
 from datarheo.cloud.workspaces import CloudWorkspace
 from datarheo.exceptions import DataRheoCloudError, DataRheoInputError
 
-
 if TYPE_CHECKING:
     from datarheo.secrets.base import SecretString
 

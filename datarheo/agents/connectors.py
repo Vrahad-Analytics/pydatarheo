@@ -16,7 +16,6 @@ from datarheo.agents import _api_util
 from datarheo.agents.models import AgentConnectorDetails, AgentExecuteResult
 from datarheo.exceptions import DataRheoInputError
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -108,8 +107,7 @@ def _resolve_connector_lookup(
         raise DataRheoInputError(
             message="Exactly one connector lookup argument is required.",
             guidance=(
-                "Pass a connector ID or name positionally, or as `id`, `connector_id`, "
-                "or `name`."
+                "Pass a connector ID or name positionally, or as `id`, `connector_id`, or `name`."
             ),
         )
 
@@ -126,7 +124,8 @@ class AgentConnector:
 
     workspace = agents.AgentWorkspace.from_env()
     connector = workspace.get_connector("GitHub")  # by ID or name (case insensitive)
-    result = connector.list_entities("issues", api_args={"repository": "Vrahad-Analytics/pydatarheo"})
+    repo = "Vrahad-Analytics/pydatarheo"
+    result = connector.list_entities("issues", api_args={"repository": repo})
     for entity in result.entities:
         print(entity["title"])
     ```
@@ -258,7 +257,8 @@ class AgentConnector:
         the caller iterates, so no cursor bookkeeping is needed.
 
         ```python
-        for issue in connector.iter_entities("issues", {"repository": "Vrahad-Analytics/pydatarheo"}):
+        repo = "Vrahad-Analytics/pydatarheo"
+        for issue in connector.iter_entities("issues", {"repository": repo}):
             print(issue["title"])
         ```
 

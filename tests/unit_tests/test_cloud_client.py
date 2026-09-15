@@ -124,7 +124,9 @@ def test_resolve_default_workspace_id_uses_exactly_one_direct_grant(
 def test_resolve_default_workspace_id_ignores_permission_lookup_failure() -> None:
     patches = _api_patches(user={"userId": "user-id"})
     with patches[0], patches[1], patches[2], patches[3], patches[4] as permissions:
-        permissions.side_effect = exc.DataRheoCloudError(message="Permission lookup failed.")
+        permissions.side_effect = exc.DataRheoCloudError(
+            message="Permission lookup failed."
+        )
         assert CloudClient(bearer_token="token").resolve_default_workspace_id() is None
 
 

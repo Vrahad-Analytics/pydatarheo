@@ -30,7 +30,6 @@ from datarheo.caches.base import (
 )
 from datarheo.constants import DEFAULT_ARROW_MAX_CHUNK_SIZE
 
-
 if TYPE_CHECKING:
     from datarheo.shared.sql_processor import SqlProcessorBase
 

@@ -303,7 +303,9 @@ def test_convenience_methods(
 ) -> None:
     """Each convenience method executes its corresponding action."""
     connector = _connector()
-    getattr(connector, method_name)("issues", {"repository": "Vrahad-Analytics/pydatarheo"})
+    getattr(connector, method_name)(
+        "issues", {"repository": "Vrahad-Analytics/pydatarheo"}
+    )
 
     assert captured_requests[0]["json"]["action"] == expected_action
     assert captured_requests[0]["json"]["entity"] == "issues"
@@ -589,7 +591,9 @@ def test_get_connector(
     workspace = AgentWorkspace(workspace_id="workspace-id", bearer_token="test-token")
 
     if expected_error:
-        with pytest.raises((DataRheoCloudError, DataRheoInputError), match=expected_error):
+        with pytest.raises(
+            (DataRheoCloudError, DataRheoInputError), match=expected_error
+        ):
             workspace.get_connector(*args, **kwargs)
         return
 
@@ -645,7 +649,9 @@ def test_get_workspace(
     )
 
     if expected_error:
-        with pytest.raises((DataRheoCloudError, DataRheoInputError), match=expected_error):
+        with pytest.raises(
+            (DataRheoCloudError, DataRheoInputError), match=expected_error
+        ):
             organization.get_workspace(*args, **kwargs)
         return
 

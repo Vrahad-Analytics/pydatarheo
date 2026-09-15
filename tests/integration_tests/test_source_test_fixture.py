@@ -900,8 +900,8 @@ def test_failing_path_connector() -> None:
         source.check()
 
 
-def test_succeeding_path_connector(monkeypatch) -> None:
-    venv_bin_path = str(get_bin_dir(Path(".venv-source-test")))
+def test_succeeding_path_connector(source_test_installation) -> None:
+    venv_bin_path = str(get_bin_dir(source_test_installation._get_venv_path()))
 
     source = dr.get_source(
         "source-test",
@@ -915,7 +915,7 @@ def test_install_uninstall() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         source = dr.get_source(
             "source-test",
-            pip_url="./tests/integration_tests/fixtures/source-test",
+            pip_url=str(Path(__file__).parent / "fixtures/source-test"),
             config={"apiKey": "test"},
             install_if_missing=False,
         )

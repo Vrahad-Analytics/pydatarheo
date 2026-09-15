@@ -11,7 +11,6 @@ from urllib.parse import urlparse
 
 from starlette.responses import Response
 
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
 

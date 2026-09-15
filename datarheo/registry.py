@@ -24,7 +24,6 @@ from datarheo.constants import DATARHEO_OFFLINE_MODE
 from datarheo.logs import warn_once
 from datarheo.version import get_version
 
-
 logger = logging.getLogger("datarheo")
 
 

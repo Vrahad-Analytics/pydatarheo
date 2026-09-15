@@ -18,7 +18,6 @@ from airbyte_api.models import (
 
 from datarheo.secrets.base import SecretString
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

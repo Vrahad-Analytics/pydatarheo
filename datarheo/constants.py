@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 from typing import overload
 
-
 logger = logging.getLogger("datarheo")
 
 

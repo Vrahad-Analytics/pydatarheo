@@ -15,6 +15,15 @@ import pandas as pd
 import sqlalchemy
 import sqlalchemy.exc
 import ulid
+from airbyte_protocol.models import (
+    AirbyteMessage,
+    AirbyteRecordMessage,
+    AirbyteStateMessage,
+    AirbyteStateType,
+    AirbyteStreamState,
+    AirbyteTraceMessage,
+    Type,
+)
 from pandas import Index
 from pydantic import BaseModel, Field
 from sqlalchemy import (
@@ -29,31 +38,20 @@ from sqlalchemy import (
     update,
 )
 
-from airbyte_protocol.models import (
-    AirbyteMessage,
-    AirbyteRecordMessage,
-    AirbyteStateMessage,
-    AirbyteStateType,
-    AirbyteStreamState,
-    AirbyteTraceMessage,
-    Type,
-)
-
 from datarheo import exceptions as exc
 from datarheo._util.hashing import one_way_hash
 from datarheo._util.name_normalizers import LowerCaseNormalizer
 from datarheo.constants import (
+    DEBUG_MODE,
     DR_EXTRACTED_AT_COLUMN,
     DR_META_COLUMN,
     DR_RAW_ID_COLUMN,
-    DEBUG_MODE,
 )
 from datarheo.records import StreamRecordHandler
 from datarheo.secrets.base import SecretString
 from datarheo.shared.state_writers import StdOutStateWriter
 from datarheo.strategies import WriteMethod, WriteStrategy
 from datarheo.types import SQLTypeConverter
-
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
@@ -449,9 +447,15 @@ class SqlProcessorBase(abc.ABC):
 
         If the connection needs to close, it will be closed automatically.
         """
-        with self.get_sql_engine().begin() as connection:
-            self._init_connection_settings(connection)
-            yield connection
+        try:
+            with self.get_sql_engine().begin() as connection:
+                self._init_connection_settings(connection)
+                yield connection
+        except sqlalchemy.exc.OperationalError as ex:
+            # Tolerate teardown on an already-closed connection (e.g. when a lazy
+            # dataset generator is closed after the cache was shut down).
+            if "already closed" not in str(ex).lower():
+                raise
 
         connection.close()
         del connection
@@ -581,9 +585,9 @@ class SqlProcessorBase(abc.ABC):
 
         if DEBUG_MODE:
             found_schemas = schemas_list
-            assert (
-                schema_name in found_schemas
-            ), f"Schema {schema_name} was not created. Found: {found_schemas}"
+            assert schema_name in found_schemas, (
+                f"Schema {schema_name} was not created. Found: {found_schemas}"
+            )
 
     def _quote_identifier(self, identifier: str) -> str:
         """Return the given identifier, quoted."""

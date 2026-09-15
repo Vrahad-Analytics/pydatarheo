@@ -81,7 +81,6 @@ from datarheo.constants import (
     DR_RAW_ID_COLUMN,
 )
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
 

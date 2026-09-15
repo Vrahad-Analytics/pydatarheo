@@ -8,7 +8,6 @@ from typing import IO, TYPE_CHECKING
 
 from datarheo._util.connector_info import WriterRuntimeInfo
 
-
 if TYPE_CHECKING:
     from datarheo._message_iterators import AirbyteMessageIterator
     from datarheo.progress import ProgressTracker

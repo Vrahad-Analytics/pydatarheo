@@ -75,7 +75,6 @@ from datarheo.exceptions import DataRheoInputError
 from datarheo.secrets.util import get_secret
 from datarheo.sources.util import get_benchmark_source, get_source
 
-
 if TYPE_CHECKING:
     from datarheo.destinations.base import Destination
     from datarheo.sources.base import Source

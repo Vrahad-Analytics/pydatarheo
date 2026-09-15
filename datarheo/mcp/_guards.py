@@ -22,7 +22,6 @@ import os
 from datarheo.constants import MCP_TRUSTED_EXECUTION_ENV_VAR
 from datarheo.exceptions import DataRheoTrustedExecutionRequiredError
 
-
 _TRUTHY_VALUES = frozenset({"1", "true", "yes"})
 
 

@@ -25,7 +25,6 @@ from datarheo.shared import SqlProcessorBase
 from datarheo.shared.sql_processor import SqlConfig
 from datarheo.types import SQLTypeConverter
 
-
 if TYPE_CHECKING:
     from sqlalchemy.engine import Connection
 

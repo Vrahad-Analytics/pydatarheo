@@ -35,20 +35,21 @@ By default, PyDataRheo will search all available secrets sources. The `get_secre
 accepts an optional `sources` argument of specific source names (`SecretSourceEnum`) and/or secret
 manager objects to check.
 
-By default, PyDataRheo will prompt the user for any requested secrets that are not provided via other
-secret managers. You can disable this prompt by passing `allow_prompt=False` to `get_secret()`.
+By default, PyDataRheo will prompt the user for any requested secrets that are not provided via
+other secret managers. You can disable this prompt by passing `allow_prompt=False` to
+`get_secret()`.
 
 ### Secrets Auto-Discovery
 
-If you have a secret matching an expected name, PyDataRheo will automatically use it. For example, if
-you have a secret named `GITHUB_PERSONAL_ACCESS_TOKEN`, PyDataRheo will automatically use it when
-configuring the GitHub source.
+If you have a secret matching an expected name, PyDataRheo will automatically use it. For example,
+if you have a secret named `GITHUB_PERSONAL_ACCESS_TOKEN`, PyDataRheo will automatically use it
+when configuring the GitHub source.
 
 The naming convention for secrets is as `{CONNECTOR_NAME}_{PROPERTY_NAME}`, for instance
 `SNOWFLAKE_PASSWORD` and `BIGQUERY_CREDENTIALS_PATH`.
 
-PyDataRheo will also auto-discover secrets for interop with hosted Airbyte: `DATARHEO_CLOUD_API_URL`,
-`DATARHEO_CLOUD_API_KEY`, etc.
+PyDataRheo will also auto-discover secrets for interop with hosted Airbyte:
+`DATARHEO_CLOUD_API_URL`, `DATARHEO_CLOUD_API_KEY`, etc.
 
 ## Custom Secret Managers
 
@@ -99,7 +100,6 @@ from datarheo.secrets.google_colab import ColabSecretManager
 from datarheo.secrets.google_gsm import GoogleGSMSecretManager
 from datarheo.secrets.prompt import SecretsPrompt
 from datarheo.secrets.util import get_secret
-
 
 # Submodules imported here for documentation reasons: https://github.com/mitmproxy/pdoc/issues/757
 if TYPE_CHECKING:

@@ -840,6 +840,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -928,6 +929,7 @@ return the actual secret values.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -1161,6 +1163,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -1332,6 +1335,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "anyOf": [
@@ -1439,6 +1443,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -1613,6 +1618,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -1772,6 +1778,7 @@ connector manifests.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "maxItems": 2,

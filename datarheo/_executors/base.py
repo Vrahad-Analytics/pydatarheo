@@ -10,7 +10,6 @@ from typing import IO, TYPE_CHECKING, Any, cast
 from datarheo import exceptions as exc
 from datarheo._message_iterators import AirbyteMessageIterator
 
-
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Iterator
 
@@ -39,17 +38,16 @@ def _pump_input(
     exception_holder: ExceptionHolder,
 ) -> None:
     """Pump lines into a pipe."""
-    with pipe:
-        try:
+    try:
+        with pipe:
             pipe.writelines(message.model_dump_json() + "\n" for message in messages)
             pipe.flush()  # Ensure data is sent immediately
-        except (BrokenPipeError, OSError) as ex:
-            if isinstance(ex, BrokenPipeError):
-                pass  # Expected during graceful shutdown
-            else:
-                exception_holder.set_exception(ex)
-        except Exception as ex:
-            exception_holder.set_exception(ex)
+    except BrokenPipeError:
+        pass  # Expected during graceful shutdown
+    except OSError as ex:
+        exception_holder.set_exception(ex)
+    except Exception as ex:
+        exception_holder.set_exception(ex)
 
 
 def _stream_from_file(file: IO[str]) -> Generator[str, Any, None]:

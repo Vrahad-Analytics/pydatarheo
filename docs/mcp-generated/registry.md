@@ -48,6 +48,7 @@ This tool retrieves documentation URLs for a connector's upstream API from multi
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "anyOf": [
@@ -144,6 +145,7 @@ for the connector.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "anyOf": [
@@ -482,6 +484,7 @@ Returns:
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "anyOf": [
@@ -663,6 +666,7 @@ Returns:
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {

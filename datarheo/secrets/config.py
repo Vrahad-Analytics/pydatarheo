@@ -9,7 +9,6 @@ from datarheo.secrets.env_vars import DotenvSecretManager, EnvVarSecretManager
 from datarheo.secrets.google_colab import ColabSecretManager
 from datarheo.secrets.prompt import SecretsPrompt
 
-
 _SECRETS_SOURCES: list[SecretManager] = []
 
 

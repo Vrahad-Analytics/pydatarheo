@@ -68,7 +68,6 @@ from datarheo.constants import (
 )
 from datarheo.exceptions import DataRheoInputError
 
-
 if TYPE_CHECKING:
     from fastmcp import FastMCP
     from mcp.types import Tool

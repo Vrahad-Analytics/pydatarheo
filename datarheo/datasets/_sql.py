@@ -6,30 +6,27 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, cast
 
+from airbyte_protocol.models import ConfiguredAirbyteStream
 from overrides import overrides
 from sqlalchemy import and_, func, select, text
 
-from airbyte_protocol.models import ConfiguredAirbyteStream
-
 from datarheo.constants import (
+    DEFAULT_ARROW_MAX_CHUNK_SIZE,
     DR_EXTRACTED_AT_COLUMN,
     DR_META_COLUMN,
     DR_RAW_ID_COLUMN,
-    DEFAULT_ARROW_MAX_CHUNK_SIZE,
 )
 from datarheo.datasets._base import DatasetBase
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from airbyte_protocol.models import ConfiguredAirbyteStream
     from pandas import DataFrame
     from pyarrow.dataset import Dataset
     from sqlalchemy import Table
     from sqlalchemy.sql import ClauseElement
     from sqlalchemy.sql.expression import Select
-
-    from airbyte_protocol.models import ConfiguredAirbyteStream
 
     from datarheo.caches.base import CacheBase
 

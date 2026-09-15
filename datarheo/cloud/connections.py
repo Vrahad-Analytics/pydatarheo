@@ -31,8 +31,7 @@ from datarheo.cloud.models import (
     _ConnectionResponseLike,
 )
 from datarheo.cloud.sync_results import SyncResult
-from datarheo.exceptions import DataRheoWorkspaceMismatchError, DataRheoInputError
-
+from datarheo.exceptions import DataRheoInputError, DataRheoWorkspaceMismatchError
 
 logger = logging.getLogger(__name__)
 
@@ -341,7 +340,7 @@ class CloudConnection:  # noqa: PLR0904  # Too many public methods
         job_status = CloudJobInfo.from_api_response(job_info).status
         if job_status in FINAL_STATUSES:
             raise DataRheoInputError(
-                message=f"Job {job_id} is already finished with status " f"'{job_status.value}'.",
+                message=f"Job {job_id} is already finished with status '{job_status.value}'.",
             )
         return job_id
 

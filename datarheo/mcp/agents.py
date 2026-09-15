@@ -53,7 +53,6 @@ from datarheo.mcp.cloud import (
     _get_cloud_workspace,
 )
 
-
 AgentReadAction = Literal["list", "get", "search", "api_search", "sql_select"]
 """The connector actions that only read data.
 

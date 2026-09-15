@@ -19,7 +19,6 @@ from datarheo._util.telemetry import EventState, log_install_state
 from datarheo._util.venv_util import get_bin_dir
 from datarheo.constants import DEFAULT_INSTALL_DIR, NO_UV
 
-
 if TYPE_CHECKING:
     from datarheo.registry import ConnectorMetadata
 

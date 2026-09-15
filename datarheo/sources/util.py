@@ -11,7 +11,6 @@ from datarheo._executors.util import get_connector_executor
 from datarheo.exceptions import DataRheoInputError
 from datarheo.sources.base import Source
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

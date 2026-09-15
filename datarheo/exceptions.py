@@ -45,14 +45,13 @@ from textwrap import indent
 from typing import TYPE_CHECKING, Any, Protocol
 
 from datarheo.constants import (
-    DATARHEO_PRINT_FULL_ERROR_LOGS,
     CLOUD_BEARER_TOKEN_ENV_VAR,
     CLOUD_CLIENT_ID_ENV_VAR,
     CLOUD_CLIENT_SECRET_ENV_VAR,
+    DATARHEO_PRINT_FULL_ERROR_LOGS,
     MCP_BEARER_TOKEN_HEADER,
     is_hosted_mcp_mode,
 )
-
 
 if TYPE_CHECKING:
     from datarheo._util.api_duck_types import DataRheoApiResponseDuckType

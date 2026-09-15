@@ -14,7 +14,7 @@ __all__: list[str] = []
 # types to be available at import time for tool registration.
 import contextlib
 import logging
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 
 import requests
 from fastmcp import FastMCP
@@ -36,7 +36,6 @@ from datarheo.registry import (
 )
 from datarheo.registry import get_connector_version_history as _get_connector_version_history
 from datarheo.sources.util import get_source
-
 
 logger = logging.getLogger("datarheo.mcp")
 
@@ -96,7 +95,7 @@ def list_connectors(
     connectors: list[str] = get_available_connectors(install_type=InstallType.ANY)
 
     install_types_list: list[str] | None = resolve_list_of_strings(
-        install_types,  # type: ignore[arg-type]  # Type check doesn't understand literal is str
+        cast("list[str] | str | None", install_types),
     )
 
     if install_types_list:

@@ -28,7 +28,6 @@ from typing import TYPE_CHECKING
 
 from fastmcp_extensions import wrap_client_credentials
 
-
 if TYPE_CHECKING:
     from collections.abc import Mapping
 

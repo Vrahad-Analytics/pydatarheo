@@ -57,7 +57,6 @@ from datarheo.cloud.models import (
     _SourceResponseLike,
 )
 
-
 if TYPE_CHECKING:
     from datarheo.cloud.workspaces import CloudWorkspace
 

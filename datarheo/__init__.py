@@ -120,8 +120,10 @@ has its own documentation and code samples related to effectively using the rela
     remotely.
 - **`datarheo.agents`** - Working with the Airbyte Agents platform, including executing single
     read and write actions on Agents connectors.
-- **`datarheo.caches`** - Working with caches, including how to inspect a cache and get data from it.
-- **`datarheo.datasets`** - Working with datasets, including how to read from datasets and convert to
+- **`datarheo.caches`** - Working with caches, including how to inspect a cache and get data from
+    it.
+- **`datarheo.datasets`** - Working with datasets, including how to read from datasets and convert
+    to
     other formats, such as Pandas, Arrow, and LLM Document formats.
 - **`datarheo.destinations`** - Working with destinations, including how to write to destination
     connectors.
@@ -161,7 +163,6 @@ from datarheo.results import ReadResult, WriteResult
 from datarheo.secrets import SecretSourceEnum, get_secret
 from datarheo.sources.base import Source
 from datarheo.sources.util import get_source
-
 
 # Submodules imported here for documentation reasons: https://github.com/mitmproxy/pdoc/issues/757
 if TYPE_CHECKING:

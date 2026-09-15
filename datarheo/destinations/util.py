@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any
 from datarheo._executors.util import get_connector_executor
 from datarheo.destinations.base import Destination
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

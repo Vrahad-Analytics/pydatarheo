@@ -25,12 +25,12 @@ from datarheo.constants import DATARHEO_OFFLINE_MODE, DEFAULT_PROJECT_DIR, TEMP_
 from datarheo.registry import ConnectorMetadata, InstallType, get_connector_metadata
 from datarheo.version import get_version
 
-
 if TYPE_CHECKING:
     from datarheo._executors.base import Executor
 
 
 VERSION_LATEST = "latest"
+CONNECTOR_DOWNLOAD_TIMEOUT = 30
 DEFAULT_MANIFEST_URL = (
     "https://connectors.airbyte.com/files/metadata/airbyte/{source_name}/{version}/manifest.yaml"
 )
@@ -70,6 +70,7 @@ def _try_get_manifest_connector_files(
     response = requests.get(
         url=manifest_url,
         headers={"User-Agent": f"PyDataRheo/{get_version()}"},
+        timeout=CONNECTOR_DOWNLOAD_TIMEOUT,
     )
     try:
         response.raise_for_status()
@@ -100,6 +101,7 @@ def _try_get_manifest_connector_files(
     response = requests.get(
         url=components_url,
         headers={"User-Agent": f"PyDataRheo/{get_version()}"},
+        timeout=CONNECTOR_DOWNLOAD_TIMEOUT,
     )
 
     if response.status_code == 404:  # noqa: PLR2004
@@ -283,7 +285,11 @@ def get_connector_executor(  # noqa: PLR0912, PLR0913, PLR0914, PLR0915, C901 # 
     if docker_image:
         if docker_image is True:
             # Use the default image name for the connector
-            docker_image = f"datarheo/{name}"
+            docker_image = (
+                metadata.docker_repository
+                if metadata and metadata.docker_repository
+                else f"airbyte/{name}"
+            )
 
         if version is not None and ":" in docker_image:
             raise exc.DataRheoInputError(
@@ -351,6 +357,27 @@ def get_connector_executor(  # noqa: PLR0912, PLR0913, PLR0914, PLR0915, C901 # 
                 manifest=source_manifest,
                 components_py=components_py_path,
             )
+
+        if isinstance(source_manifest, str):
+            try:
+                response = requests.get(
+                    url=source_manifest,
+                    headers={"User-Agent": f"PyDataRheo/{get_version()}"},
+                    timeout=CONNECTOR_DOWNLOAD_TIMEOUT,
+                )
+                response.raise_for_status()
+                manifest_dict = yaml.safe_load(response.text)
+            except (requests.RequestException, yaml.YAMLError) as ex:
+                raise exc.DataRheoConnectorInstallationError(
+                    message="Failed to download or parse the explicit connector manifest.",
+                    connector_name=name,
+                ) from ex
+            if not isinstance(manifest_dict, dict):
+                raise exc.DataRheoConnectorInstallationError(
+                    message="The connector manifest must be a YAML mapping.",
+                    connector_name=name,
+                )
+            return DeclarativeExecutor(name=name, manifest=manifest_dict)
 
         if isinstance(source_manifest, str | bool):
             # Source manifest is either a URL or a boolean (True)

@@ -8,7 +8,6 @@ from overrides import overrides
 from datarheo.datasets import DatasetBase
 from datarheo.datasets._inmemory import InMemoryDataset
 
-
 if TYPE_CHECKING:
     import threading
     from collections.abc import Iterator, Mapping

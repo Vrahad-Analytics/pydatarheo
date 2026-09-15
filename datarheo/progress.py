@@ -28,16 +28,15 @@ from contextlib import suppress
 from enum import Enum, auto
 from typing import IO, TYPE_CHECKING, Any, Literal, cast
 
-from rich.console import Console
-from rich.errors import LiveError
-from rich.live import Live as RichLive
-from rich.markdown import Markdown as RichMarkdown
-
 from airbyte_cdk.utils.datetime_helpers import ab_datetime_now
 from airbyte_protocol.models import (
     AirbyteMessage,
     AirbyteStreamStatus,
 )
+from rich.console import Console
+from rich.errors import LiveError
+from rich.live import Live as RichLive
+from rich.markdown import Markdown as RichMarkdown
 
 from datarheo import logs
 from datarheo._message_iterators import _new_stream_success_message
@@ -48,7 +47,6 @@ from datarheo._util.telemetry import (
     send_telemetry,
 )
 from datarheo.logs import get_global_file_logger
-
 
 if TYPE_CHECKING:
     import logging
@@ -637,8 +635,7 @@ class ProgressTracker:  # noqa: PLR0904  # Too many public methods
         self._update_display(force_refresh=True)
         self._stop_rich_view()
         self._print_info_message(
-            f"Failed `{self.job_description}` sync at "
-            f"`{ab_datetime_now().strftime('%H:%M:%S')}`."
+            f"Failed `{self.job_description}` sync at `{ab_datetime_now().strftime('%H:%M:%S')}`."
         )
         self._send_telemetry(
             state=EventState.FAILED,

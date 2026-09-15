@@ -63,7 +63,6 @@ from fastmcp_extensions import (
 )
 from starlette.responses import JSONResponse
 
-
 if TYPE_CHECKING:
     from fastmcp.server.auth import AuthProvider
     from key_value.aio.protocols.key_value import AsyncKeyValue
@@ -74,14 +73,14 @@ from datarheo._util.telemetry import DO_NOT_TRACK, PYDATARHEO_APP_TRACKING_KEY
 from datarheo.constants import DATARHEO_OFFLINE_MODE, _str_to_bool, is_hosted_mcp_mode
 from datarheo.mcp._config import load_secrets_to_env_vars
 from datarheo.mcp._tool_utils import (
-    DATARHEO_EXCLUDE_MODULES_CONFIG_ARG,
-    DATARHEO_INCLUDE_MODULES_CONFIG_ARG,
-    DATARHEO_READONLY_MODE_CONFIG_ARG,
     API_URL_CONFIG_ARG,
     BEARER_TOKEN_CONFIG_ARG,
     CLIENT_ID_CONFIG_ARG,
     CLIENT_SECRET_CONFIG_ARG,
     CONFIG_API_URL_CONFIG_ARG,
+    DATARHEO_EXCLUDE_MODULES_CONFIG_ARG,
+    DATARHEO_INCLUDE_MODULES_CONFIG_ARG,
+    DATARHEO_READONLY_MODE_CONFIG_ARG,
     INSIDERS_CONFIG_ARG,
     ORGANIZATION_ID_CONFIG_ARG,
     TRUSTED_EXECUTION_CONFIG_ARG,
@@ -96,7 +95,6 @@ from datarheo.mcp.interactive import register_interactive_tools
 from datarheo.mcp.local import register_local_tools
 from datarheo.mcp.prompts import register_prompts
 from datarheo.mcp.registry import register_registry_tools
-
 
 # =============================================================================
 # Server Instructions

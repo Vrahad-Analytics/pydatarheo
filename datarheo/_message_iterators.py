@@ -8,8 +8,6 @@ from collections.abc import Iterator
 from typing import IO, TYPE_CHECKING, cast
 
 import pydantic
-from typing_extensions import final
-
 from airbyte_cdk.utils.datetime_helpers import ab_datetime_now
 from airbyte_protocol.models import (
     AirbyteMessage,
@@ -21,9 +19,9 @@ from airbyte_protocol.models import (
     TraceType,
     Type,
 )
+from typing_extensions import final
 
 from datarheo.constants import DR_EXTRACTED_AT_COLUMN
-
 
 if TYPE_CHECKING:
     import datetime

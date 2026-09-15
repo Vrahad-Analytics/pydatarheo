@@ -25,17 +25,16 @@ from airbyte_api.errors import SDKError
 
 from datarheo.constants import CLOUD_API_ROOT, CLOUD_CONFIG_API_ROOT, CLOUD_CONFIG_API_ROOT_ENV_VAR
 from datarheo.exceptions import (
+    DataRheoCloudError,
     DataRheoConnectionSyncActiveError,
     DataRheoConnectionSyncError,
-    DataRheoCloudError,
+    DataRheoInputError,
     DataRheoMissingResourceError,
     DataRheoMultipleResourcesError,
     DataRheoWorkspaceNotEmptyError,
-    DataRheoInputError,
 )
 from datarheo.secrets.base import SecretString
 from datarheo.secrets.util import try_get_secret
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -98,7 +97,10 @@ def _get_sdk_error_context(error: SDKError) -> dict[str, Any]:
     return context
 
 
-def _wrap_sdk_error(error: SDKError, base_context: dict[str, Any] | None = None) -> DataRheoCloudError:
+def _wrap_sdk_error(
+    error: SDKError,
+    base_context: dict[str, Any] | None = None,
+) -> DataRheoCloudError:
     """Wrap an SDKError with additional context for debugging.
 
     This function converts a Speakeasy SDK error into an DataRheoCloudError with
@@ -2031,9 +2033,8 @@ def create_custom_yaml_source_definition(
         workspace_id=workspace_id,
         create_declarative_source_definition_request=request_body,
     )
-    response = datarheo_instance.declarative_source_definitions.create_declarative_source_definition(
-        request
-    )
+    definitions = datarheo_instance.declarative_source_definitions
+    response = definitions.create_declarative_source_definition(request)
     if response.declarative_source_definition_response is None:
         raise DataRheoCloudError(
             message="Failed to create custom YAML source definition",
@@ -2145,9 +2146,8 @@ def update_custom_yaml_source_definition(
         definition_id=definition_id,
         update_declarative_source_definition_request=request_body,
     )
-    response = datarheo_instance.declarative_source_definitions.update_declarative_source_definition(
-        request
-    )
+    definitions = datarheo_instance.declarative_source_definitions
+    response = definitions.update_declarative_source_definition(request)
     if (
         not status_ok(response.status_code)
         or response.declarative_source_definition_response is None
@@ -2231,9 +2231,8 @@ def delete_custom_yaml_source_definition(
         workspace_id=workspace_id,
         definition_id=definition_id,
     )
-    response = datarheo_instance.declarative_source_definitions.delete_declarative_source_definition(
-        request
-    )
+    definitions = datarheo_instance.declarative_source_definitions
+    response = definitions.delete_declarative_source_definition(request)
     if not status_ok(response.status_code):
         raise DataRheoCloudError(
             context={

@@ -1,40 +1,54 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pydatarheo"
-description = "PyDataRheo: run data-integration connectors from Python."
+version = "1.0.0.dev1"
+description = "Vrahad Analytics' native Python connector framework for streaming data pipelines."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE", "NOTICE"]
-keywords = ["datarheo", "etl", "elt", "data-integration", "connectors", "mcp"]
-authors = [
-    { name = "Vrahad Analytics LLP", email = "ardb40@gmail.com" }
-]
-requires-python = ">=3.10,<3.13"
-dynamic = ["version"]
+authors = [{ name = "Vrahad Analytics LLP" }]
+requires-python = ">=3.10"
+keywords = ["vrahad", "pydatarheo", "etl", "connectors", "streaming"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Database",
-    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = [
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "build==1.3.0",
+    "hatchling==1.27.0",
+    "pytest==8.4.2",
+    "pytest-cov==7.0.0",
+    "coverage==7.10.7",
+    "ruff==0.13.0",
+    "twine==6.2.0",
+    "mypy==1.18.2",
+    "pyrefly>=0.30,<1.0",
+]
+connectors = [
     "airbyte-api>=0.53.0,<1.0",
     "airbyte-cdk>=7.28.3,<8.0.0",
     "airbyte-protocol-models-pdv2>=0.13.0,<1.0",
-    "cryptography>=44.0.0,<47.0.0,!=45.0.0,!=45.0.1",  # 45.0.0/45.0.1 broke load_pem_private_key()
+    "cryptography>=44.0.0,!=45.0.0,!=45.0.1,<47.0.0",
     "cyclopts>=4.0,<5.0",
-    # TODO: Restore broader version constraints after verifying compatibility
-    # "duckdb>=1.4.0,<2.0",
-    # "duckdb-engine>=0.17.0,<1.0",
-    "duckdb==1.4.3",  # Pinned to match uv.lock
-    "duckdb-engine==0.17.0",  # Pinned to match uv.lock
+    "duckdb==1.4.3",
+    "duckdb-engine==0.17.0",
+    "fastmcp==3.2.0",
+    "fastmcp-extensions>=0.22.0,<1.0.0",
     "google-auth>=2.27.0,<3.0",
     "google-cloud-bigquery>=3.12.0,<4.0",
     "google-cloud-bigquery-storage>=2.25.0,<3.0",
@@ -43,192 +57,103 @@ dependencies = [
     "orjson>=3.10,<4.0",
     "overrides>=7.4.0,<8.0",
     "pandas>=1.5.3,<3.0",
-    "psycopg[binary,pool]>=3.1.19,<4.0",
+    "prefab-ui>=0.20.1,<0.21",
     "psycopg2-binary>=2.9.9,<3.0",
+    "psycopg[binary,pool]>=3.1.19,<4.0",
     "pyarrow>=16.1,<22.0",
     "pydantic>=2.0,<3.0",
-    "pydantic-core",
+    "pydantic-core>=2.0,<3.0",
     "python-dotenv>=1.0.1,<2.0",
     "python-ulid>=3.0.0,<4.0",
     "pyyaml>=6.0.2,<7.0",
-    "requests!=3.32.0",  # 3.32.0 breaks docker tests
+    "requests>=2.31,<3.0",
     "rich>=13.7.0,<14.0",
     "snowflake-connector-python>=3.12.2,<4.0",
     "snowflake-sqlalchemy>=1.6.1,<2.0",
-    "structlog>=24.4.0,<25.0",
-    # TODO: Restore broader version constraints after verifying compatibility
-    # "sqlalchemy>=1.4.51,!=2.0.36,<3.0",
-    "sqlalchemy==2.0.43",  # Pinned to match uv.lock
+    "sqlalchemy==2.0.43",
     "sqlalchemy-bigquery==1.12.0",
-    "typing-extensions",
+    "starlette>=0.52.1,<1.0",
+    "structlog>=24.4.0,<25.0",
+    "typing-extensions>=4.12,<5",
     "uuid7>=0.1.0,<1.0",
-    "fastmcp>=3.0,<4.0",
-    "fastmcp-extensions>=0.22.0,<1.0.0",
-    "starlette",  # Transitive dependency of fastmcp, imported directly
     "uv>=0.5.0,<0.9.0",
-    "prefab-ui>=0.20.1,<0.21",
+]
+test-connectors = [
+    "docker==7.1.0",
+    "faker==21.0.0",
+    "freezegun==1.5.1",
+    "pdoc==16.0.0",
+    "pytest-docker==3.1.1",
+    "pytest-mock==3.14.0",
+    "pytest-timeout==2.3.1",
+    "responses==0.25.8",
+    "viztracer>=1.0,<2.0",
 ]
 
 [dependency-groups]
 dev = [
-    "coverage>=7.5.1,<8.0",
-    "deptry>=0.21.1,<1.0",
-    "docker>=7.1.0,<8.0",
-    "faker>=21.0.0,<22.0",
-    "freezegun>=1.4.0,<2.0",
-    "pyrefly>=0.38.0,<0.39.0",
-    "pandas-stubs>=2.1.4.231218",
-    "pdoc>=16.0.0,<17.0",
-    "poethepoet>=0.26.1,<0.32.0",
-    "pytest>=8.2.0,<9.0",
-    "pytest-docker>=3.1.1,<4.0",
-    "pytest-mock>=3.14.0,<4.0",
-    "pytest-timeout>=2.3.1,<3.0",
-    "responses>=0.25.0,<1.0",
-    "ruff>=0.8.2,<0.9.0",
-    "sqlalchemy2-stubs>=0.0.2a38",
-    "tomli>=2.0,<3.0",
-    "types-jsonschema>=4.20.0.0",
-    "types-pyyaml>=6.0.12.12",
-    "types-requests==2.31.0.4",
-    "viztracer>=0.16.3,<1.1.0",
-    "pydantic-ai>=0.2.16",
+    "pyrefly>=0.30,<1.0",
+    "ruff==0.13.0",
 ]
 
 [project.scripts]
-pydatarheo = "datarheo.cli.pydr:cli"
-pydr = "datarheo.cli.pydr:cli"
+pydatarheo = "pydatarheo.cli:main"
+pydr = "pydatarheo.cli:main"
 datarheo-mcp = "datarheo.mcp.server:main"
 datarheo-mcp-http = "datarheo.mcp.http_main:main"
 source-smoke-test = "datarheo.cli.smoke_test_source.run:run"
 
 [project.urls]
 Homepage = "https://github.com/Vrahad-Analytics/pydatarheo"
-Documentation = "https://vrahad-analytics.github.io/pydatarheo"
 Repository = "https://github.com/Vrahad-Analytics/pydatarheo"
+Documentation = "https://github.com/Vrahad-Analytics/pydatarheo/blob/main/README.md"
 Issues = "https://github.com/Vrahad-Analytics/pydatarheo/issues"
 
-[build-system]
-requires = ["hatchling", "uv-dynamic-versioning"]
-build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "uv-dynamic-versioning"
-
-[tool.uv-dynamic-versioning]
-vcs = "git"
-style = "pep440"
-fallback-version = "0.0.0"
-# No `format` override: the default PEP 440 style carries the commit in the local
-# segment for dev builds (e.g. "0.54.1.post5.dev0+1b1637b4"), so a build always
-# identifies the commit it came from. Published releases pass an explicit version
-# via `UV_DYNAMIC_VERSIONING_BYPASS`, so they never carry a local segment.
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.hatch.build.targets.wheel]
-packages = ["datarheo"]
+packages = ["src/pydatarheo", "datarheo"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src", "/datarheo", "/tests", "/examples", "/scripts", "/docs", "/pyproject.toml",
+    "/README.md", "/ARCHITECTURE.md", "/INSTALL.md", "/CONTRIBUTING.md",
+    "/CHANGELOG.md", "/LICENSE", "/NOTICE", "/AGENTS.md",
+]
 
 [tool.pytest.ini_options]
-# Pytest configuration as follows:
-# - No test can take longer than 10 minutes (600 seconds)
-# - Markers must be declared explicitly
-# - Generate junit test results at a deterministic location
-addopts = "-rs --strict-markers --timeout=600 --junit-xml=build/test-results/test-results.xml"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --import-mode=importlib"
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "super_slow: these super slow tests will not run in CI; they will only ever run on-demand",
-    "requires_creds: marks a test as requiring credentials (skip when secrets unavailable)",
-    "linting: marks a test as a linting test",
-    "flaky: marks a test as flaky",
+    "integration: real local connector and sink integration (no secrets)",
+    "e2e: complete user workflows, including an isolated wheel installation",
+    "compatibility: retained connector-runtime regression tests",
+    "slow: longer-running tests",
+    "super_slow: expensive externally provisioned tests",
+    "requires_creds: requires explicitly provisioned external credentials",
+    "linting: static API or style checks",
+    "flaky: inherited potentially nondeterministic tests",
 ]
-filterwarnings = [ # syntax: "action:message_regex:category:module:line"
-    # Treat python warnings as errors in pytest
-    # "error",  # TODO: Revert. Currently disabled because `airbyte_cdk.sources.source.ExperimentalClassWarning` ignore is not working
-    # # Snowflake reregisters its functions, which is fine.
-    "ignore::sqlalchemy.exc.SAWarning",  # "GenericFunction is already registered and is going to be overridden.""
-    # Ignore these, specifically on Windows because of file cleanup and locking issues:
-    "ignore:unclosed file:ResourceWarning",
-    "ignore:Failed to decode:UserWarning",  # Destination API returns a mistyped response.
-    "ignore::pytest.PytestUnraisableExceptionWarning",
-    # Order matters here. This must be last because it will fail if we
-    # hit another warning during the import.
-    "ignore::airbyte_cdk.sources.source.ExperimentalClassWarning",
-    "ignore::datarheo.exceptions.DataRheoExperimentalFeatureWarning",
-    # CDK has these refs:
-    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+filterwarnings = [
+    "error",
+    'ignore:This class is experimental\. Use at your own risk\.:Warning',
+    'default:The anyio\.abc\.BlockingPortal alias is deprecated.*:DeprecationWarning',
+    'default:Component type.*deprecated.*:DeprecationWarning',
 ]
 
-# [tool.ruff]
-# Ruff moved to dedicated config file: `.ruff.toml`
+[tool.coverage.run]
+source = ["pydatarheo"]
+branch = true
 
-# [tool.pyrefly]
-# Pyrefly moved to dedicated config file: `pyrefly.toml`
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
+exclude_also = ["if __name__ == .__main__.:"]
 
-[tool.mypy]
-# Disable all mypy checks for this project since we use pyrefly instead
-ignore_errors = true
+[tool.ruff]
+target-version = "py310"
+line-length = 100
 
-[tool.pyright]
-pythonVersion = "3.10"
-venvPath = "./"       # Assuming .venv is at the root of your project
-venv = ".venv"
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
 
-[tool.poe.tasks]
-test = { shell = "pytest" }
-test-fast = { shell = "pytest --durations=5 --exitfirst -m 'not slow'" }
-test-unit-tests = { shell = "pytest tests/unit_tests/" }
-
-coverage = { shell = "coverage run -m pytest && coverage report" }
-coverage-report = { shell = "coverage report" }
-coverage-html = { shell = "coverage html -d htmlcov && open htmlcov/index.html" }
-coverage-reset = { shell = "coverage erase" }
-
-check = { shell = "ruff check . && pyrefly check && pytest --collect-only -qq" }
-
-docs-generate = {env = {PDOC_ALLOW_EXEC = "1"}, cmd = "python -m docs.generate run"}
-docs-preview = {shell = "poe docs-generate && open docs/generated/index.html"}
-
-fix = { shell = "ruff format . && ruff check --fix -s || ruff format ." }
-fix-unsafe = { shell = "ruff format . && ruff check --fix --unsafe-fixes . && ruff format ." }
-fix-and-check = { shell = "poe fix && poe check" }
-
-# MCP Server Tasks
-mcp-serve-local = { cmd = "datarheo-mcp", help = "Start the MCP server with STDIO transport" }
-mcp-serve-http = { cmd = "python -c \"from datarheo.mcp.server import app; app.run(transport='http', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with HTTP transport" }
-mcp-serve-sse = { cmd = "python -c \"from datarheo.mcp.server import app; app.run(transport='sse', host='127.0.0.1', port=8000)\"", help = "Start the MCP server with SSE transport" }
-mcp-inspect = { cmd = "fastmcp inspect datarheo/mcp/server.py:app", help = "Inspect MCP tools and resources (supports --tools, --health, etc.)" }
-mcp-tool-test = { cmd = "python -m fastmcp_extensions.utils.test_tool --app datarheo.mcp.server:app", help = "Test MCP tools directly with JSON arguments: poe mcp-tool-test <tool_name> '<json_args>'" }
-mcp-docs-md = { cmd = "python scripts/generate_mcp_markdown.py", help = "Generate Markdown docs for the MCP server into docs/mcp-generated/ (Docusaurus- and pdoc-compatible)" }
-
-# Claude Code MCP Testing Tasks
-[tool.poe.tasks.test-my-tools]
-help = "Run Claude Code in headless mode with the test-my-tools MCP prompt"
-shell = """
-npx @anthropic-ai/claude-code --print "/mcp__datarheo-mcp__test-my-tools ${scope:+ $scope}" \
-    --mcp-config=.github/mcp-ci-tests.mcp.json \
-    --dangerously-skip-permissions \
-    --verbose --output-format=stream-json | \
-    jq -r '.message.content[]? | if .type == "text" then "💬 " + .text elif .type == "tool_use" then "🔧 " + .name + "(" + (.input | tojson) + ")" else empty end' 2>/dev/null
-"""
-args = [{ name = "scope", default = "", help = "Optional scope/context to focus testing (e.g., 'focus on areas of the code changed versus main')" }]
-
-[tool.deptry.per_rule_ignores]
-# This is a mapping of rules and package names to be ignored for that rule.
-DEP001 = [
-  "IPython"  # Optional dependency, used for detecting Notebook environments
-]
-DEP004 = [
-  "pdoc"  # Only used for generating documentation. Not a runtime dependency.
-]
-DEP002 = [
-  # Only used for SQLAlchemy engine. Not imported directly:
-  "duckdb",
-  "psycopg",
-  "psycopg2-binary",
-  "sqlalchemy-bigquery",
-  # Used as subprocess tool, not imported directly:
-  "uv",
-]
-DEP003 = []
+[tool.ruff.lint.per-file-ignores]
+"docs/generate.py" = ["E501"]  # Embedded SVG literals exceed the line limit.

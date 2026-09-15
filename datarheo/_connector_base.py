@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import jsonschema
 import rich
 import yaml
-from rich.syntax import Syntax
-
 from airbyte_protocol.models import (
     AirbyteMessage,
     ConnectorSpecification,
@@ -23,6 +21,7 @@ from airbyte_protocol.models import (
     TraceType,
     Type,
 )
+from rich.syntax import Syntax
 
 from datarheo import exceptions as exc
 from datarheo._util.connector_info import ConnectorRuntimeInfo
@@ -35,7 +34,6 @@ from datarheo._util.telemetry import (
 from datarheo._util.temp_files import as_temp_files
 from datarheo.logs import new_passthrough_file_logger
 from datarheo.secrets.hydration import hydrate_secrets
-
 
 if TYPE_CHECKING:
     import logging

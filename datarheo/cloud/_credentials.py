@@ -15,10 +15,9 @@ from datarheo.constants import (
     CLOUD_ORGANIZATION_ID_ENV_VAR,
     CLOUD_WORKSPACE_ID_ENV_VAR,
 )
-from datarheo.exceptions import DataRheoNoCloudCredentialsError, DataRheoInputError
+from datarheo.exceptions import DataRheoInputError, DataRheoNoCloudCredentialsError
 from datarheo.secrets.base import SecretString
 from datarheo.secrets.util import try_get_secret
-
 
 CLIENT_ID_ENV_VAR = "DATARHEO_CLIENT_ID"
 CLIENT_SECRET_ENV_VAR = "DATARHEO_CLIENT_SECRET"

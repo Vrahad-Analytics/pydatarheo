@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, NoReturn, final
 
 from datarheo.shared.state_providers import StateProviderBase
 
-
 if TYPE_CHECKING:
     from airbyte_protocol.models import AirbyteStateMessage
 

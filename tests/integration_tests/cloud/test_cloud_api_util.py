@@ -357,8 +357,8 @@ def test_404_error_includes_request_url_context() -> None:
     request_url = str(error.context["request_url"])
     parsed = urlparse(request_url)
 
-    assert parsed.netloc == "api.datarheo.example", (
-        f"Expected host 'api.datarheo.example', got '{parsed.netloc}'"
+    assert parsed.netloc == "api.airbyte.example", (
+        f"Expected host 'api.airbyte.example', got '{parsed.netloc}'"
     )
     assert parsed.path.endswith("/sources"), (
         f"Expected path ending with '/sources', got '{parsed.path}'"

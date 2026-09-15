@@ -45,7 +45,6 @@ from datarheo.mcp.interactive._sync_history_ui import (
     _format_records,
 )
 
-
 if TYPE_CHECKING:
     from datarheo.cloud.connections import CloudConnection
     from datarheo.cloud.sync_results import SyncResult

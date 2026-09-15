@@ -19,7 +19,6 @@ from datarheo import exceptions as exc
 from datarheo._util.name_normalizers import LowerCaseNormalizer
 from datarheo.strategies import WriteMethod, WriteStrategy
 
-
 if TYPE_CHECKING:
     from airbyte_protocol.models import (
         ConfiguredAirbyteStream,

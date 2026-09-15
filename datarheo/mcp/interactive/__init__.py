@@ -13,7 +13,6 @@ from datarheo.mcp.interactive._registry_ui import show_connectors_list
 from datarheo.mcp.interactive._sync_history_ui import show_connection_sync_history
 from datarheo.mcp.interactive._workspace_sync_status_ui import show_workspace_sync_status
 
-
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 

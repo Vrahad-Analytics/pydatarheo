@@ -3,5 +3,4 @@
 
 from datarheo.cli.pydr import cli
 
-
 __all__ = ["cli"]

@@ -1,9 +1,9 @@
 # Copyright (c) 2026 Vrahad Analytics LLP, all rights reserved.
 """PyDataRheo Logging features and related configuration.
 
-By default, PyDataRheo main logs are written to a file in the `DATARHEO_LOGGING_ROOT` directory, which
-defaults to a system-created temporary directory. PyDataRheo also maintains connector-specific log
-files within the same directory, under a subfolder with the name of the connector.
+By default, PyDataRheo main logs are written to a file in the `DATARHEO_LOGGING_ROOT` directory,
+which defaults to a system-created temporary directory. PyDataRheo also maintains connector-specific
+log files within the same directory, under a subfolder with the name of the connector.
 
 PyDataRheo supports structured JSON logging, which is disabled by default. To enable structured
 logging in JSON, set `DATARHEO_STRUCTURED_LOGGING` to `True`.
@@ -22,11 +22,9 @@ from pathlib import Path
 
 import structlog
 import ulid
-
 from airbyte_cdk.utils.datetime_helpers import ab_datetime_now
 
 from datarheo.constants import _str_to_bool
-
 
 DATARHEO_STRUCTURED_LOGGING: bool = _str_to_bool(
     os.getenv(key="DATARHEO_STRUCTURED_LOGGING"),
@@ -137,8 +135,9 @@ def get_global_file_logger() -> logging.Logger | None:
     # Else, configure the logger to write to a file
 
     # Remove any existing handlers
-    for handler in logger.handlers:
+    for handler in list(logger.handlers):
         logger.removeHandler(handler)
+        handler.close()
 
     yyyy_mm_dd: str = ab_datetime_now().strftime("%Y-%m-%d")
     folder = DATARHEO_LOGGING_ROOT / yyyy_mm_dd
@@ -244,8 +243,9 @@ def get_global_stats_logger() -> structlog.BoundLogger:
     print(f"Writing PyDataRheo performance stats to file: {logfile_path!s}", file=sys.stderr)
 
     # Remove any existing handlers
-    for handler in logger.handlers:
+    for handler in list(logger.handlers):
         logger.removeHandler(handler)
+        handler.close()
 
     folder = DATARHEO_LOGGING_ROOT
     try:
@@ -288,8 +288,9 @@ def new_passthrough_file_logger(connector_name: str) -> logging.Logger:
     # Else, configure the logger to write to a file
 
     # Remove any existing handlers
-    for handler in logger.handlers:
+    for handler in list(logger.handlers):
         logger.removeHandler(handler)
+        handler.close()
 
     folder = DATARHEO_LOGGING_ROOT / connector_name
     folder.mkdir(parents=True, exist_ok=True)

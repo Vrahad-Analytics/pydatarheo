@@ -13,7 +13,6 @@ from datarheo.constants import DATARHEO_OFFLINE_MODE, SECRETS_HYDRATION_PREFIX
 from datarheo.exceptions import DataRheoInternalError
 from datarheo.secrets.util import get_secret
 
-
 GLOBAL_MASK_KEYS_URL = "https://connectors.airbyte.com/files/registries/v0/specs_secrets_mask.yaml"
 
 

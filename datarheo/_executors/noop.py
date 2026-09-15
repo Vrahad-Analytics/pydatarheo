@@ -11,7 +11,6 @@ from datarheo import exceptions as exc
 from datarheo._executors.base import Executor
 from datarheo._util.registry_spec import get_connector_spec_from_registry
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import IO

@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install package and development tools
+        run: python -m pip install -e '.[dev]'
+      - name: Check dependency consistency
+        run: python -m pip check
+      - name: Lint and formatting
+        run: |
+          ruff check src tests examples scripts
+          ruff format --check src tests examples scripts
+      - name: Check public API types
+        run: mypy --strict --python-version 3.10 src/pydatarheo
+      - name: Unit, integration, and installed end-to-end tests
+        run: pytest --cov=pydatarheo --cov-report=term-missing --cov-report=xml --junitxml=build/test-results.xml
+      - name: Verify marker selections
+        run: |
+          pytest -m "not integration"
+          pytest -m "e2e"
+      - name: Fresh editable and regular installs
+        run: python scripts/verify_install.py
+      - name: Build and validate distribution metadata
+        run: |
+          python -m build
+          python -m twine check dist/*
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            coverage.xml
+            build/test-results.xml
+          if-no-files-found: warn
+
+  compatibility:
+    name: compatibility / Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install package with connector extras
+        run: python -m pip install -e '.[dev,connectors,test-connectors]'
+      - name: Check dependency consistency
+        run: python -m pip check
+      - name: Retained connector compatibility tests
+        run: pytest --run-compatibility --timeout=300 -q --junitxml=build/compat-results.xml
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compat-reports-${{ matrix.python }}
+          path: build/compat-results.xml
+          if-no-files-found: warn

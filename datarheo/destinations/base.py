@@ -31,7 +31,6 @@ from datarheo.shared.state_writers import NoOpStateWriter, StdOutStateWriter
 from datarheo.sources.base import Source
 from datarheo.strategies import WriteStrategy
 
-
 if TYPE_CHECKING:
     from datarheo._executors.base import Executor
     from datarheo.caches.base import CacheBase

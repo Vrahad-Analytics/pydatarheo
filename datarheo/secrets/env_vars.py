@@ -10,7 +10,6 @@ from dotenv import dotenv_values
 
 from datarheo.secrets.base import SecretManager, SecretSourceEnum, SecretString
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

@@ -104,8 +104,7 @@ class ConnectionStateResponse(BaseModel):
         elif self.global_state and self.global_state.stream_states:
             stream_count = len(self.global_state.stream_states)
         return (
-            f"Connection {self.connection_id}: "
-            f"stateType={self.state_type}, streams={stream_count}"
+            f"Connection {self.connection_id}: stateType={self.state_type}, streams={stream_count}"
         )
 
 

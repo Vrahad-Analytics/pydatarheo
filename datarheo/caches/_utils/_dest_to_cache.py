@@ -25,7 +25,6 @@ from datarheo.exceptions import DataRheoSecretNotFoundError
 from datarheo.secrets import get_secret
 from datarheo.secrets.base import SecretString
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

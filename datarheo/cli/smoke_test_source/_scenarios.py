@@ -10,7 +10,6 @@ from __future__ import annotations
 import math
 from typing import Any
 
-
 _DEFAULT_LARGE_BATCH_COUNT = 1000
 
 HIGH_VOLUME_SCENARIO_NAMES: set[str] = {

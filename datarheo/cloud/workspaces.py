@@ -58,7 +58,6 @@ from datarheo.cloud.organizations import CloudOrganization
 from datarheo.destinations.base import Destination
 from datarheo.exceptions import DataRheoCloudError
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -260,8 +259,8 @@ class CloudWorkspace:
         which may not be available with workspace-scoped credentials.
 
         Args:
-            raise_on_error: If True (default), raises DataRheoCloudError on permission or API errors.
-                If False, returns None instead of raising.
+            raise_on_error: If True (default), raises DataRheoCloudError on permission or API
+                errors. If False, returns None instead of raising.
 
         Returns:
             CloudOrganization object with organization_id and organization_name,

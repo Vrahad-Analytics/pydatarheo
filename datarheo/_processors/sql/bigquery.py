@@ -27,7 +27,6 @@ from datarheo.shared import SqlProcessorBase
 from datarheo.shared.sql_processor import SqlConfig
 from datarheo.types import SQLTypeConverter
 
-
 if TYPE_CHECKING:
     from sqlalchemy.engine.url import URL
 
@@ -212,7 +211,7 @@ class BigQuerySqlProcessor(SqlProcessorBase):
         project = self.sql_config.project_name
         schema = self.sql_config.schema_name
         location = self.sql_config.dataset_location
-        sql = f"CREATE SCHEMA IF NOT EXISTS `{project}.{schema}` " f'OPTIONS(location="{location}")'
+        sql = f'CREATE SCHEMA IF NOT EXISTS `{project}.{schema}` OPTIONS(location="{location}")'
         try:
             self._execute_sql(sql)
         except Exception as ex:
@@ -296,8 +295,7 @@ class BigQuerySqlProcessor(SqlProcessorBase):
         deletion_name = f"{final_table_name}_deleteme"
         commands = "\n".join(
             [
-                f"ALTER TABLE {self._fully_qualified(final_table_name)} "
-                f"RENAME TO {deletion_name};",
+                f"ALTER TABLE {self._fully_qualified(final_table_name)} RENAME TO {deletion_name};",
                 f"ALTER TABLE {self._fully_qualified(temp_table_name)} "
                 f"RENAME TO {final_table_name};",
                 f"DROP TABLE {self._fully_qualified(deletion_name)};",

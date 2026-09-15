@@ -4,20 +4,17 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
-from pandas import DataFrame
-
 from airbyte_protocol.models.airbyte_protocol import ConfiguredAirbyteStream
+from pandas import DataFrame
 
 from datarheo._util.document_rendering import DocumentRenderer
 from datarheo.constants import DEFAULT_ARROW_MAX_CHUNK_SIZE
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from pyarrow.dataset import Dataset
-
     from airbyte_protocol.models import ConfiguredAirbyteStream
+    from pyarrow.dataset import Dataset
 
     from datarheo.documents import Document
 

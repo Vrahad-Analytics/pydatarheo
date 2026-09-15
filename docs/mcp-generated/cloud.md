@@ -517,6 +517,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -629,6 +630,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -701,6 +703,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -813,6 +816,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -1537,6 +1541,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "anyOf": [
@@ -2552,6 +2557,7 @@ Docker-based custom sources are not yet available.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -2679,6 +2685,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -2850,6 +2857,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -2958,6 +2966,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "items": {
@@ -3064,6 +3073,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3138,6 +3148,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3212,6 +3223,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3299,6 +3311,7 @@ Docker-based custom sources are not yet available.
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3432,6 +3445,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3508,6 +3522,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3584,6 +3599,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3660,6 +3676,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3742,6 +3759,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3832,6 +3850,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -3912,6 +3931,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -4030,6 +4050,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -4131,6 +4152,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -4232,6 +4254,7 @@ When connecting to a hosted MCP server, provide a bearer token via the `Authoriz
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"
@@ -4356,6 +4379,7 @@ At least one of manifest_yaml, testing_values, or testing_values_secret_name mus
 
 ```json
 {
+  "description": "Generic wrapper for non-object return types.",
   "properties": {
     "result": {
       "type": "string"

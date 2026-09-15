@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import importlib.metadata
 
-
 DISTRIBUTION_NAME = "pydatarheo"
 """The name PyDataRheo is published under on PyPI.
 

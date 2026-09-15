@@ -12,7 +12,6 @@ from overrides import overrides
 from datarheo._processors.sql.duckdb import DuckDBSqlProcessor
 from datarheo._writers.jsonl import JsonlWriter
 
-
 if TYPE_CHECKING:
     from datarheo.caches.motherduck import MotherDuckCache
 

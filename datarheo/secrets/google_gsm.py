@@ -42,7 +42,6 @@ from datarheo import exceptions as exc
 from datarheo.secrets.base import SecretHandle, SecretSourceEnum, SecretString
 from datarheo.secrets.custom import CustomSecretManager
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
 

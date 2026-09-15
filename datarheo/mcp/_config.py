@@ -19,7 +19,6 @@ from datarheo.secrets import (
 from datarheo.secrets.config import disable_secret_source
 from datarheo.secrets.util import get_secret, is_secret_available
 
-
 DATARHEO_MCP_DOTENV_PATH_ENVVAR = "DATARHEO_MCP_ENV_FILE"
 
 

@@ -178,5 +178,6 @@ def test_public_modules_do_not_reference_generated_api_model_namespaces(
     assert not violations, (
         "Public CLI, MCP, and cloud modules must not reference generated Airbyte API "
         "model namespaces through internal utilities. Keep generated API models behind "
-        "internal helpers or PyDataRheo-owned response models.\n" + "\n".join(violations)
+        "internal helpers or PyDataRheo-owned response models.\n"
+        + "\n".join(violations)
     )

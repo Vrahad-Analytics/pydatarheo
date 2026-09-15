@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING
 
 from datarheo.datasets import CachedDataset
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
 

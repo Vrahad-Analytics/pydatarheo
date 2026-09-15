@@ -18,7 +18,6 @@ import requests
 
 from datarheo.version import get_version
 
-
 _MCP_MODE_ENABLED: bool = False
 """Whether we are running in MCP (Model Context Protocol) mode."""
 
@@ -44,8 +43,7 @@ def set_mcp_mode() -> None:
     proper detection and prevent interactive prompts.
     """
     print(
-        "Running in MCP mode: "
-        f"DataRheo MCP v{get_version()} (Python v{python_version()})",
+        f"Running in MCP mode: DataRheo MCP v{get_version()} (Python v{python_version()})",
         file=sys.stderr,
     )
     global _MCP_MODE_ENABLED

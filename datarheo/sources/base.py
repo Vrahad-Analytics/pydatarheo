@@ -11,13 +11,6 @@ from itertools import islice
 from typing import TYPE_CHECKING, Any, Literal
 
 import yaml
-from rich import print  # noqa: A004  # Allow shadowing the built-in
-from rich.console import Console
-from rich.markdown import Markdown
-from rich.markup import escape
-from rich.table import Table
-from typing_extensions import override
-
 from airbyte_protocol.models import (
     AirbyteCatalog,
     AirbyteMessage,
@@ -27,6 +20,12 @@ from airbyte_protocol.models import (
     SyncMode,
     Type,
 )
+from rich import print  # noqa: A004  # Allow shadowing the built-in
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.markup import escape
+from rich.table import Table
+from typing_extensions import override
 
 from datarheo import exceptions as exc
 from datarheo._connector_base import ConnectorBase
@@ -39,7 +38,6 @@ from datarheo.records import StreamRecord, StreamRecordHandler
 from datarheo.results import ReadResult
 from datarheo.shared.catalog_providers import CatalogProvider
 from datarheo.strategies import WriteStrategy
-
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Iterator
@@ -335,7 +333,9 @@ class Source(ConnectorBase):  # noqa: PLR0904
         ]
 
     @override
-    def _get_spec(self, *, force_refresh: bool = False) -> ConnectorSpecification:
+    def _get_spec(  # pyrefly: ignore[bad-override]
+        self, *, force_refresh: bool = False
+    ) -> ConnectorSpecification:
         """Call spec on the connector.
 
         This involves the following steps:
@@ -861,10 +861,10 @@ class Source(ConnectorBase):  # noqa: PLR0904
             force_full_refresh: If True, the source will operate in full refresh mode. Otherwise,
                 streams will be read in incremental mode if supported by the connector. This option
                 must be True when using the "replace" strategy.
-            skip_validation: If True, PyDataRheo will not pre-validate the input configuration before
-                running the connector. This can be helpful in debugging, when you want to send
-                configurations to the connector that otherwise might be rejected by JSON Schema
-                validation rules.
+            skip_validation: If True, PyDataRheo will not pre-validate the input configuration
+                before running the connector. This can be helpful in debugging, when you want to
+                send configurations to the connector that otherwise might be rejected by JSON
+                Schema validation rules.
         """
         cache = cache or get_default_cache()
         progress_tracker = ProgressTracker(

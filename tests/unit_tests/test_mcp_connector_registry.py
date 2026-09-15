@@ -212,7 +212,9 @@ class TestGetApiDocsUrls:
 
     def test_connector_not_found(self) -> None:
         """Test handling when connector is not found."""
-        with patch("datarheo.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
+        with patch(
+            "datarheo.mcp.registry.get_connector_api_docs_urls"
+        ) as mock_get_docs:
             mock_get_docs.side_effect = exc.DataRheoConnectorNotRegisteredError(
                 connector_name="nonexistent-connector",
                 context={},
@@ -223,7 +225,9 @@ class TestGetApiDocsUrls:
 
     def test_deduplication_of_urls(self) -> None:
         """Test that duplicate URLs are deduplicated."""
-        with patch("datarheo.mcp.registry.get_connector_api_docs_urls") as mock_get_docs:
+        with patch(
+            "datarheo.mcp.registry.get_connector_api_docs_urls"
+        ) as mock_get_docs:
             mock_get_docs.return_value = [
                 ApiDocsUrl(
                     title="Airbyte Documentation",

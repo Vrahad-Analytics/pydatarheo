@@ -10,7 +10,6 @@ from datarheo._util import api_util
 from datarheo.cloud._credentials import _AirbyteCredentials
 from datarheo.secrets.base import SecretString
 
-
 logger = logging.getLogger(__name__)
 
 

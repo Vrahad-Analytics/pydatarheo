@@ -13,7 +13,6 @@ from datarheo import exceptions as exc
 from datarheo.registry import get_connector_metadata
 from datarheo.version import get_version
 
-
 logger = logging.getLogger("datarheo")
 
 _SPEC_URL_TEMPLATE = "https://connectors.airbyte.com/files/metadata/airbyte/{connector_name}/{version}/{platform}.json"

@@ -13,7 +13,6 @@ from datarheo.caches.postgres import PostgresCache
 from datarheo.caches.snowflake import SnowflakeCache
 from datarheo.caches.util import get_default_cache, new_local_cache
 
-
 # Submodules imported here for documentation reasons: https://github.com/mitmproxy/pdoc/issues/757
 if TYPE_CHECKING:
     # ruff: noqa: TC004

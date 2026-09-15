@@ -20,7 +20,6 @@ from datarheo._util.api_util import get_bearer_token, status_ok
 from datarheo.constants import CLOUD_API_ROOT, CLOUD_CONFIG_API_ROOT
 from datarheo.exceptions import DataRheoCloudError, DataRheoInputError
 
-
 if TYPE_CHECKING:
     from datarheo.cloud._credentials import _AirbyteCredentials
 

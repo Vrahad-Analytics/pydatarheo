@@ -44,7 +44,6 @@ from datarheo.cli.smoke_test_source._scenarios import (
     get_scenario_records,
 )
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 

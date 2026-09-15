@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Annotated
 from fastmcp_extensions import mcp_prompt, register_mcp_prompts
 from pydantic import Field
 
-
 # No public Python API — MCP primitives are registered via decorators and
 # documented via the generated Markdown include above. Setting `__all__` to an
 # empty list tells pdoc (and other doc tools) not to surface the individual

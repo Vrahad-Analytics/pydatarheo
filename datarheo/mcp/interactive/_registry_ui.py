@@ -47,7 +47,6 @@ from datarheo.mcp.interactive._shared_models import (
 from datarheo.mcp.registry import list_connectors as _list_connectors
 from datarheo.registry import ConnectorMetadata, _get_registry_url, get_connector_metadata
 
-
 JsonValue: TypeAlias = str | int | float | bool | list["JsonValue"] | dict[str, "JsonValue"] | None
 ConnectorTypeValue: TypeAlias = Literal["source", "destination"]
 CONNECTOR_CATALOG_AGENT_PREVIEW_LIMIT = 25
@@ -118,8 +117,7 @@ def show_connectors_list(
         str,
         Field(
             description=(
-                "Filter by connector type: `source` or `destination`. "
-                "Empty string means no filter."
+                "Filter by connector type: `source` or `destination`. Empty string means no filter."
             ),
         ),
     ] = "",

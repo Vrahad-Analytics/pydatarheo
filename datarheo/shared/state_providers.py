@@ -15,7 +15,6 @@ from airbyte_protocol.models import (
 
 from datarheo import exceptions as exc
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable
 

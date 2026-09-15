@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any
 
 from datarheo.constants import TEMP_DIR_OVERRIDE
 
-
 if TYPE_CHECKING:
     from collections.abc import Generator
 

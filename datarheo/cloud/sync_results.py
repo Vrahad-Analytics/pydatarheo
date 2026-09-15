@@ -105,9 +105,8 @@ from collections.abc import Iterator, Mapping
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any
 
-from typing_extensions import final
-
 from airbyte_cdk.utils.datetime_helpers import ab_datetime_parse
+from typing_extensions import final
 
 from datarheo._util import api_util
 from datarheo.caches._utils._dest_to_cache import destination_to_cache
@@ -115,7 +114,6 @@ from datarheo.cloud.constants import FAILED_STATUSES, FINAL_STATUSES
 from datarheo.cloud.models import CloudConnectionInfo, CloudJobInfo, JobStatusEnum
 from datarheo.datasets import CachedDataset
 from datarheo.exceptions import DataRheoConnectionSyncError, DataRheoConnectionSyncTimeoutError
-
 
 DEFAULT_SYNC_TIMEOUT_SECONDS = 30 * 60  # 30 minutes
 """The default timeout for waiting for a sync job to complete, in seconds."""

@@ -7,13 +7,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, DateTime, PrimaryKeyConstraint, String, and_
-from sqlalchemy.orm import Session, declarative_base
-
 from airbyte_protocol.models import (
     AirbyteStateMessage,
     AirbyteStateType,
 )
+from sqlalchemy import Column, DateTime, PrimaryKeyConstraint, String, and_
+from sqlalchemy.orm import Session, declarative_base
 
 from datarheo.caches._state_backend_base import (
     StateBackendBase,
@@ -21,7 +20,6 @@ from datarheo.caches._state_backend_base import (
 from datarheo.exceptions import DataRheoInputError, DataRheoInternalError
 from datarheo.shared.state_providers import StaticInputState
 from datarheo.shared.state_writers import StateWriterBase
-
 
 if TYPE_CHECKING:
     from datarheo.shared.sql_processor import SqlConfig

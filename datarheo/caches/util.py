@@ -14,7 +14,6 @@ from datarheo.constants import (
     DEFAULT_GOOGLE_DRIVE_MOUNT_PATH,
 )
 
-
 # Google drive constants:
 
 _MY_DRIVE = "MyDrive"

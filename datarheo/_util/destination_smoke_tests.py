@@ -29,8 +29,9 @@ from pydantic import BaseModel
 
 from datarheo import get_source
 from datarheo.exceptions import DataRheoInputError
-from datarheo.shared.sql_processor import TableStatistics  # noqa: TC001  # Pydantic needs at runtime
-
+from datarheo.shared.sql_processor import (
+    TableStatistics,  # noqa: TC001  # Pydantic needs at runtime
+)
 
 logger = logging.getLogger(__name__)
 

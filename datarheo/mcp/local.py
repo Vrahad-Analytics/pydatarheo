@@ -36,7 +36,6 @@ from datarheo.secrets.env_vars import DotenvSecretManager
 from datarheo.secrets.google_gsm import GoogleGSMSecretManager
 from datarheo.sources.base import Source
 
-
 if TYPE_CHECKING:
     from datarheo.caches.duckdb import DuckDBCache
 

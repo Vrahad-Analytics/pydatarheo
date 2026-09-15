@@ -12,9 +12,6 @@ import abc
 import json
 from typing import TYPE_CHECKING, cast
 
-from sqlalchemy import Column, String
-from sqlalchemy.orm import Session, declarative_base
-
 from airbyte_protocol.models import (
     AirbyteStream,
     ConfiguredAirbyteCatalog,
@@ -22,9 +19,10 @@ from airbyte_protocol.models import (
     DestinationSyncMode,
     SyncMode,
 )
+from sqlalchemy import Column, String
+from sqlalchemy.orm import Session, declarative_base
 
 from datarheo.shared.catalog_providers import CatalogProvider
-
 
 if TYPE_CHECKING:
     from datarheo.shared.sql_processor import SqlConfig

@@ -12,7 +12,6 @@ from pydantic_core import CoreSchema, core_schema
 
 from datarheo import exceptions as exc
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -123,7 +122,7 @@ class SecretString(str):  # noqa: FURB189  # Allow subclass from str instead of 
     ) -> CoreSchema:
         """Return a modified core schema for the secret string."""
         return core_schema.with_info_after_validator_function(
-            function=cls.validate, schema=handler(str), field_name=handler.field_name
+            function=cls.validate, schema=handler(str)
         )
 
     @classmethod

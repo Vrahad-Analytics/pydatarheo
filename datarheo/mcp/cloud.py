@@ -51,9 +51,9 @@ from datarheo.constants import (
 from datarheo.destinations.util import get_noop_destination
 from datarheo.exceptions import (
     DataRheoCloudError,
+    DataRheoInputError,
     DataRheoMissingResourceError,
     DataRheoMissingWorkspaceContextError,
-    DataRheoInputError,
 )
 from datarheo.mcp._arg_resolvers import resolve_connector_config, resolve_list_of_strings
 from datarheo.mcp._tool_utils import (
@@ -61,7 +61,6 @@ from datarheo.mcp._tool_utils import (
     check_guid_created_in_session,
     register_guid_created_in_session,
 )
-
 
 CLOUD_AUTH_TIP_TEXT = (
     f"When connecting to a hosted MCP server, provide a bearer token via the "
@@ -2611,9 +2610,7 @@ def update_cloud_destination_config(
     )
 
     destination.update_config(config=config_dict)
-    return (
-        f"Successfully updated destination '{destination_id}'. " f"URL: {destination.connector_url}"
-    )
+    return f"Successfully updated destination '{destination_id}'. URL: {destination.connector_url}"
 
 
 @mcp_tool(

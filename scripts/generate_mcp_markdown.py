@@ -102,7 +102,6 @@ from datarheo.constants import (
     MCP_TRUSTED_EXECUTION_ENV_VAR,
 )
 
-
 DEFAULT_OUTPUT = Path("docs/mcp-generated")
 DEFAULT_SERVER_SPEC = "datarheo/mcp/server.py:app"
 MISC_MODULE = "misc"
@@ -154,9 +153,7 @@ def _run_fastmcp_inspect(server_spec: str, report_path: Path) -> dict[str, Any]:
     except subprocess.CalledProcessError as ex:
         stderr = (ex.stderr or "").strip()
         stdout = (ex.stdout or "").strip()
-        parts = [
-            f"Two-pass `fastmcp inspect {server_spec}` failed with exit code " f"{ex.returncode}."
-        ]
+        parts = [f"Two-pass `fastmcp inspect {server_spec}` failed with exit code {ex.returncode}."]
         if stderr:
             parts.append(f"stderr:\n{stderr}")
         if stdout:
@@ -340,11 +337,7 @@ def _frontmatter(title: str, sidebar_label: str, description: str) -> str:
     """Build a YAML front-matter block for a Docusaurus page."""
     esc_desc = description.replace("\n", " ").replace('"', '\\"').strip()
     return (
-        "---\n"
-        f"title: {title}\n"
-        f"sidebar_label: {sidebar_label}\n"
-        f'description: "{esc_desc}"\n'
-        "---\n\n"
+        f'---\ntitle: {title}\nsidebar_label: {sidebar_label}\ndescription: "{esc_desc}"\n---\n\n'
     )
 
 

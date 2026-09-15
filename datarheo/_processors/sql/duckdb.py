@@ -18,7 +18,6 @@ from datarheo.secrets.base import SecretString
 from datarheo.shared import SqlProcessorBase
 from datarheo.shared.sql_processor import SqlConfig
 
-
 if TYPE_CHECKING:
     from sqlalchemy.engine import Connection, Engine
 
@@ -156,7 +155,7 @@ class DuckDBSqlProcessor(SqlProcessorBase):
                 [{files_list}],
                 format = 'newline_delimited',
                 union_by_name = true,
-                columns = {{ { columns_type_map } }}
+                columns = {{ {columns_type_map} }}
             )
             """
         )

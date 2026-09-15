@@ -55,7 +55,6 @@ from datarheo._util.hashing import one_way_hash
 from datarheo.constants import DATARHEO_OFFLINE_MODE
 from datarheo.version import get_version
 
-
 DEBUG = True
 """Enable debug mode for telemetry code."""
 

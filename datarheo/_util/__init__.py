@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from datarheo._util.pip_util import connector_pip_url, github_pip_url
 
-
 __all__ = [
     "connector_pip_url",
     "github_pip_url",

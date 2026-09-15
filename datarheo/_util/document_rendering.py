@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 from datarheo.documents import Document
 
-
 if TYPE_CHECKING:
     from collections.abc import Iterable
 

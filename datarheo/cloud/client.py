@@ -97,7 +97,6 @@ from datarheo.cloud.organizations import CloudOrganization
 from datarheo.cloud.workspaces import CloudWorkspace
 from datarheo.exceptions import DataRheoCloudError, DataRheoMissingResourceError
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
